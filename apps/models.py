@@ -78,10 +78,243 @@ class Channel(models.Model):
         return self.channel_id + ' - ' + self.channel_name
 
 
+class Cuisine(models.Model):
+    cuisine_id = models.CharField(max_length=50, primary_key=True)
+    cuisine_name = models.CharField(max_length=50)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True)
+    update_by = models.CharField(max_length=50, null=True)
+
+    def save(self, *args, **kwargs):
+        self.cuisine_id = self.cuisine_id.upper()
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Cuisine, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.cuisine_name
+
+
+class Category(models.Model):
+    category_id = models.CharField(max_length=50, primary_key=True)
+    category_name = models.CharField(max_length=50)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True)
+    update_by = models.CharField(max_length=50, null=True)
+
+    def save(self, *args, **kwargs):
+        self.category_id = self.category_id.upper()
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Category, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.category_name
+
+
+class Package(models.Model):
+    package_id = models.CharField(max_length=50, primary_key=True)
+    package_name = models.CharField(max_length=50)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    package_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    box = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=0)
+    type = models.CharField(max_length=10, null=True)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.package_id = self.package_id.upper()
+        self.package_price = Decimal(
+            sub(r'[^\d.]', '', str(self.package_price)))
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Package, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.package_name
+
+
+class MainCuisine(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'cuisine'], name='unique_main_cuisine')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(MainCuisine, self).save(*args, **kwargs)
+
+
+class SubCuisine(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'cuisine'], name='unique_sub_cuisine')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(SubCuisine, self).save(*args, **kwargs)
+
+
+class SideCuisine1(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'cuisine'], name='unique_side1_cuisine')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(SideCuisine1, self).save(*args, **kwargs)
+
+
+class SideCuisine2(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'cuisine'], name='unique_side2_cuisine')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(SideCuisine2, self).save(*args, **kwargs)
+
+
+class SideCuisine3(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'cuisine'], name='unique_side3_cuisine')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(SideCuisine3, self).save(*args, **kwargs)
+
+
+class SideCuisine4(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'cuisine'], name='unique_side4_cuisine')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(SideCuisine4, self).save(*args, **kwargs)
+
+
+class SideCuisine5(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'cuisine'], name='unique_side5_cuisine')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(SideCuisine5, self).save(*args, **kwargs)
+
+
 class AreaSales(models.Model):
     area_id = models.CharField(max_length=50, primary_key=True)
     area_name = models.CharField(max_length=50)
     manager = models.CharField(max_length=50)
+    bank_account = models.CharField(max_length=200, null=True)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True)

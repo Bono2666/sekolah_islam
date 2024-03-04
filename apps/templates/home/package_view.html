@@ -1,0 +1,951 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} View Paket {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'package-update' data.package_id %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-4 d-flex align-items-center">
+                                <h4 class="mb-2">ID Paket: {{ data.package_id }}</h4>
+                            </div>
+                            <div class="col-8 text-end">
+                                <a href="{% if crud == 'view' %}{% url 'package-index' %}{% else %}{% url 'package-view' data.package_id %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Back{% else %}Batal{% endif %}</a>
+                                <a href="{% url 'package-update' data.package_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <button type="button" class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.package_id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirm-{{ data.package_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                </div>
+                                <div class="modal-body border-bottom-0">
+                                    Anda yakin akan menghapus paket <strong>{{ data.package_name }}</strong>?
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'package-delete' data.package_id %}" role="button" class="btn btn-sm bg-gradient-primary text-white">Hapus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.package_name.label_tag }}{{ form.package_name }}
+                                        <div class="text-danger text-sm">
+                                        {{ form.package_name.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.category.label_tag }}
+                                        <select name="category" class="form-control form-select-sm" {% if crud == 'view' %}disabled{% endif %}>
+                                            <option value="">-- Pilih Kategori --</option>
+                                            {% for item in categories %}
+                                            <option value="{{ item.category_id }}" {% if data.category.category_id == item.category_id %}selected{% endif %}>{{ item.category_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="text-sm text-danger">
+                                            {{ form.category.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.package_price.label_tag }}{{ form.package_price }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.package_price.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="shadow-none">
+                                        {{ form.box.label_tag }}{{ form.box }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.box.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="shadow-none">
+                                        {{ form.quantity.label_tag }}{{ form.quantity }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.quantity.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.type.label_tag }}
+                                        <select name="type" class="form-control form-select-sm" {% if crud == 'view' %}disabled{% endif %}>
+                                            <option value="">-- Pilih Jenis Kambing --</option>
+                                            <option value="Jantan" {% if data.type == 'Jantan' %}selected{% endif %}>Jantan</option>
+                                            <option value="Betina" {% if data.type == 'Betina' %}selected{% endif %}>Betina</option>
+                                        </select>
+                                        <div class="text-sm text-danger">
+                                            {{ form.type.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container-fluid py-2">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row">
+                    <div class="col-6 d-flex align-items-center">
+                        <h5>Menu</h5>
+                    </div>
+                </div>
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if tab == 'main_cuisine' %}active{% endif %}" id="main-cuisine-tab" data-bs-toggle="tab" data-bs-target="#main-cuisine-tab-pane" type="button"
+                            role="tab" aria-controls="main-cuisine-tab-pane" aria-selected="true">Daging</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if tab == 'sub_cuisine' %}active{% endif %}" id="sub-cuisine-tab" data-bs-toggle="tab" data-bs-target="#sub-cuisine-tab-pane" type="button"
+                            role="tab" aria-controls="sub-cuisine-tab-pane" aria-selected="false">  Olahan</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if tab == 'side_cuisine1' %}active{% endif %}" id="side-cuisine1-tab" data-bs-toggle="tab" data-bs-target="#side-cuisine1-tab-pane" type="button"
+                            role="tab" aria-controls="side-cuisine1-tab-pane" aria-selected="false">Pendamping 1</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if tab == 'side_cuisine2' %}active{% endif %}" id="side-cuisine2-tab" data-bs-toggle="tab" data-bs-target="#side-cuisine2-tab-pane" type="button"
+                            role="tab" aria-controls="side-cuisine2-tab-pane" aria-selected="false">Pendamping 2</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if tab == 'side_cuisine3' %}active{% endif %}" id="side-cuisine3-tab" data-bs-toggle="tab" data-bs-target="#side-cuisine3-tab-pane" type="button"
+                            role="tab" aria-controls="side-cuisine3-tab-pane" aria-selected="false">Pendamping 3</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if tab == 'side_cuisine4' %}active{% endif %}" id="side-cuisine4-tab" data-bs-toggle="tab" data-bs-target="#side-cuisine4-tab-pane" type="button"
+                            role="tab" aria-controls="side-cuisine4-tab-pane" aria-selected="false">Pendamping 4</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if tab == 'side_cuisine5' %}active{% endif %}" id="side-cuisine5-tab" data-bs-toggle="tab" data-bs-target="#side-cuisine5-tab-pane" type="button"
+                            role="tab" aria-controls="side-cuisine5-tab-pane" aria-selected="false">Pendamping 5</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade {% if tab == 'main_cuisine' %}show active{% endif %}" id="main-cuisine-tab-pane" role="tabpanel" aria-labelledby="main-cuisine-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Menu</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="dialog-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Menu</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="menuTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Menu</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in main_cuisines %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.cuisine_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="main_cuisine[]" value="{{ item.cuisine_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_cuisine %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#delete-{{ item.cuisine_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="delete-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus menu <strong>{{ item.cuisine.cuisine_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-maincuisine-delete' data.package_id item.cuisine_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>                        
+                    </div>
+                    <div class="tab-pane fade {% if tab == 'sub_cuisine' %}show active{% endif %}" id="sub-cuisine-tab-pane" role="tabpanel" aria-labelledby="sub-cuisine-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup2" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Menu</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="dialog-popup2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Menu</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-subcuisine-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="menuTable2">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Menu</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in sub_cuisines %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.cuisine_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="sub_cuisine[]" value="{{ item.cuisine_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabTable2">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_subcuisine %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#delete-{{ item.cuisine_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="delete-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus menu <strong>{{ item.cuisine.cuisine_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-subcuisine-delete' data.package_id item.cuisine_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if tab == 'side_cuisine1' %}show active{% endif %}" id="side-cuisine1-tab-pane" role="tabpanel" aria-labelledby="side-cuisine1-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup3" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Menu</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="dialog-popup3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Menu</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-sidecuisine1-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="menuTable3">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Menu</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in side_cuisines1 %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.cuisine_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="side_cuisine1[]" value="{{ item.cuisine_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabTable3">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_sidecuisine1 %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#delete-{{ item.cuisine_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="delete-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus menu <strong>{{ item.cuisine.cuisine_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-sidecuisine1-delete' data.package_id item.cuisine_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if tab == 'side_cuisine2' %}show active{% endif %}" id="side-cuisine2-tab-pane" role="tabpanel" aria-labelledby="side-cuisine2-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup4" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Menu</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="dialog-popup4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Menu</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-sidecuisine2-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="menuTable4">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Menu</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in side_cuisines2 %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.cuisine_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="side_cuisine2[]" value="{{ item.cuisine_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabTable4">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_sidecuisine2 %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#delete-{{ item.cuisine_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="delete-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus menu <strong>{{ item.cuisine.cuisine_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-sidecuisine2-delete' data.package_id item.cuisine_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if tab == 'side_cuisine3' %}show active{% endif %}" id="side-cuisine3-tab-pane" role="tabpanel" aria-labelledby="side-cuisine3-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup5" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Menu</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="dialog-popup5" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Menu</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-sidecuisine3-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="menuTable5">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Menu</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in side_cuisines3 %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.cuisine_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="side_cuisine3[]" value="{{ item.cuisine_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabTable5">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_sidecuisine3 %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#delete-{{ item.cuisine_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="delete-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus menu <strong>{{ item.cuisine.cuisine_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-sidecuisine3-delete' data.package_id item.cuisine_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if tab == 'side_cuisine4' %}show active{% endif %}" id="side-cuisine4-tab-pane" role="tabpanel" aria-labelledby="side-cuisine4-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup6" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Menu</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="dialog-popup6" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Menu</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-sidecuisine4-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="menuTable6">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Menu</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in side_cuisines4 %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.cuisine_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="side-cuisine4[]" value="{{ item.cuisine_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabTable6">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_sidecuisine4 %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#delete-{{ item.cuisine_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="delete-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus menu <strong>{{ item.cuisine.cuisine_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-sidecuisine4-delete' data.package_id item.cuisine_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if tab == 'side_cuisine5' %}show active{% endif %}" id="side-cuisine5-tab-pane" role="tabpanel" aria-labelledby="side-cuisine5-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup7" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Menu</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="dialog-popup7" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Menu</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-sidecuisine5-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="menuTable7">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Menu</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in side_cuisines5 %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.cuisine_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="side-cuisine5[]" value="{{ item.cuisine_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabTable7">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_sidecuisine5 %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#delete-{{ item.cuisine_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="delete-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus menu <strong>{{ item.cuisine.cuisine_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-sidecuisine5-delete' data.package_id item.cuisine_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $(document).ready( function () {
+        $('#tabTable').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+        });
+
+        $('#tabTable2').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+        });
+
+        $('#tabTable3').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+        });
+
+        $('#tabTable4').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+        });
+
+        $('#tabTable5').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+        });
+
+        $('#tabTable6').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+        });
+
+        $('#tabTable7').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+        });
+        
+        $('#menuTable').DataTable();
+        $('#menuTable2').DataTable();
+        $('#menuTable3').DataTable();
+        $('#menuTable4').DataTable();
+        $('#menuTable5').DataTable();
+        $('#menuTable6').DataTable();
+        $('#menuTable7').DataTable();
+        
+        let btn = document.getElementsByClassName('paginate_button');
+        for (const button of btn) {
+            button.classList.add('border-radius-top-start-circle', 'border-radius-bottom-end-circle', 'border-radius-top-end-circle', 'border-radius-bottom-start-circle');
+        }
+
+        let btn2 = document.getElementsByClassName('paginate_button next', 'paginate_button previous');
+        for (const button of btn2) {
+            button.hover(function() {
+                $(this).css('background-color', 'transparent');
+            });
+        }
+    } );
+</script>
+{% endblock javascripts %}

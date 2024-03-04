@@ -12,13 +12,13 @@ class FormUser(UserCreationForm):
         super(FormUser, self).__init__(*args, **kwargs)
         self.label_suffix = ''
         self.fields['user_id'].label = 'User ID'
-        self.fields['username'].label = 'User Name'
+        self.fields['username'].label = 'Nama User'
         self.fields['email'].label = 'Email'
-        self.fields['position'].label = 'Position'
-        self.fields['signature'].label = 'Signature'
+        self.fields['position'].label = 'Posisi'
+        self.fields['signature'].label = 'Tanda Tangan'
         self.fields['signature'].required = False
         self.fields['password1'].label = 'Password'
-        self.fields['password2'].label = 'Confirm Password'
+        self.fields['password2'].label = 'Konfirmasi Password'
         self.fields['user_id'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['username'].widget = forms.TextInput(
@@ -43,9 +43,9 @@ class FormUserView(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormUserView, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['username'].label = 'User Name'
+        self.fields['username'].label = 'Nama User'
         self.fields['email'].label = 'Email'
-        self.fields['position'].label = 'Position'
+        self.fields['position'].label = 'Posisi'
         self.fields['username'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['email'].widget = forms.EmailInput(
@@ -65,13 +65,14 @@ class FormUserUpdate(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormUserUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['username'].label = 'User Name'
+        self.fields['username'].label = 'Nama User'
         self.fields['email'].label = 'Email'
-        self.fields['position'].label = 'Position'
+        self.fields['position'].label = 'Posisi'
         self.fields['username'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['email'].widget = forms.EmailInput(
             {'class': 'form-control-sm'})
+        self.fields['signature'].required = False
 
     class Meta:
         model = User
@@ -88,9 +89,9 @@ class FormChangePassword(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super(FormChangePassword, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['old_password'].label = 'Old Password'
-        self.fields['new_password1'].label = 'New Password'
-        self.fields['new_password2'].label = 'New Password Confirmation'
+        self.fields['old_password'].label = 'Password Lama'
+        self.fields['new_password1'].label = 'Password Baru'
+        self.fields['new_password2'].label = 'Konfirmasi Password Baru'
         self.fields['old_password'].widget = forms.PasswordInput(
             {'class': 'form-control-sm'})
         self.fields['new_password1'].widget = forms.PasswordInput(
@@ -103,8 +104,8 @@ class FormSetPassword(SetPasswordForm):
     def __init__(self, *args, **kwargs):
         super(FormSetPassword, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['new_password1'].label = 'New Password'
-        self.fields['new_password2'].label = 'New Password Confirmation'
+        self.fields['new_password1'].label = 'Password Baru'
+        self.fields['new_password2'].label = 'Konfirmasi Password Baru'
         self.fields['new_password1'].widget = forms.PasswordInput(
             {'class': 'form-control-sm'})
         self.fields['new_password2'].widget = forms.PasswordInput(
@@ -167,9 +168,9 @@ class FormAreaSales(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormAreaSales, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['area_id'].label = 'Area Sales ID'
-        self.fields['area_name'].label = 'Area Sales Name'
-        self.fields['manager'].label = 'Area Sales Manager'
+        self.fields['area_id'].label = 'ID Regional'
+        self.fields['area_name'].label = 'Nama Regional'
+        self.fields['manager'].label = 'Manager'
         self.fields['area_id'].widget = forms.TextInput(
             {'class': 'form-control-sm text-uppercase'})
         self.fields['area_name'].widget = forms.TextInput(
@@ -186,8 +187,8 @@ class FormAreaSalesView(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormAreaSalesView, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['area_name'].label = 'Area Sales Name'
-        self.fields['manager'].label = 'Area Sales Manager'
+        self.fields['area_name'].label = 'Nama Regional'
+        self.fields['manager'].label = 'Manager'
         self.fields['area_name'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['manager'].widget = forms.TextInput(
@@ -202,8 +203,8 @@ class FormAreaSalesUpdate(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormAreaSalesUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['area_name'].label = 'Area Sales Name'
-        self.fields['manager'].label = 'Area Sales Manager'
+        self.fields['area_name'].label = 'Nama Regional'
+        self.fields['manager'].label = 'Manager'
         self.fields['area_name'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['manager'].widget = forms.TextInput(
@@ -261,8 +262,8 @@ class FormPosition(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormPosition, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['position_id'].label = 'Position ID'
-        self.fields['position_name'].label = 'Position Name'
+        self.fields['position_id'].label = 'ID Posisi'
+        self.fields['position_name'].label = 'Nama Posisi'
         self.fields['position_id'].widget = forms.TextInput(
             {'class': 'form-control-sm text-uppercase', 'placeholder': 'XXX'})
         self.fields['position_name'].widget = forms.TextInput(
@@ -277,7 +278,7 @@ class FormPositionUpdate(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormPositionUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['position_name'].label = 'Position Name'
+        self.fields['position_name'].label = 'Nama Posisi'
         self.fields['position_name'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
 
@@ -291,7 +292,7 @@ class FormPositionView(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormPositionView, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['position_name'].label = 'Position Name'
+        self.fields['position_name'].label = 'Nama Posisi'
         self.fields['position_name'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
 
@@ -304,9 +305,9 @@ class FormMenu(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormMenu, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['menu_id'].label = 'Menu ID'
-        self.fields['menu_name'].label = 'Menu Name'
-        self.fields['menu_remark'].label = 'Description'
+        self.fields['menu_id'].label = 'ID Menu'
+        self.fields['menu_name'].label = 'Nama Menu'
+        self.fields['menu_remark'].label = 'Deskripsi'
         self.fields['menu_id'].widget = forms.TextInput(
             {'class': 'form-control-sm text-uppercase'})
         self.fields['menu_name'].widget = forms.TextInput(
@@ -323,8 +324,8 @@ class FormMenuUpdate(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormMenuUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['menu_name'].label = 'Menu Name'
-        self.fields['menu_remark'].label = 'Description'
+        self.fields['menu_name'].label = 'Nama Menu'
+        self.fields['menu_remark'].label = 'Deskripsi'
         self.fields['menu_name'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['menu_remark'].widget = forms.Textarea(
@@ -340,8 +341,8 @@ class FormMenuView(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormMenuView, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['menu_name'].label = 'Menu Name'
-        self.fields['menu_remark'].label = 'Description'
+        self.fields['menu_name'].label = 'Nama Menu'
+        self.fields['menu_remark'].label = 'Deskripsi'
         self.fields['menu_name'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['menu_remark'].widget = forms.Textarea(
@@ -410,6 +411,168 @@ class FormChannelView(ModelForm):
     class Meta:
         model = Channel
         fields = ['channel_id', 'channel_name']
+
+
+class FormCuisine(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCuisine, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['cuisine_id'].label = 'ID Masakan'
+        self.fields['cuisine_name'].label = 'Nama Masakan'
+        self.fields['cuisine_id'].widget = forms.TextInput(
+            {'class': 'form-control-sm text-uppercase'})
+        self.fields['cuisine_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Cuisine
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormCuisineUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCuisineUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['cuisine_name'].label = 'Nama Masakan'
+        self.fields['cuisine_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Cuisine
+        exclude = ['cuisine_id', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+
+class FormCuisineView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCuisineView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['cuisine_name'].label = 'Nama Masakan'
+        self.fields['cuisine_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = Cuisine
+        fields = ['cuisine_id', 'cuisine_name']
+
+
+class FormCategory(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCategory, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['category_id'].label = 'ID Kategori'
+        self.fields['category_name'].label = 'Nama Kategori'
+        self.fields['category_id'].widget = forms.TextInput(
+            {'class': 'form-control-sm text-uppercase'})
+        self.fields['category_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Category
+        fields = ['category_id', 'category_name']
+
+
+class FormCategoryUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCategoryUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['category_name'].label = 'Nama Kategori'
+        self.fields['category_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Category
+        fields = ['category_name']
+
+
+class FormCategoryView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCategoryView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['category_name'].label = 'Nama Kategori'
+        self.fields['category_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = Category
+        fields = ['category_id', 'category_name']
+
+
+class FormPackage(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormPackage, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['package_id'].label = 'ID Paket'
+        self.fields['package_name'].label = 'Nama Paket'
+        self.fields['category'].label = 'Kategori'
+        self.fields['package_price'].label = 'Harga Jual'
+        self.fields['box'].label = 'Jumlah Box'
+        self.fields['quantity'].label = 'Jumlah Kambing'
+        self.fields['type'].label = 'Tipe Kambing'
+        self.fields['package_id'].widget = forms.TextInput(
+            {'class': 'form-control-sm text-uppercase'})
+        self.fields['package_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['package_price'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+        self.fields['box'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+        self.fields['quantity'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+
+    class Meta:
+        model = Package
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormPackageUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormPackageUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['package_name'].label = 'Nama Paket'
+        self.fields['category'].label = 'Kategori'
+        self.fields['package_price'].label = 'Harga Jual'
+        self.fields['box'].label = 'Jumlah Box'
+        self.fields['quantity'].label = 'Jumlah Kambing'
+        self.fields['type'].label = 'Tipe Kambing'
+        self.fields['package_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['package_price'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+        self.fields['box'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+        self.fields['quantity'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+
+    class Meta:
+        model = Package
+        exclude = ['package_id', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+
+class FormPackageView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormPackageView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['package_name'].label = 'Nama Paket'
+        self.fields['category'].label = 'Kategori'
+        self.fields['package_price'].label = 'Harga Jual'
+        self.fields['box'].label = 'Jumlah Box'
+        self.fields['quantity'].label = 'Jumlah Kambing'
+        self.fields['type'].label = 'Tipe Kambing'
+        self.fields['package_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['package_price'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['box'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['quantity'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = Package
+        fields = ['package_id', 'package_name', 'category',
+                  'package_price', 'box', 'quantity', 'type']
 
 
 class FormBudget(ModelForm):

@@ -1131,6 +1131,880 @@ def channel_view(request, _id):
 
 
 @login_required(login_url='/login/')
+@role_required(allowed_roles='CUISINE')
+def cuisine_index(request):
+    cuisines = Cuisine.objects.all()
+
+    context = {
+        'data': cuisines,
+        'segment': 'cuisine',
+        'group_segment': 'master',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CUISINE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/cuisine_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUISINE')
+def cuisine_add(request):
+    if request.POST:
+        form = FormCuisine(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('cuisine-index'))
+        else:
+            message = form.errors
+            context = {
+                'form': form,
+                'segment': 'cuisine',
+                'group_segment': 'master',
+                'crud': 'add',
+                'message': message,
+                'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+                'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CUISINE') if not request.user.is_superuser else Auth.objects.all(),
+            }
+            return render(request, 'home/cuisine_add.html', context)
+    else:
+        form = FormCuisine()
+        context = {
+            'form': form,
+            'segment': 'cuisine',
+            'group_segment': 'master',
+            'crud': 'add',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CUISINE') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/cuisine_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUISINE')
+def cuisine_view(request, _id):
+    cuisines = Cuisine.objects.get(cuisine_id=_id)
+    form = FormCuisineView(instance=cuisines)
+
+    context = {
+        'form': form,
+        'data': cuisines,
+        'segment': 'cuisine',
+        'group_segment': 'master',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CUISINE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/cuisine_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUISINE')
+def cuisine_update(request, _id):
+    cuisines = Cuisine.objects.get(cuisine_id=_id)
+    if request.POST:
+        form = FormCuisineUpdate(
+            request.POST, request.FILES, instance=cuisines)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('cuisine-view', args=[_id, ]))
+    else:
+        form = FormCuisineUpdate(instance=cuisines)
+
+    message = form.errors
+    context = {
+        'form': form,
+        'data': cuisines,
+        'segment': 'cuisine',
+        'group_segment': 'master',
+        'crud': 'update',
+        'message': message,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CUISINE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/cuisine_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUISINE')
+def cuisine_delete(request, _id):
+    cuisines = Cuisine.objects.get(cuisine_id=_id)
+
+    cuisines.delete()
+    return HttpResponseRedirect(reverse('cuisine-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CATEGORY')
+def category_index(request):
+    categories = Category.objects.all()
+
+    context = {
+        'data': categories,
+        'segment': 'category',
+        'group_segment': 'master',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CATEGORY') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/category_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CATEGORY')
+def category_add(request):
+    if request.POST:
+        form = FormCategory(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('category-index'))
+        else:
+            message = form.errors
+            context = {
+                'form': form,
+                'segment': 'category',
+                'group_segment': 'master',
+                'crud': 'add',
+                'message': message,
+                'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+                'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CATEGORY') if not request.user.is_superuser else Auth.objects.all(),
+            }
+            return render(request, 'home/category_add.html', context)
+    else:
+        form = FormCategory()
+        context = {
+            'form': form,
+            'segment': 'category',
+            'group_segment': 'master',
+            'crud': 'add',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CATEGORY') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/category_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CATEGORY')
+def category_view(request, _id):
+    categories = Category.objects.get(category_id=_id)
+    form = FormCategoryView(instance=categories)
+
+    context = {
+        'form': form,
+        'data': categories,
+        'segment': 'category',
+        'group_segment': 'master',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CATEGORY') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/category_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CATEGORY')
+def category_update(request, _id):
+    categories = Category.objects.get(category_id=_id)
+    if request.POST:
+        form = FormCategoryUpdate(
+            request.POST, request.FILES, instance=categories)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('category-view', args=[_id, ]))
+    else:
+        form = FormCategoryUpdate(instance=categories)
+
+    message = form.errors
+    context = {
+        'form': form,
+        'data': categories,
+        'segment': 'category',
+        'group_segment': 'master',
+        'crud': 'update',
+        'message': message,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CATEGORY') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/category_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CATEGORY')
+def category_delete(request, _id):
+    categories = Category.objects.get(category_id=_id)
+
+    categories.delete()
+    return HttpResponseRedirect(reverse('category-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_index(request):
+    packages = Package.objects.all()
+
+    context = {
+        'data': packages,
+        'segment': 'package',
+        'group_segment': 'master',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/package_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_add(request):
+    categories = Category.objects.all()
+    if request.POST:
+        form = FormPackage(request.POST, request.FILES)
+        if form.is_valid():
+            new = form.save(commit=False)
+            new.category_id = request.POST.get('category')
+            new.type = request.POST.get('type')
+            new.save()
+            return HttpResponseRedirect(reverse('package-view', args=[new.package_id, ]))
+        else:
+            message = form.errors
+            context = {
+                'form': form,
+                'categories': categories,
+                'segment': 'package',
+                'group_segment': 'master',
+                'crud': 'add',
+                'message': message,
+                'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+                'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+            }
+            return render(request, 'home/package_add.html', context)
+    else:
+        form = FormPackage()
+        context = {
+            'form': form,
+            'categories': categories,
+            'segment': 'package',
+            'group_segment': 'master',
+            'crud': 'add',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/package_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.package_price = '{:,}'.format(packages.package_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('main_cuisine[]')
+        for i in main_cuisines:
+            if str(i.cuisine_id) in check:
+                try:
+                    main_cuisine = MainCuisine(
+                        package=packages, cuisine=i)
+                    main_cuisine.save()
+                except IntegrityError:
+                    continue
+            else:
+                MainCuisine.objects.filter(
+                    package_id=_id, cuisine_id=i.cuisine_id).delete()
+
+        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'main_cuisine',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_subcuisine_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.package_price = '{:,}'.format(packages.package_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('sub_cuisine[]')
+        for i in sub_cuisines:
+            if str(i.cuisine_id) in check:
+                try:
+                    sub_cuisine = SubCuisine(
+                        package=packages, cuisine=i)
+                    sub_cuisine.save()
+                except IntegrityError:
+                    continue
+            else:
+                SubCuisine.objects.filter(
+                    package_id=_id, cuisine_id=i.cuisine_id).delete()
+
+        return HttpResponseRedirect(reverse('package-subcuisine-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'sub_cuisine',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine1_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.package_price = '{:,}'.format(packages.package_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('side_cuisine1[]')
+        for i in side_cuisines1:
+            if str(i.cuisine_id) in check:
+                try:
+                    side_cuisine1 = SideCuisine1(
+                        package=packages, cuisine=i)
+                    side_cuisine1.save()
+                except IntegrityError:
+                    continue
+            else:
+                SideCuisine1.objects.filter(
+                    package_id=_id, cuisine_id=i.cuisine_id).delete()
+
+        return HttpResponseRedirect(reverse('package-sidecuisine1-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'side_cuisine1',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine2_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.package_price = '{:,}'.format(packages.package_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('side_cuisine2[]')
+        for i in side_cuisines2:
+            if str(i.cuisine_id) in check:
+                try:
+                    side_cuisine2 = SideCuisine2(
+                        package=packages, cuisine=i)
+                    side_cuisine2.save()
+                except IntegrityError:
+                    continue
+            else:
+                SideCuisine2.objects.filter(
+                    package_id=_id, cuisine_id=i.cuisine_id).delete()
+
+        return HttpResponseRedirect(reverse('package-sidecuisine2-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'side_cuisine2',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine3_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.package_price = '{:,}'.format(packages.package_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('side_cuisine3[]')
+        for i in side_cuisines3:
+            if str(i.cuisine_id) in check:
+                try:
+                    side_cuisine3 = SideCuisine3(
+                        package=packages, cuisine=i)
+                    side_cuisine3.save()
+                except IntegrityError:
+                    continue
+            else:
+                SideCuisine3.objects.filter(
+                    package_id=_id, cuisine_id=i.cuisine_id).delete()
+
+        return HttpResponseRedirect(reverse('package-sidecuisine3-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'side_cuisine3',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine4_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.package_price = '{:,}'.format(packages.package_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('side_cuisine4[]')
+        for i in side_cuisines4:
+            if str(i.cuisine_id) in check:
+                try:
+                    side_cuisine4 = SideCuisine4(
+                        package=packages, cuisine=i)
+                    side_cuisine4.save()
+                except IntegrityError:
+                    continue
+            else:
+                SideCuisine4.objects.filter(
+                    package_id=_id, cuisine_id=i.cuisine_id).delete()
+
+        return HttpResponseRedirect(reverse('package-sidecuisine4-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'side_cuisine4',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine5_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.package_price = '{:,}'.format(packages.package_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('side_cuisine5[]')
+        for i in side_cuisines5:
+            if str(i.cuisine_id) in check:
+                try:
+                    side_cuisine5 = SideCuisine5(
+                        package=packages, cuisine=i)
+                    side_cuisine5.save()
+                except IntegrityError:
+                    continue
+            else:
+                SideCuisine5.objects.filter(
+                    package_id=_id, cuisine_id=i.cuisine_id).delete()
+
+        return HttpResponseRedirect(reverse('package-sidecuisine5-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'side_cuisine5',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_maincuisine_delete(request, _id, _cuisine):
+    MainCuisine.objects.filter(
+        package_id=_id, cuisine_id=_cuisine).delete()
+    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_subcuisine_delete(request, _id, _cuisine):
+    SubCuisine.objects.filter(
+        package_id=_id, cuisine_id=_cuisine).delete()
+    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine1_delete(request, _id, _cuisine):
+    SideCuisine1.objects.filter(
+        package_id=_id, cuisine_id=_cuisine).delete()
+    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine2_delete(request, _id, _cuisine):
+    SideCuisine2.objects.filter(
+        package_id=_id, cuisine_id=_cuisine).delete()
+    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine3_delete(request, _id, _cuisine):
+    SideCuisine3.objects.filter(
+        package_id=_id, cuisine_id=_cuisine).delete()
+    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine4_delete(request, _id, _cuisine):
+    SideCuisine4.objects.filter(
+        package_id=_id, cuisine_id=_cuisine).delete()
+    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine5_delete(request, _id, _cuisine):
+    SideCuisine5.objects.filter(
+        package_id=_id, cuisine_id=_cuisine).delete()
+    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_update(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    categories = Category.objects.all()
+    if request.POST:
+        form = FormPackageUpdate(
+            request.POST, request.FILES, instance=packages)
+        if form.is_valid():
+            update = form.save(commit=False)
+            update.category_id = request.POST.get('category')
+            update.type = request.POST.get('type')
+            update.package_price = request.POST.get('package_price')
+            update.save()
+            return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+    else:
+        form = FormPackageUpdate(instance=packages)
+
+    message = form.errors
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'segment': 'package',
+        'group_segment': 'master',
+        'crud': 'update',
+        'tab': 'main_cuisine',
+        'message': message,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_delete(request, _id):
+    packages = Package.objects.get(package_id=_id)
+
+    packages.delete()
+    return HttpResponseRedirect(reverse('package-index'))
+
+
+@login_required(login_url='/login/')
 @role_required(allowed_roles='BUDGET')
 def budget_add(request, _area):
     period = Closing.objects.all()

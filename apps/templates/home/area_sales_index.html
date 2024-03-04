@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} Area Sales List {% endblock title %}
+{% block title %} Data Regional {% endblock title %}
 
 {% block content %}
 
@@ -11,10 +11,10 @@
             <div class="card mb-4 p-4">
                 <div class="row mb-4">
                     <div class="col-6 d-flex align-items-center">
-                        <h4 class="mb-0">Area Sales List</h4>
+                        <h4 class="mb-0">Data Regional</h4>
                     </div>
                     <div class="col-6 text-end">
-                        <a class="btn btn-sm bg-gradient-danger mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'area-sales-add' %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Area Sales</a>
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'area-sales-add' %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Regional</a>
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -22,10 +22,10 @@
                         <table class="table hover align-items-center mb-0" id="myTable">
                             <thead>
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Area Sales ID
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID Regional
                                     </th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                        Area Sales Name</th>
+                                        Nama Regional</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Manager</th>
                                 </tr>
                             </thead>
@@ -71,7 +71,12 @@
     } );
 
     $(document).on('click', 'tbody tr', function() {
-        window.location = $(this).data('href');
+        var href = $(this).data('href');
+        if(href) { // Check if href data exists
+            window.location = href;
+        } else {
+            console.log("No data in href");
+        }
     });
 </script>
 

@@ -2,8 +2,8 @@
 <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 bg-default" id="sidenav-main">
   <div class="sidenav-header">
     <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-    <a class="navbar-brand button cursor-pointer m-0" {% if crud != 'add' and crud != 'update' %}href="{% url 'home' %}"{% endif %}>
-      <img src="https://ksisolusi.com/apps/static/img/favicon.png" class="navbar-brand-img w-40" alt="main_logo">
+    <a class="navbar-brand button cursor-pointer m-0 pt-4" {% if crud != 'add' and crud != 'update' %}href="{% url 'home' %}"{% endif %}>
+      <img src="https://sahabataqiqah.co.id/apps/static/img/color.png" class="navbar-brand-img w-95" alt="main_logo">
     </a>
   </div>
   <hr class="horizontal default mt-2">
@@ -317,12 +317,12 @@
             </li>
             <li class="nav-item {% if 'area_sales' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'area-sales-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}">Area Sales</span>
+                <span class="nav-link-text ms-1 {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}">Regional</span>
               </a>
             </li>
             <li class="nav-item {% if 'position' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'position-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}">Position</span>
+                <span class="nav-link-text ms-1 {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}">Posisi</span>
               </a>
             </li>
             <li class="nav-item {% if 'menu' in segment %}active{% endif %} list-unstyled">
@@ -330,7 +330,22 @@
                 <span class="nav-link-text ms-1 {% if 'MENU' not in role and not request.user.is_superuser %}disabled{% endif %}">Menu</span>
               </a>
             </li>
-            <li class="nav-item {% if segment == 'channel' %}active{% endif %} list-unstyled">
+            <li class="nav-item {% if 'cuisine' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'CUISINE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'cuisine-index' %}"{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'CUISINE' not in role and not request.user.is_superuser %}disabled{% endif %}">Masakan</span>
+              </a>
+            </li>
+            <li class="nav-item {% if 'category' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'CATEGORY' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'category-index' %}"{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'CATEGORY' not in role and not request.user.is_superuser %}disabled{% endif %}">Kategori</span>
+              </a>
+            </li>
+            <li class="nav-item {% if 'package' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'PACKAGE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'package-index' %}"{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'PACKAGE' not in role and not request.user.is_superuser %}disabled{% endif %}">Paket</span>
+              </a>
+            </li>
+            <!-- <li class="nav-item {% if segment == 'channel' %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'CHANNEL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'channel-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'CHANNEL' not in role and not request.user.is_superuser %}disabled{% endif %}">Channel</span>
               </a>
@@ -354,7 +369,7 @@
               <a class="nav-link button cursor-pointer {% if 'REGION' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' and crud != 'delete' %}href="{% url 'region-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'REGION' not in role and not request.user.is_superuser %}disabled{% endif %}">Region</span>
               </a>
-            </li>
+            </li> -->
           </ul>
         </div>
       </li>

@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} Menu List {% endblock title %}
+{% block title %} Data Menu {% endblock title %}
 
 {% block content %}
 
@@ -11,10 +11,10 @@
             <div class="card mb-4 p-4">
                 <div class="row mb-4">
                     <div class="col-6 d-flex align-items-center">
-                        <h4 class="mb-2">Menu List</h4>
+                        <h4 class="mb-2">Data Menu</h4>
                     </div>
                     <div class="col-6 text-end">
-                        <a class="btn btn-sm bg-gradient-danger mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'menu-add' %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Menu</a>
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'menu-add' %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Buat Menu Baru</a>
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -22,10 +22,10 @@
                         <table class="table hover align-items-center mb-0" id="myTable">
                             <thead>
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Menu ID
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID Menu
                                     </th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                        Menu Name</th>
+                                        Nama Menu</th>
                                 </tr>
                             </thead>
                             <tbody>

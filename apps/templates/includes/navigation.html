@@ -5,7 +5,7 @@
     <nav aria-label="app">
       <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
         <li class="text-sm font-weight-bold text-dark active" aria-current="page">
-          Integrated System - {% block title %} A&P Manual {% endblock %} | ABC President Indonesia
+          Order Online | Sahabat Aqiqah
         </li>
       </ol>
     </nav>
@@ -52,7 +52,7 @@
         <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Cancel</button>
         <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
-          <button type="submit" role="button" class="btn btn-sm bg-gradient-danger text-white">Yes
+          <button type="submit" role="button" class="btn btn-sm bg-gradient-primary text-white">Yes
           </button>
         </form>
       </div>
@@ -61,7 +61,7 @@
 </div>
 
 <div>
-  <img src="https://ksisolusi.com/apps/static/img/transparent-logo.png" alt="ABC Logo" class="position-fixed h-100 w-40 top-0 d-none d-lg-block start-50 ms-n9 opacity-2" style="object-fit: contain;">
+  <img src="https://sahabataqiqah.co.id/apps/static/img/transparent-logo.png" alt="ABC Logo" class="position-fixed h-100 w-40 top-0 d-none d-lg-block start-50 ms-n9 opacity-2" style="object-fit: contain;">
 </div>
 
 {{ redirect_to_login_immediately }}

@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} Add New User {% endblock title %}
+{% block title %} Buat User Baru {% endblock title %}
 
 {% block content %}
 
@@ -13,11 +13,11 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-6 d-flex align-items-center">
-                                <h4 class="mb-2">Add New User</h4>
+                                <h4 class="mb-2">Buat User Baru</h4>
                             </div>
                             <div class="col-6 text-end">
-                                <button type="submit" class="btn bg-gradient-danger mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Save</button>
-                                <a href="{% url 'user-index' %}" class="btn bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Cancel</a>
+                                <button type="submit" class="btn bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <a href="{% url 'user-index' %}" class="btn bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</a>
                             </div>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                                     <div class="shadow-none">
                                         {{ form.position.label_tag }}
                                         <select name="position" class="form-control form-select-sm">
-                                            <option value="">-- Select Position --</option>
+                                            <option value="">-- Pilih Posisi --</option>
                                             {% for item in position %}
                                             <option value="{{ item.position_id }}">{{ item.position_name }}</option>
                                             {% endfor %}

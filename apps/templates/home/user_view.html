@@ -16,11 +16,11 @@
                                 <h4 class="mb-2">User ID: {{ data.user_id }}</h4>
                             </div>
                             <div class="col-8 text-end">
-                                <a href="{% if crud == 'view' %}{% url 'user-index' %}{% else %}{% url 'user-view' data.user_id %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Back{% else %}Cancel{% endif %}</a>
+                                <a href="{% if crud == 'view' %}{% url 'user-index' %}{% else %}{% url 'user-view' data.user_id %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Back{% else %}Batal{% endif %}</a>
                                 <a href="{% url 'user-update' data.user_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</a>
-                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Save</button>
-                                <a href="{% url 'set-password' data.user_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}"><i class="fas fa-lock"></i>&nbsp;&nbsp;Change Password</a>
-                                <button type="button" class="btn btn-sm bg-gradient-danger mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.user_id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Delete</button>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <a href="{% url 'set-password' data.user_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}"><i class="fas fa-lock"></i>&nbsp;&nbsp;Ubah Password</a>
+                                <button type="button" class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.user_id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
                             </div>
                         </div>
                     </div>
@@ -29,14 +29,14 @@
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="ModalLabel">Confirmation</h5>
+                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
                                 </div>
                                 <div class="modal-body border-bottom-0">
-                                    Are you sure you want to delete user <strong>{{ data.username }}</strong>?
+                                    Anda yakin akan menghapus user <strong>{{ data.username }}</strong>?
                                 </div>
                                 <div class="modal-footer border-0">
-                                    <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Cancel</button>
-                                    <a href="{% url 'user-delete' data.user_id %}" role="button" class="btn btn-sm bg-gradient-danger text-white">Delete
+                                    <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'user-delete' data.user_id %}" role="button" class="btn btn-sm bg-gradient-primary text-white">Hapus
                                     </a>
                                 </div>
                             </div>
@@ -94,14 +94,14 @@
                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="ModalLabel">Confirmation</h5>
+                                                <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
                                             </div>
                                             <div class="modal-body border-bottom-0">
-                                                Are you sure you want to remove this signature?
+                                                Anda yakin akan menghapus tanda tangan ini?
                                             </div>
                                             <div class="modal-footer border-0">
-                                                <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Cancel</button>
-                                                <a href="{% url 'remove-signature' data.user_id %}" role="button" class="btn bg-gradient-danger text-white">Remove
+                                                <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                <a href="{% url 'remove-signature' data.user_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
                                                 </a>
                                             </div>
                                         </div>
@@ -122,11 +122,11 @@
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-sm text-body {% if tab == 'auth' %}active{% endif %}" id="auth-tab" data-bs-toggle="tab" data-bs-target="#auth-tab-pane" type="button"
-                            role="tab" aria-controls="auth-tab-pane" aria-selected="true">Authorization</button>
+                            role="tab" aria-controls="auth-tab-pane" aria-selected="true">Otorisasi</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-sm text-body {% if tab == 'area' %}active{% endif %}" id="area-tab" data-bs-toggle="tab" data-bs-target="#area-tab-pane" type="button"
-                            role="tab" aria-controls="area-tab-pane" aria-selected="false">Area</button>
+                            role="tab" aria-controls="area-tab-pane" aria-selected="false">Regional</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -136,7 +136,7 @@
                                 <h5 class="mb-0"></h5>
                             </div>
                             <div class="col-6 text-end">
-                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-danger mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Add Menu</button>
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Menu</button>
                             </div>
                         </div>
                         <div class="modal fade" id="dialog-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -144,7 +144,7 @@
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="ModalLabel">Select Menu</h5>
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Menu</h5>
                                     </div>
                                     <form method="post" action="{% url 'user-view' data.user_id %}" enctype="multipart/form-data">
                                         {% csrf_token %}
@@ -154,7 +154,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                                Menu Name</th>
+                                                                Nama Menu</th>
                                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                                         </tr>
                                                     </thead>
@@ -178,8 +178,8 @@
                                             </div>
                                         </div>
                                         <div class="modal-footer border-0">
-                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" class="btn btn-sm bg-gradient-danger text-white">Save
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
                                             </button>
                                         </div>
                                     </form>
@@ -192,13 +192,13 @@
                                     <thead>
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                Menu Name</th>
+                                                Nama Menu</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                Add</th>
+                                                Tambah</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                Edit</th>
+                                                Ubah</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                Delete</th>
+                                                Hapus</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
@@ -229,14 +229,14 @@
                                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="ModalLabel">Confirmation</h5>
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
                                                         </div>
                                                         <div class="modal-body border-bottom-0">
-                                                            Are you sure you want to delete menu <strong>{{ item.menu }}</strong>?
+                                                            Anda yakin akan menghapus menu <strong>{{ item.menu }}</strong>?
                                                         </div>
                                                         <div class="modal-footer border-0">
-                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Cancel</button>
-                                                            <a href="{% url 'auth-delete' item.user_id item.menu_id %}" role="button" class="btn bg-gradient-danger text-white">Delete
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'auth-delete' item.user_id item.menu_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
                                                             </a>
                                                         </div>
                                                     </div>
@@ -257,29 +257,29 @@
                                                                 <div class="row">
                                                                     <div class="col-md-3">
                                                                         <div class="form-group shadow-none">
-                                                                            <input type="checkbox" class="border mt-1" name="add" value="{{ item.add }}" {% if item.add %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Add</label>
+                                                                            <input type="checkbox" class="border mt-1" name="add" value="{{ item.add }}" {% if item.add %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Tambah</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <div class="row">
                                                                     <div class="col-md-3">
                                                                         <div class="form-group shadow-none">
-                                                                            <input type="checkbox" class="border mt-1" name="edit" value="{{ item.edit }}" {% if item.edit %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Edit</label>
+                                                                            <input type="checkbox" class="border mt-1" name="edit" value="{{ item.edit }}" {% if item.edit %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Ubah</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <div class="row">
                                                                     <div class="col-md-3">
                                                                         <div class="form-group shadow-none">
-                                                                            <input type="checkbox" class="border mt-1" name="delete" value="{{ item.delete }}" {% if item.delete %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Delete</label>
+                                                                            <input type="checkbox" class="border mt-1" name="delete" value="{{ item.delete }}" {% if item.delete %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Hapus</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer border-0">
-                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit" class="btn bg-gradient-danger text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Save</button>
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -297,7 +297,7 @@
                                 <h5 class="mb-0"></h5>
                             </div>
                             <div class="col-6 text-end">
-                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-danger mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup2" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Add Area</button>
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup2" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Regional</button>
                             </div>
                         </div>
                         <div class="modal fade" id="dialog-popup2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -305,7 +305,7 @@
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="ModalLabel">Select Area</h5>
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Regional</h5>
                                     </div>
                                     <form method="post" action="{% url 'user-area-view' data.user_id %}" enctype="multipart/form-data">
                                         {% csrf_token %}
@@ -315,7 +315,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                                Area</th>
+                                                                Regional</th>
                                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                                         </tr>
                                                     </thead>
@@ -339,8 +339,8 @@
                                             </div>
                                         </div>
                                         <div class="modal-footer border-0">
-                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" class="btn btn-sm bg-gradient-danger text-white">Save
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
                                             </button>
                                         </div>
                                     </form>
@@ -353,7 +353,7 @@
                                     <thead>
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                Area</th>
+                                                Regional</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
@@ -375,14 +375,14 @@
                                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="ModalLabel">Confirmation</h5>
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
                                                         </div>
                                                         <div class="modal-body border-bottom-0">
-                                                            Are you sure you want to delete area <strong>{{ item.area }}</strong>?
+                                                            Anda yakin akan menghapus regional <strong>{{ item.area }}</strong>?
                                                         </div>
                                                         <div class="modal-footer border-0">
-                                                            <a role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Cancel</a>
-                                                            <a href="{% url 'area-user-delete' item.user_id item.area_id %}" role="button" class="btn bg-gradient-danger text-white">Delete
+                                                            <a role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</a>
+                                                            <a href="{% url 'area-user-delete' item.user_id item.area_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
                                                             </a>
                                                         </div>
                                                     </div>

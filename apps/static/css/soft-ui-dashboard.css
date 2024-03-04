@@ -9634,7 +9634,7 @@ textarea.form-control-lg {
 
 /* rtl:end:remove */
 .text-primary {
-  color: #ED1B24 !important;
+  color: #ff8c42 !important;
 }
 
 .text-secondary {
@@ -9706,7 +9706,7 @@ textarea.form-control-lg {
 }
 
 .bg-primary {
-  background-color: #ED1B24 !important;
+  background-color: #ff8c42 !important;
 }
 
 .bg-secondary {
@@ -18440,7 +18440,7 @@ label,
 }
 
 .bg-gradient-primary {
-  background-image: linear-gradient(310deg, #F6B40E 0%, #ED1B24 100%);
+  background-image: linear-gradient(310deg, #F6B40E 0%, #ff8c42 100%);
 }
 
 .bg-gradient-secondary {
@@ -19887,7 +19887,7 @@ hr.horizontal.gray-light {
   background-color: #fff;
 }
 .navbar-vertical .navbar-nav > .nav-item .nav-link.active .icon {
-  background-image: linear-gradient(310deg, #ED1B24 0%, #ED1B24 100%);
+  background-image: linear-gradient(310deg, #ff8c42 0%, #ff8c42 100%);
 }
 .navbar-vertical .navbar-nav > .nav-item .nav-link.active .icon svg .color-background,
 .navbar-vertical .navbar-nav > .nav-item .nav-link.active .icon svg .color-foreground {
@@ -21136,7 +21136,7 @@ p {
   z-index: 1;
 }
 .text-gradient.text-primary {
-  background-image: linear-gradient(310deg, #F6B40E, #ED1B24);
+  background-image: linear-gradient(310deg, #F6B40E, #ff8c42);
 }
 .text-gradient.text-info {
   background-image: linear-gradient(310deg, #2152FF, #21D4FD);
@@ -22725,7 +22725,7 @@ pre[class*=language-] {
 /*# sourceMappingURL=soft-ui-dashboard.css.map */
 
 #tabTable_filter, #tabTable2_filter, #detailTable_filter {
-  margin-right: 160px;
+  margin-right: 180px;
 }
 
 #myBtn {
