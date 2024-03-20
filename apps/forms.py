@@ -5,6 +5,7 @@ from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm, UserC
 import datetime
 from django.forms import DateInput
 from tinymce.widgets import TinyMCE
+from django.forms.widgets import TimeInput
 
 
 class FormUser(UserCreationForm):
@@ -180,7 +181,8 @@ class FormAreaSales(ModelForm):
 
     class Meta:
         model = AreaSales
-        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+        exclude = ['bank_account', 'form', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
 
 
 class FormAreaSalesView(ModelForm):
@@ -212,7 +214,7 @@ class FormAreaSalesUpdate(ModelForm):
 
     class Meta:
         model = AreaSales
-        exclude = ['area_id', 'entry_date',
+        exclude = ['area_id', 'form', 'bank_account', 'entry_date',
                    'entry_by', 'update_date', 'update_by']
 
 
@@ -505,7 +507,8 @@ class FormPackage(ModelForm):
         self.fields['package_id'].label = 'ID Paket'
         self.fields['package_name'].label = 'Nama Paket'
         self.fields['category'].label = 'Kategori'
-        self.fields['package_price'].label = 'Harga Jual'
+        self.fields['male_price'].label = 'Harga Jual Jantan'
+        self.fields['female_price'].label = 'Harga Jual Betina'
         self.fields['box'].label = 'Jumlah Box'
         self.fields['quantity'].label = 'Jumlah Kambing'
         self.fields['type'].label = 'Tipe Kambing'
@@ -513,7 +516,9 @@ class FormPackage(ModelForm):
             {'class': 'form-control-sm text-uppercase'})
         self.fields['package_name'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
-        self.fields['package_price'].widget = forms.NumberInput(
+        self.fields['male_price'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+        self.fields['female_price'].widget = forms.NumberInput(
             {'class': 'form-control-sm no-spinners'})
         self.fields['box'].widget = forms.NumberInput(
             {'class': 'form-control-sm no-spinners'})
@@ -531,13 +536,16 @@ class FormPackageUpdate(ModelForm):
         self.label_suffix = ''
         self.fields['package_name'].label = 'Nama Paket'
         self.fields['category'].label = 'Kategori'
-        self.fields['package_price'].label = 'Harga Jual'
+        self.fields['male_price'].label = 'Harga Jual Jantan'
+        self.fields['female_price'].label = 'Harga Jual Betina'
         self.fields['box'].label = 'Jumlah Box'
         self.fields['quantity'].label = 'Jumlah Kambing'
         self.fields['type'].label = 'Tipe Kambing'
         self.fields['package_name'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
-        self.fields['package_price'].widget = forms.NumberInput(
+        self.fields['male_price'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+        self.fields['female_price'].widget = forms.NumberInput(
             {'class': 'form-control-sm no-spinners'})
         self.fields['box'].widget = forms.NumberInput(
             {'class': 'form-control-sm no-spinners'})
@@ -556,13 +564,16 @@ class FormPackageView(ModelForm):
         self.label_suffix = ''
         self.fields['package_name'].label = 'Nama Paket'
         self.fields['category'].label = 'Kategori'
-        self.fields['package_price'].label = 'Harga Jual'
+        self.fields['male_price'].label = 'Harga Jual Jantan'
+        self.fields['female_price'].label = 'Harga Jual Betina'
         self.fields['box'].label = 'Jumlah Box'
         self.fields['quantity'].label = 'Jumlah Kambing'
         self.fields['type'].label = 'Tipe Kambing'
         self.fields['package_name'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
-        self.fields['package_price'].widget = forms.TextInput(
+        self.fields['male_price'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['female_price'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['box'].widget = forms.NumberInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
@@ -572,7 +583,7 @@ class FormPackageView(ModelForm):
     class Meta:
         model = Package
         fields = ['package_id', 'package_name', 'category',
-                  'package_price', 'box', 'quantity', 'type']
+                  'male_price', 'female_price', 'box', 'quantity', 'type']
 
 
 class FormBudget(ModelForm):
@@ -1270,3 +1281,301 @@ class FormRegionView(ModelForm):
     class Meta:
         model = Region
         fields = ['region_id', 'region_name']
+
+
+class FormCustomer(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCustomer, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['customer_name'].label = 'Nama Customer'
+        self.fields['customer_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_address'].label = 'Alamat'
+        self.fields['customer_address'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 4})
+        self.fields['customer_district'].label = 'Kecamatan'
+        self.fields['customer_district'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_city'].label = 'Kota'
+        self.fields['customer_city'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_province'].label = 'Propinsi'
+        self.fields['customer_province'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_email'].label = 'Email'
+        self.fields['customer_email'].widget = forms.EmailInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Customer
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormCustomerUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCustomerUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['customer_name'].label = 'Nama Customer'
+        self.fields['customer_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_address'].label = 'Alamat'
+        self.fields['customer_address'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 4})
+        self.fields['customer_district'].label = 'Kecamatan'
+        self.fields['customer_district'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_city'].label = 'Kota'
+        self.fields['customer_city'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_province'].label = 'Propinsi'
+        self.fields['customer_province'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_email'].label = 'Email'
+        self.fields['customer_email'].widget = forms.EmailInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Customer
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormCustomerView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCustomerView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['customer_name'].label = 'Nama Customer'
+        self.fields['customer_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_address'].label = 'Alamat'
+        self.fields['customer_address'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 4, 'readonly': 'readonly'})
+        self.fields['customer_district'].label = 'Kecamatan'
+        self.fields['customer_district'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_city'].label = 'Kota'
+        self.fields['customer_city'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_province'].label = 'Propinsi'
+        self.fields['customer_province'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_email'].label = 'Email'
+        self.fields['customer_email'].widget = forms.EmailInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = Customer
+        fields = ['customer_id', 'customer_name', 'customer_address',
+                  'customer_district', 'customer_city', 'customer_province', 'customer_phone', 'customer_email']
+
+
+class FormCustomerDetail(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCustomerDetail, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['child_name'].label = 'Nama Anak'
+        self.fields['child_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['child_birth'].label = 'Tanggal Lahir'
+        self.fields['child_sex'].label = 'Jenis Kelamin'
+        self.fields['child_sex'].widget = forms.Select(
+            attrs={'class': 'form-control-sm'})
+        self.fields['child_father'].label = 'Nama Ayah'
+        self.fields['child_father'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['child_mother'].label = 'Nama Ibu'
+        self.fields['child_mother'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = CustomerDetail
+        exclude = ['customer', 'entry_date', 'entry_by',
+                   'update_date', 'update_by']
+
+        widgets = {
+            'child_birth': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy', 'default': datetime.date.today().strftime('%d/%m/%Y')}),
+        }
+
+
+class FormOrder(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrder, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order_id'].widget = forms.TextInput(
+            attrs={'class': 'd-none'})
+        self.fields['order_date'].widget = forms.DateInput(
+            attrs={'class': 'form-control-sm d-none', 'readonly': 'readonly'})
+        self.fields['order_date'].input_formats = ['%d/%m/%Y']
+        self.fields['order_date'].initial = datetime.date.today().strftime(
+            '%d/%m/%Y')
+        self.fields['customer_name'].label = 'Nama Lengkap Pemesan'
+        self.fields['customer_name'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_email'].label = 'Email'
+        self.fields['customer_email'].widget = forms.EmailInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_address'].label = 'Alamat Lengkap Pengiriman'
+        self.fields['customer_district'].label = 'Kecamatan'
+        self.fields['customer_district'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_city'].label = 'Kota/Kabupaten'
+        self.fields['customer_city'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_province'].label = 'Propinsi'
+        self.fields['customer_province'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['delivery_date'].label = 'Tanggal Pengiriman'
+        self.fields['time_arrival'].label = 'Jam Tiba di Lokasi'
+
+    class Meta:
+        model = Order
+        fields = ['order_id', 'order_date', 'customer_name', 'customer_phone', 'customer_email', 'customer_address',
+                  'customer_district', 'customer_city', 'customer_province', 'delivery_date', 'time_arrival']
+
+        widgets = {
+            'customer_address': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 4}),
+            'delivery_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+            'time_arrival': TimeInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'timepicker', 'data-time-format': 'HH:ii', 'type': 'time'}),
+        }
+
+
+class FormOrderUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrderUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order_id'].widget = forms.TextInput(
+            attrs={'class': 'd-none'})
+        self.fields['order_date'].widget = forms.DateInput(
+            attrs={'class': 'form-control-sm d-none', 'readonly': 'readonly'})
+        self.fields['customer_name'].label = 'Nama Lengkap Pemesan'
+        self.fields['customer_name'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_email'].label = 'Email'
+        self.fields['customer_email'].widget = forms.EmailInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_address'].label = 'Alamat Lengkap Pengiriman'
+        self.fields['customer_district'].label = 'Kecamatan'
+        self.fields['customer_district'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_city'].label = 'Kota/Kabupaten'
+        self.fields['customer_city'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_province'].label = 'Propinsi'
+        self.fields['customer_province'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['delivery_date'].label = 'Tanggal Pengiriman'
+        self.fields['time_arrival'].label = 'Jam Tiba di Lokasi'
+
+    class Meta:
+        model = Order
+        fields = ['order_id', 'order_date', 'customer_name', 'customer_phone', 'customer_email', 'customer_address',
+                  'customer_district', 'customer_city', 'customer_province', 'delivery_date', 'time_arrival']
+
+        widgets = {
+            'customer_address': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 4}),
+            'delivery_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+            'time_arrival': TimeInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'timepicker', 'data-time-format': 'HH:ii', 'type': 'time'}),
+        }
+
+
+class FormOrderChild(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrderChild, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order'].widget = forms.TextInput(
+            attrs={'class': 'd-none'})
+        self.fields['child_name'].label = 'Nama Anak'
+        self.fields['child_name'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['child_birth'].label = 'Tanggal Lahir'
+        self.fields['child_sex'].label = 'Jenis Kelamin'
+        self.fields['child_father'].label = 'Nama Ayah'
+        self.fields['child_father'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['child_mother'].label = 'Nama Ibu'
+        self.fields['child_mother'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+
+    class Meta:
+        model = OrderChild
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+        widgets = {
+            'child_birth': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+        }
+
+
+class FormOrderChildUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrderChildUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['child_name'].label = 'Nama Anak'
+        self.fields['child_name'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['child_birth'].label = 'Tanggal Lahir'
+        self.fields['child_sex'].label = 'Jenis Kelamin'
+        self.fields['child_father'].label = 'Nama Ayah'
+        self.fields['child_father'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['child_mother'].label = 'Nama Ibu'
+        self.fields['child_mother'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+
+    class Meta:
+        model = OrderChild
+        exclude = ['order', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+        widgets = {
+            'child_birth': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+        }
+
+
+class FormOrderPackage(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrderPackage, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order'].widget = forms.TextInput(
+            attrs={'class': 'd-none'})
+        self.fields['quantity'].label = 'Jumlah Paket'
+        self.fields['box_type'].label = 'Jenis Box'
+        self.fields['total_price'].label = 'Total Harga'
+        self.fields['quantity'].widget = forms.NumberInput(
+            attrs={'class': 'form-control-sm no-spinners'})
+        self.fields['total_price'].widget = forms.NumberInput(
+            attrs={'class': 'form-control-sm no-spinners', 'readonly': 'readonly'})
+
+    class Meta:
+        model = OrderPackage
+        exclude = ['category', 'package', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price',
+                   'entry_by', 'update_date', 'update_by']
+
+
+class FormOrderConfirmUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrderConfirmUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order_note'].label = 'Catatan Pemesanan (Jika Ada)'
+        self.fields['order_note'].required = False
+
+    class Meta:
+        model = Order
+        fields = ['order_note']
+
+        widgets = {
+            'order_note': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
+        }

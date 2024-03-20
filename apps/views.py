@@ -500,6 +500,7 @@ def area_sales_add(request):
         if form.is_valid():
             new = form.save(commit=False)
             new.area_id = form.cleaned_data.get('area_id').replace(' ', '')
+            new.form = host.url + 'order/new/' + new.area_id
             new.save()
             return HttpResponseRedirect(reverse('area-sales-view', args=[form.instance.area_id, ]))
         # if all([form.is_valid(), formset.is_valid()]):
@@ -1398,7 +1399,8 @@ def package_add(request):
 @role_required(allowed_roles='PACKAGE')
 def package_view(request, _id):
     packages = Package.objects.get(package_id=_id)
-    packages.package_price = '{:,}'.format(packages.package_price)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
@@ -1471,7 +1473,8 @@ def package_view(request, _id):
 @role_required(allowed_roles='PACKAGE')
 def package_subcuisine_view(request, _id):
     packages = Package.objects.get(package_id=_id)
-    packages.package_price = '{:,}'.format(packages.package_price)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
@@ -1544,7 +1547,8 @@ def package_subcuisine_view(request, _id):
 @role_required(allowed_roles='PACKAGE')
 def package_sidecuisine1_view(request, _id):
     packages = Package.objects.get(package_id=_id)
-    packages.package_price = '{:,}'.format(packages.package_price)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
@@ -1617,7 +1621,8 @@ def package_sidecuisine1_view(request, _id):
 @role_required(allowed_roles='PACKAGE')
 def package_sidecuisine2_view(request, _id):
     packages = Package.objects.get(package_id=_id)
-    packages.package_price = '{:,}'.format(packages.package_price)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
@@ -1690,7 +1695,8 @@ def package_sidecuisine2_view(request, _id):
 @role_required(allowed_roles='PACKAGE')
 def package_sidecuisine3_view(request, _id):
     packages = Package.objects.get(package_id=_id)
-    packages.package_price = '{:,}'.format(packages.package_price)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
@@ -1763,7 +1769,8 @@ def package_sidecuisine3_view(request, _id):
 @role_required(allowed_roles='PACKAGE')
 def package_sidecuisine4_view(request, _id):
     packages = Package.objects.get(package_id=_id)
-    packages.package_price = '{:,}'.format(packages.package_price)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
@@ -1836,7 +1843,8 @@ def package_sidecuisine4_view(request, _id):
 @role_required(allowed_roles='PACKAGE')
 def package_sidecuisine5_view(request, _id):
     packages = Package.objects.get(package_id=_id)
-    packages.package_price = '{:,}'.format(packages.package_price)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
@@ -1973,7 +1981,8 @@ def package_update(request, _id):
             update = form.save(commit=False)
             update.category_id = request.POST.get('category')
             update.type = request.POST.get('type')
-            update.package_price = request.POST.get('package_price')
+            update.male_price = request.POST.get('male_price')
+            update.female_price = request.POST.get('female_price')
             update.save()
             return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
     else:
@@ -8113,3 +8122,495 @@ def region_detail_delete(request, _id, _area):
     detail.delete()
 
     return HttpResponseRedirect(reverse('region-view', args=[_id]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUSTOMER')
+def customer_index(request):
+    customers = Customer.objects.all()
+
+    context = {
+        'data': customers,
+        'segment': 'customer',
+        'group_segment': 'master',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CUSTOMER') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/customer_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUSTOMER')
+def customer_add(request):
+    if request.POST:
+        form = FormCustomer(request.POST)
+        if form.is_valid():
+            customer = form.save(commit=False)
+            customer.save()
+
+            return HttpResponseRedirect(reverse('customer-view', args=[customer.customer_id, '0']))
+    else:
+        form = FormCustomer()
+
+    message = form.errors
+    context = {
+        'form': form,
+        'segment': 'customer',
+        'group_segment': 'master',
+        'crud': 'add',
+        'message': message,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(
+            user_id=request.user.user_id, menu_id='CUSTOMER') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/customer_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUSTOMER')
+def customer_view(request, _id, _msg):
+    customer = Customer.objects.get(customer_id=_id)
+    form = FormCustomerView(instance=customer)
+    form_detail = FormCustomerDetail(
+        initial={'child_birth': datetime.date.today()})
+    details = CustomerDetail.objects.filter(customer_id=_id)
+    msg = _msg
+
+    if request.POST:
+        form_detail = FormCustomerDetail(request.POST)
+        if form_detail.is_valid():
+            try:
+                detail = form_detail.save(commit=False)
+                detail.customer_id = _id
+                detail.child_sex = request.POST.get('child_sex')
+                detail.save()
+            except IntegrityError:
+                msg = 'Nama anak sudah ada.'
+
+            return HttpResponseRedirect(reverse('customer-view', args=[_id, msg]))
+
+    context = {
+        'form': form,
+        'form_detail': form_detail,
+        'data': customer,
+        'details': details,
+        'msg': msg,
+        'segment': 'customer',
+        'group_segment': 'master',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(
+            user_id=request.user.user_id, menu_id='CUSTOMER') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/customer_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUSTOMER')
+def customer_update(request, _id):
+    customer = Customer.objects.get(customer_id=_id)
+
+    if request.POST:
+        form = FormCustomerUpdate(request.POST, instance=customer)
+        if form.is_valid():
+            customer = form.save(commit=False)
+            customer.save()
+
+            return HttpResponseRedirect(reverse('customer-view', args=[_id, '0']))
+    else:
+        form = FormCustomerUpdate(instance=customer)
+
+    context = {
+        'form': form,
+        'data': customer,
+        'msg': '0',
+        'segment': 'customer',
+        'group_segment': 'master',
+        'crud': 'update',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(
+            user_id=request.user.user_id, menu_id='CUSTOMER') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/customer_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUSTOMER')
+def customer_delete(request, _id):
+    customer = Customer.objects.get(customer_id=_id)
+    customer.delete()
+
+    return HttpResponseRedirect(reverse('customer-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUSTOMER')
+def customer_detail_update(request, _id, _child):
+    detail = CustomerDetail.objects.get(id=_child)
+
+    if request.POST:
+        detail.child_name = request.POST.get('child_name')
+        detail.child_birth = request.POST.get('child_birth')
+        detail.child_sex = request.POST.get('child_sex')
+        detail.child_father = request.POST.get('child_father')
+        detail.child_mother = request.POST.get('child_mother')
+        detail.save()
+
+        return HttpResponseRedirect(reverse('customer-view', args=[_id, '0']))
+
+    return render(request, 'home/customer_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CUSTOMER')
+def customer_detail_delete(request, _id):
+    detail = CustomerDetail.objects.get(id=_id)
+    detail.delete()
+
+    return HttpResponseRedirect(reverse('customer-view', args=[_id, '0']))
+
+
+def order_add(request, _reg):
+    try:
+        _no = Order.objects.latest('seq_number').seq_number
+    except Order.DoesNotExist:
+        _no = None
+    if _no is None:
+        format_no = '{:05d}'.format(1)
+    else:
+        format_no = '{:05d}'.format(_no + 1)
+
+    _id = 'INV-1' + format_no + '/' + _reg + '/SA/' + str(datetime.datetime.now().strftime('%m')) + \
+        '/' + str(datetime.datetime.now().year)
+
+    if request.POST:
+        form = FormOrder(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.order_id = _id
+            order.regional_id = _reg
+            order.seq_number = _no + 1 if _no else 1
+            order.save()
+
+            return HttpResponseRedirect(reverse('order-child-add', args=[_id]))
+    else:
+        form = FormOrder(initial={'order_id': _id})
+
+    msg = form.errors
+    context = {
+        'form': form,
+        'crud': 'add',
+        'reg': _reg,
+        'msg': msg,
+    }
+    return render(request, 'home/order_add.html', context)
+
+
+def order_update(request, _id):
+    order = Order.objects.get(order_id=_id)
+
+    if request.POST:
+        form = FormOrderUpdate(request.POST, instance=order)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.save()
+
+            child = OrderChild.objects.filter(order_id=_id)
+            if child:
+                return HttpResponseRedirect(reverse('order-child-update', args=[_id, child[0].id]))
+            else:
+                return HttpResponseRedirect(reverse('order-child-add', args=[_id]))
+    else:
+        form = FormOrderUpdate(instance=order)
+
+    context = {
+        'form': form,
+        'data': order,
+        'crud': 'update',
+    }
+    return render(request, 'home/order_update.html', context)
+
+
+def order_child_add(request, _id):
+    try:
+        last_child = OrderChild.objects.filter(order=_id).last()
+    except OrderChild.DoesNotExist:
+        last_child = None
+
+    if request.POST:
+        form = FormOrderChild(request.POST)
+        if form.is_valid():
+            child = form.save(commit=False)
+            child.order_id = _id
+            child.child_sex = request.POST.get('child_sex')
+            child.save()
+
+            package = OrderPackage.objects.filter(order_id=_id)
+            if package:
+                return HttpResponseRedirect(reverse('order-package-update', args=[_id, package[0].id, package[0].category, package[0].package_id]))
+            else:
+                return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0']))
+    else:
+        form = FormOrderChild(initial={'order': _id})
+
+    msg = form.errors
+    context = {
+        'form': form,
+        'crud': 'add',
+        'last_child': last_child,
+        'order_id': _id,
+        'msg': msg,
+    }
+    return render(request, 'home/order_child_add.html', context)
+
+
+def order_child_update(request, _id, _child):
+    child = OrderChild.objects.get(order_id=_id, id=_child)
+
+    first = False
+    first_child = OrderChild.objects.filter(order_id=_id).first()
+    if first_child.id == _child:
+        first = True
+
+    for i in reversed(OrderChild.objects.filter(order_id=_id)):
+        if i.id < _child:
+            prev_id = i.id
+            break
+
+    if request.POST:
+        form = FormOrderChildUpdate(request.POST, instance=child)
+        if form.is_valid():
+            child = form.save(commit=False)
+            child.child_sex = request.POST.get('child_sex')
+            child.save()
+
+            last_child = OrderChild.objects.filter(order_id=_id).last()
+            if last_child.id == _child:
+                package = OrderPackage.objects.filter(order_id=_id)
+                if package:
+                    return HttpResponseRedirect(reverse('order-package-update', args=[_id, package[0].id, package[0].category, package[0].package_id]))
+                else:
+                    return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0']))
+            else:
+                for i in OrderChild.objects.filter(order_id=_id):
+                    if i.id > _child:
+                        return HttpResponseRedirect(reverse('order-child-update', args=[_id, i.id]))
+    else:
+        form = FormOrderChildUpdate(instance=child)
+
+    context = {
+        'form': form,
+        'data': child,
+        'first_child': first,
+        'prev_id': prev_id,
+        'crud': 'update',
+    }
+    return render(request, 'home/order_child_update.html', context)
+
+
+def order_package_add(request, _id, _cat, _pack):
+    categories = Category.objects.all()
+    packages = Package.objects.filter(category=_cat)
+    box_types = BoxType.objects.all()
+    main_cuisines = MainCuisine.objects.filter(package=_pack)
+    sub_cuisines = SubCuisine.objects.filter(package=_pack)
+    side_cuisines1 = SideCuisine1.objects.filter(package=_pack)
+    side_cuisines2 = SideCuisine2.objects.filter(package=_pack)
+    side_cuisines3 = SideCuisine3.objects.filter(package=_pack)
+    side_cuisines4 = SideCuisine4.objects.filter(package=_pack)
+    side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
+    last_package = OrderPackage.objects.filter(order_id=_id).last(
+    ) if OrderPackage.objects.filter(order_id=_id) else None
+    selected_package = Package.objects.get(
+        package_id=_pack) if _pack != '0' else None
+    order = Order.objects.get(order_id=_id)
+
+    if request.POST:
+        form = FormOrderPackage(request.POST)
+        if form.is_valid():
+            package = form.save(commit=False)
+            package.order_id = _id
+            package.category_id = _cat
+            package.package_id = _pack
+            package.box_type_id = request.POST.get('box_type')
+            package.main_cuisine = request.POST.get('main_cuisine')
+            package.sub_cuisine = request.POST.get('sub_cuisine')
+            package.side_cuisine1 = request.POST.get('side_cuisine1')
+            package.side_cuisine2 = request.POST.get('side_cuisine2')
+            package.side_cuisine3 = request.POST.get('side_cuisine3')
+            package.side_cuisine4 = request.POST.get('side_cuisine4')
+            package.side_cuisine5 = request.POST.get('side_cuisine5')
+            package.unit_price = selected_package.male_price if request.POST.get(
+                'type') == 'Jantan' else selected_package.female_price
+            package.save()
+
+            total = OrderPackage.objects.filter(
+                order_id=_id).aggregate(order=Sum('total_price'))
+            order.total_order = total['order']
+            order.save()
+
+            return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+    else:
+        form = FormOrderPackage(initial={'order': _id})
+
+    msg = form.errors
+    context = {
+        'form': form,
+        'data': order,
+        'crud': 'add',
+        'cat': _cat,
+        'pack': _pack,
+        'categories': categories,
+        'packages': packages,
+        'box_types': box_types,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'last_package': last_package,
+        'selected_package': selected_package,
+        'order_id': _id,
+        'msg': msg,
+    }
+    return render(request, 'home/order_package_add.html', context)
+
+
+def order_package_update(request, _id, _package, _cat, _pack):
+    package = OrderPackage.objects.get(order_id=_id, id=_package)
+    last_child = OrderChild.objects.filter(order_id=_id).last()
+    selected_package = Package.objects.get(
+        package_id=_pack) if _pack != '0' else None
+    order = Order.objects.get(order_id=_id)
+
+    first = False
+    first_package = OrderPackage.objects.filter(order_id=_id).first()
+    if first_package.id == _package:
+        first = True
+
+    for i in reversed(OrderPackage.objects.filter(order_id=_id)):
+        if i.id < _package:
+            prev_id = i.id
+            prev_cat = i.category
+            prev_pack = i.package
+            break
+
+    if request.POST:
+        form = FormOrderPackage(request.POST, instance=package)
+        if form.is_valid():
+            package = form.save(commit=False)
+            package.category = _cat
+            package.package = _pack
+            package.box_type = request.POST.get('box_type')
+            package.main_cuisine = request.POST.get('main_cuisine')
+            package.sub_cuisine = request.POST.get('sub_cuisine')
+            package.side_cuisine1 = request.POST.get('side_cuisine1')
+            package.side_cuisine2 = request.POST.get('side_cuisine2')
+            package.side_cuisine3 = request.POST.get('side_cuisine3')
+            package.side_cuisine4 = request.POST.get('side_cuisine4')
+            package.side_cuisine5 = request.POST.get('side_cuisine5')
+            package.unit_price = selected_package.male_price if request.POST.get(
+                'type') == 'Jantan' else selected_package.female_price
+            package.save()
+
+            total = OrderPackage.objects.filter(
+                order_id=_id).aggregate(order=Sum('total_price'))
+            order.total_order = total['order']
+            order.save()
+
+            last_package = OrderPackage.objects.filter(order_id=_id).last()
+            if last_package.id == _package:
+                return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+            else:
+                for i in OrderPackage.objects.filter(order_id=_id):
+                    if i.id > _package:
+                        return HttpResponseRedirect(reverse('order-package-update', args=[_id, i.id]))
+    else:
+        form = FormOrderPackage(instance=package)
+
+    context = {
+        'form': form,
+        'data': package,
+        'first_package': first,
+        'prev_id': prev_id,
+        'prev_cat': prev_cat,
+        'prev_pack': prev_pack,
+        'last_child': last_child,
+        'crud': 'update',
+        'selected_package': selected_package,
+        'order_id': _id,
+    }
+    return render(request, 'home/order_package_update.html', context)
+
+
+def order_confirm_update(request, _id):
+    order = Order.objects.get(order_id=_id)
+    last_package = OrderPackage.objects.filter(order_id=_id).last()
+
+    if request.POST:
+        form = FormOrderConfirmUpdate(request.POST, instance=order)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.use_photo = request.POST.get('use_photo')
+            order.witnessed = request.POST.get('witnessed')
+            order.info_source = request.POST.get('info_source')
+            order.save()
+
+            return HttpResponseRedirect(reverse('order-confirm', args=[_id]))
+    else:
+        form = FormOrderConfirmUpdate(instance=order)
+
+    context = {
+        'form': form,
+        'data': order,
+        'last_package': last_package,
+        'crud': 'update',
+    }
+    return render(request, 'home/order_confirm_update.html', context)
+
+
+def order_confirm(request, _id):
+    order = Order.objects.get(order_id=_id)
+    child = OrderChild.objects.filter(order_id=_id)
+    package = OrderPackage.objects.filter(order_id=_id)
+
+    context = {
+        'data': order,
+        'child': child,
+        'package': package,
+        'crud': 'view',
+    }
+    return render(request, 'home/order_confirm.html', context)
+
+
+def order_submit(request, _id):
+    order = Order.objects.get(order_id=_id)
+    order.status = 'DRAFT'
+    order.save()
+
+    link_form = AreaSales.objects.get(area_id=order.regional_id).form
+
+    return render(request, 'home/order_thankyou.html', {'link_form': link_form})
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='FORM')
+def form_index(request):
+    area_sales = AreaSales.objects.all()
+
+    context = {
+        'data': area_sales,
+        'segment': 'form',
+        'group_segment': 'transaction',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='FORM') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/form_index.html', context)

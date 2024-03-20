@@ -1,0 +1,113 @@
+{% extends 'layouts/base-form.html' %}
+
+{% block title %} Form Pemesanan {% endblock title %}
+
+{% block content %}
+
+{% load my_filter %}
+
+{% load humanize %}
+
+{% load mathfilters %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'order-child-add' order_id %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-2 text-center">Informasi Anak</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            {% if message != '0' and crud == 'update' %}
+                            <div class="alert text-danger text-bg-light mt-2" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endif %}
+                            {% if msg %}
+                            <div class="alert text-danger text-bg-light mt-2" role="alert">
+                                {{ msg }}
+                            </div>
+                            {% endif %}
+                            {{ form.order }}
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group shadow-none">
+                                        {{ form.child_name.label_tag }}
+                                        <input type="text" name="child_name" class="form-control form-control-sm" value="{{ item.child_name }}">
+                                        <div class="text-sm text-danger">
+                                            {{ form.child_name.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group shadow-none">
+                                        {{ form.child_birth.label_tag }}{{ form.child_birth }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.child_birth.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group shadow-none">
+                                        {{ form.child_sex.label_tag }}
+                                        <select name="child_sex" class="form-control form-select-sm">
+                                            <option value="1">Laki-laki</option>
+                                            <option value="2">Perempuan</option>
+                                        </select>
+                                        <div class="text-sm text-danger">
+                                            {{ form.child_sex.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group shadow-none">
+                                        {{ form.child_father.label_tag }}{{ form.child_father }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.child_father.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group shadow-none">
+                                        {{ form.child_mother.label_tag }}{{ form.child_mother }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.child_mother.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <div class="row">
+                                <div class="col-6 text-center">
+                                    <a href="{% url 'order-child-add' order_id %}" class="btn btn-sm bg-gradient-warning mb-0 px-4"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Anak Yang Diaqiqahkan</a>
+                                </div>
+                            </div> -->
+                            <div class="row mt-4">
+                                <div class="col-6">
+                                    <a href="{% if last_child %}{% url 'order-child-update' order_id last_child.id %}{% else %}{% url 'order-update' order_id %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

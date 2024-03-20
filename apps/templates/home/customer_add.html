@@ -1,0 +1,104 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Buat Customer Baru {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'customer-add' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Buat Customer Baru</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button type="submit" class="btn bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <a href="{% url 'customer-index' %}" class="btn bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="shadow-none">
+                                                {{ form.customer_name.label_tag }}{{ form.customer_name }}
+                                                <div class="text-sm text-danger">
+                                                    {{ form.customer_name.errors }}
+                                                </div>
+                                            </div>  
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="shadow-none">
+                                                {{ form.customer_phone.label_tag }}{{ form.customer_phone }}
+                                                <div class="text-sm text-danger">
+                                                    {{ form.customer_phone.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="shadow-none">
+                                                {{ form.customer_email.label_tag }}{{ form.customer_email }}
+                                                <div class="text-sm text-danger">
+                                                    {{ form.customer_email.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.customer_address.label_tag }}{{ form.customer_address }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.customer_address.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.customer_district.label_tag }}{{ form.customer_district }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.customer_district.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.customer_city.label_tag }}{{ form.customer_city }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.customer_city.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.customer_province.label_tag }}{{ form.customer_province }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.customer_province.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

@@ -68,11 +68,19 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="shadow-none">
-                                        {{ form.package_price.label_tag }}{{ form.package_price }}
+                                        {{ form.male_price.label_tag }}{{ form.male_price }}
                                         <div class="text-sm text-danger">
-                                            {{ form.package_price.errors }}
+                                            {{ form.male_price.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="shadow-none">
+                                        {{ form.female_price.label_tag }}{{ form.female_price }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.female_price.errors }}
                                         </div>
                                     </div>
                                 </div>
@@ -92,7 +100,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-2">
                                     <div class="shadow-none">
                                         {{ form.type.label_tag }}
                                         <select name="type" class="form-control form-select-sm" {% if crud == 'view' %}disabled{% endif %}>

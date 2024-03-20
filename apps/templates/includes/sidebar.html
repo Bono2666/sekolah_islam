@@ -31,6 +31,60 @@
         </a>
       </li> -->
       <li class="nav-item">
+        <a class="nav-link {% if 'transaction' in group_segment %}active{% endif %} {% if 'claim' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#claim-menu">
+          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            {% if 'transaction' in group_segment %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <title>contactless-card</title>
+              <g fill="#F7F7F7" stroke="#F7F7F7">
+                <path d="M24.865,16.814a6.976,6.976,0,0,0,0-7.628" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
+                <path d="M21.34,14.856a2.94,2.94,0,0,0,0-3.712" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
+                <path d="M1,25V7A2,2,0,0,1,3,5H29a2,2,0,0,1,2,2V25a2,2,0,0,1-2,2H3A2,2,0,0,1,1,25Z" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
+                <line x1="6" y1="22" x2="18" y2="22" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
+                <line x1="22" y1="22" x2="26" y2="22" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
+                <rect x="6" y="10" width="5" height="4" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></rect>
+                <circle cx="18" cy="13" r="1" data-stroke="none" stroke="none"></circle>
+              </g>
+            </svg>
+            {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <title>contactless-card</title>
+              <g fill="#212121" stroke="#212121">
+                <path d="M24.865,16.814a6.976,6.976,0,0,0,0-7.628" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
+                <path d="M21.34,14.856a2.94,2.94,0,0,0,0-3.712" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
+                <path d="M1,25V7A2,2,0,0,1,3,5H29a2,2,0,0,1,2,2V25a2,2,0,0,1-2,2H3A2,2,0,0,1,1,25Z" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
+                <line x1="6" y1="22" x2="18" y2="22" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
+                <line x1="22" y1="22" x2="26" y2="22" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
+                <rect x="6" y="10" width="5" height="4" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></rect>
+                <circle cx="18" cy="13" r="1" data-stroke="none" stroke="none"></circle>
+              </g>
+            </svg>
+            {% endif %}
+          </div>
+          <span class="nav-link-text ms-1">Transaction</span>
+        </a>
+
+        <div class="multi-level ms-5 collapse {% if 'transaction' in group_segment %}show{% endif %}" role="list" id="claim-menu" aria-expanded="{% if 'claim' in group_segment %}true{% else %}false{% endif %}">
+          <ul class="flex-column nav">
+            <li class="nav-item {% if segment == 'claim' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'CLAIM' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'CLAIM' not in role and not request.user.is_superuser %}disabled{% endif %}">Sales Order</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'claim_release' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'CLAIM-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'CLAIM-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}">PO Kitchen</span>
+              </a>
+            </li>
+            <li class="nav-item {% if 'form' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'FORM' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'form-index' %}"{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'FORM' not in role and not request.user.is_superuser %}disabled{% endif %}">Form</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item">
         <a class="nav-link {% if 'budget' in group_segment %}active{% endif %} {% if 'budget' not in group_segment %}collapsed{% endif %}" href="#budget-menu" data-bs-toggle="collapse" data-bs-target="#budget-menu" aria-controls="budget-menu" role="button">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if 'budget' in group_segment %}
@@ -49,22 +103,22 @@
             </svg>
             {% endif %}
           </div>
-          <span class="nav-link-text ms-1">Budget</span>
+          <span class="nav-link-text ms-1">Accounting</span>
         </a>
 
         <div class="multi-level ms-5 collapse {% if 'budget' in group_segment %}show{% endif %}" role="list" id="budget-menu" aria-expanded="{% if 'budget' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
             <li class="nav-item {% if segment == 'budget' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'BUDGET' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'budget-index' 'open' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'BUDGET' not in role and not request.user.is_superuser %}disabled{% endif %}">List</span>
+              <a class="nav-link button cursor-pointer {% if 'BUDGET' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'BUDGET' not in role and not request.user.is_superuser %}disabled{% endif %}">Uang Masuk</span>
               </a>
             </li>
             <li class="nav-item {% if 'budget_upload' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'BUDGET-PERCENTAGE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'budget-upload' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'BUDGET-PERCENTAGE' not in role and not request.user.is_superuser %}disabled{% endif %}">Upload</span>
+              <a class="nav-link button cursor-pointer {% if 'BUDGET-PERCENTAGE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'BUDGET-PERCENTAGE' not in role and not request.user.is_superuser %}disabled{% endif %}">Uang Keluar</span>
               </a>
             </li>
-            <li class="nav-item {% if segment == 'budget_release' %}active{% endif %} list-unstyled">
+            <!-- <li class="nav-item {% if segment == 'budget_release' %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'BUDGET-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'budget-release-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'BUDGET-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}">Release</span>
               </a>
@@ -78,11 +132,11 @@
               <a class="nav-link button cursor-pointer {% if 'BUDGET-ARCHIVE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'budget-archive-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'BUDGET-ARCHIVE' not in role and not request.user.is_superuser %}disabled{% endif %}">Archive</span>
               </a>
-            </li>
+            </li> -->
           </ul>
         </div>
       </li>
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link {% if 'proposal' in group_segment %}active{% endif %} {% if 'proposal' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#proposal-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if 'proposal' in group_segment %}
@@ -131,8 +185,8 @@
             </li>
           </ul>
         </div>
-      </li>
-      <li class="nav-item">
+      </li> -->
+      <!-- <li class="nav-item">
         <a class="nav-link {% if 'program' in group_segment %}active{% endif %} {% if 'program' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#program-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if 'program' in group_segment %}
@@ -181,62 +235,8 @@
             </li>
           </ul>
         </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {% if 'claim' in group_segment %}active{% endif %} {% if 'claim' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#claim-menu">
-          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-            {% if 'claim' in group_segment %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-              <title>contactless-card</title>
-              <g fill="#F7F7F7" stroke="#F7F7F7">
-                <path d="M24.865,16.814a6.976,6.976,0,0,0,0-7.628" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <path d="M21.34,14.856a2.94,2.94,0,0,0,0-3.712" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <path d="M1,25V7A2,2,0,0,1,3,5H29a2,2,0,0,1,2,2V25a2,2,0,0,1-2,2H3A2,2,0,0,1,1,25Z" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <line x1="6" y1="22" x2="18" y2="22" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
-                <line x1="22" y1="22" x2="26" y2="22" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
-                <rect x="6" y="10" width="5" height="4" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></rect>
-                <circle cx="18" cy="13" r="1" data-stroke="none" stroke="none"></circle>
-              </g>
-            </svg>
-            {% else %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-              <title>contactless-card</title>
-              <g fill="#212121" stroke="#212121">
-                <path d="M24.865,16.814a6.976,6.976,0,0,0,0-7.628" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <path d="M21.34,14.856a2.94,2.94,0,0,0,0-3.712" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <path d="M1,25V7A2,2,0,0,1,3,5H29a2,2,0,0,1,2,2V25a2,2,0,0,1-2,2H3A2,2,0,0,1,1,25Z" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <line x1="6" y1="22" x2="18" y2="22" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
-                <line x1="22" y1="22" x2="26" y2="22" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
-                <rect x="6" y="10" width="5" height="4" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></rect>
-                <circle cx="18" cy="13" r="1" data-stroke="none" stroke="none"></circle>
-              </g>
-            </svg>
-            {% endif %}
-          </div>
-          <span class="nav-link-text ms-1">Claim</span>
-        </a>
-
-        <div class="multi-level ms-5 collapse {% if 'claim' in group_segment %}show{% endif %}" role="list" id="claim-menu" aria-expanded="{% if 'claim' in group_segment %}true{% else %}false{% endif %}">
-          <ul class="flex-column nav">
-            <li class="nav-item {% if segment == 'claim' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CLAIM' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'claim-index' 'open' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CLAIM' not in role and not request.user.is_superuser %}disabled{% endif %}">List</span>
-              </a>
-            </li>
-            <li class="nav-item {% if segment == 'claim_release' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CLAIM-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'claim-release-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CLAIM-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}">Release</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'claim_archive' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CLAIM-ARCHIVE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'claim-archive-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CLAIM-ARCHIVE' not in role and not request.user.is_superuser %}disabled{% endif %}">Archive</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </li>
-      <li class="nav-item">
+      </li> -->
+      <!-- <li class="nav-item">
         <a class="nav-link {% if group_segment == 'cl' %}active{% endif %} {% if group_segment != 'cl' %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#cl-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if group_segment == 'cl' %}
@@ -276,7 +276,7 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
       <li class="nav-item">
         <a class="nav-link {% if 'master' in group_segment %}active{% endif %} {% if 'master' not in group_segment %}collapsed{% endif %}" href="{% url 'user-index' %}" data-bs-toggle="collapse" data-bs-target="#user-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -310,11 +310,16 @@
                 <span class="nav-link-text ms-1 {% if 'USER' not in role and not request.user.is_superuser %}d-none{% endif %}">User</span>
               </a>
             </li>
-            <li class="nav-item {% if 'distributor' in segment %}active{% endif %} list-unstyled">
+            <li class="nav-item {% if 'customer' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'customer-index' %}"{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}">Customer</span>
+              </a>
+            </li>
+            <!-- <li class="nav-item {% if 'distributor' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'DISTRIBUTOR' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'distributor-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'DISTRIBUTOR' not in role and not request.user.is_superuser %}disabled{% endif %}">Distributor</span>
               </a>
-            </li>
+            </li> -->
             <li class="nav-item {% if 'area_sales' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'area-sales-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}">Regional</span>
@@ -373,7 +378,7 @@
           </ul>
         </div>
       </li>
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link {% if 'approval' in group_segment %}active{% endif %} {% if 'approval' not in group_segment %}collapsed{% endif %}" href="{% url 'budget-approval-index' %}" data-bs-toggle="collapse" data-bs-target="#approval-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if 'approval' in group_segment %}
@@ -424,7 +429,7 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
     </ul>
   </div>
 </aside>

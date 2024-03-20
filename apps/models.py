@@ -124,7 +124,9 @@ class Package(models.Model):
     package_id = models.CharField(max_length=50, primary_key=True)
     package_name = models.CharField(max_length=50)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    package_price = models.DecimalField(
+    male_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    female_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
     box = models.IntegerField(default=0)
     quantity = models.IntegerField(default=0)
@@ -136,8 +138,6 @@ class Package(models.Model):
 
     def save(self, *args, **kwargs):
         self.package_id = self.package_id.upper()
-        self.package_price = Decimal(
-            sub(r'[^\d.]', '', str(self.package_price)))
         if not self.entry_date:
             self.entry_date = timezone.now()
             self.entry_by = get_current_user().user_id
@@ -315,6 +315,7 @@ class AreaSales(models.Model):
     area_name = models.CharField(max_length=50)
     manager = models.CharField(max_length=50)
     bank_account = models.CharField(max_length=200, null=True)
+    form = models.CharField(max_length=200, null=True)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True)
@@ -1297,3 +1298,209 @@ class RegionDetail(models.Model):
         self.update_date = timezone.now()
         self.update_by = get_current_user().username
         super(RegionDetail, self).save(*args, **kwargs)
+
+
+class Customer(models.Model):
+    customer_id = models.BigAutoField(primary_key=True)
+    customer_name = models.CharField(max_length=200)
+    customer_address = models.CharField(max_length=200, null=True)
+    customer_district = models.CharField(max_length=50, null=True)
+    customer_city = models.CharField(max_length=50, null=True)
+    customer_province = models.CharField(max_length=50, null=True)
+    customer_phone = models.CharField(max_length=50, null=True)
+    customer_email = models.CharField(max_length=50, null=True)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Customer, self).save(*args, **kwargs)
+
+
+class CustomerDetail(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    child_name = models.CharField(max_length=200)
+    child_birth = models.DateField(null=True)
+    child_sex = models.CharField(max_length=1, null=True)
+    child_father = models.CharField(max_length=200, null=True)
+    child_mother = models.CharField(max_length=200, null=True)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['customer', 'child_name'], name='unique_customer_child')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(CustomerDetail, self).save(*args, **kwargs)
+
+
+class BoxType(models.Model):
+    box_type_id = models.BigAutoField(primary_key=True)
+    box_type_name = models.CharField(max_length=50)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(BoxType, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.box_type_name
+
+
+class Souvenir(models.Model):
+    souvenir_id = models.BigAutoField(primary_key=True)
+    souvenir_name = models.CharField(max_length=200)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Souvenir, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.souvenir_name
+
+
+class Order(models.Model):
+    order_id = models.CharField(max_length=50, primary_key=True)
+    regional = models.ForeignKey(
+        AreaSales, on_delete=models.CASCADE, null=True)
+    order_date = models.DateTimeField(null=True)
+    customer_name = models.CharField(max_length=200)
+    customer_phone = models.CharField(max_length=50, null=True)
+    customer_email = models.CharField(max_length=50, null=True)
+    customer_address = models.CharField(max_length=200, null=True)
+    customer_district = models.CharField(max_length=50, null=True)
+    customer_city = models.CharField(max_length=50, null=True)
+    customer_province = models.CharField(max_length=50, null=True)
+    delivery_date = models.DateTimeField(null=True)
+    time_arrival = models.CharField(max_length=50, null=True)
+    total_order = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    down_payment = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    pending_payment = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    use_photo = models.BooleanField(default=False)
+    witnessed = models.BooleanField(default=False)
+    info_source = models.CharField(max_length=50, null=True)
+    souvenir = models.ForeignKey(Souvenir, on_delete=models.CASCADE, null=True)
+    order_note = models.CharField(max_length=200, null=True)
+    cs = models.CharField(max_length=50, null=True)
+    order_status = models.CharField(max_length=15, default='PENDING')
+    seq_number = models.IntegerField(default=0)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.pending_payment = self.total_order - self.down_payment
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Order, self).save(*args, **kwargs)
+
+
+class OrderChild(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    child_name = models.CharField(max_length=200)
+    child_birth = models.DateField(null=True)
+    child_sex = models.CharField(max_length=1, null=True)
+    child_father = models.CharField(max_length=200, null=True)
+    child_mother = models.CharField(max_length=200, null=True)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['order', 'child_name'], name='unique_order_child')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(OrderChild, self).save(*args, **kwargs)
+
+
+class OrderPackage(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    type = models.CharField(max_length=10, null=True)
+    quantity = models.IntegerField(default=1)
+    box_type = models.ForeignKey(BoxType, on_delete=models.CASCADE, null=True)
+    main_cuisine = models.CharField(max_length=50, null=True)
+    sub_cuisine = models.CharField(max_length=50, null=True)
+    side_cuisine1 = models.CharField(max_length=50, null=True)
+    side_cuisine2 = models.CharField(max_length=50, null=True)
+    side_cuisine3 = models.CharField(max_length=50, null=True)
+    side_cuisine4 = models.CharField(max_length=50, null=True)
+    side_cuisine5 = models.CharField(max_length=50, null=True)
+    unit_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    total_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['order', 'package'], name='unique_order_package')
+        ]
+
+    def save(self, *args, **kwargs):
+        self.total_price = self.quantity * self.unit_price
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(OrderPackage, self).save(*args, **kwargs)
