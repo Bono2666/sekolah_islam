@@ -66,16 +66,16 @@
 
         <div class="multi-level ms-5 collapse {% if 'transaction' in group_segment %}show{% endif %}" role="list" id="claim-menu" aria-expanded="{% if 'claim' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
-            <li class="nav-item {% if segment == 'claim' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CLAIM' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CLAIM' not in role and not request.user.is_superuser %}disabled{% endif %}">Sales Order</span>
+            <li class="nav-item {% if segment == 'order' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'order-index' %}"{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}">Sales Order</span>
               </a>
             </li>
-            <li class="nav-item {% if segment == 'claim_release' %}active{% endif %} list-unstyled">
+            <!-- <li class="nav-item {% if segment == 'claim_release' %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'CLAIM-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'CLAIM-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}">PO Kitchen</span>
               </a>
-            </li>
+            </li> -->
             <li class="nav-item {% if 'form' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'FORM' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'form-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'FORM' not in role and not request.user.is_superuser %}disabled{% endif %}">Form</span>
@@ -85,9 +85,9 @@
         </div>
       </li>
       <li class="nav-item">
-        <a class="nav-link {% if 'budget' in group_segment %}active{% endif %} {% if 'budget' not in group_segment %}collapsed{% endif %}" href="#budget-menu" data-bs-toggle="collapse" data-bs-target="#budget-menu" aria-controls="budget-menu" role="button">
+        <a class="nav-link {% if 'accounting' in group_segment %}active{% endif %} {% if 'budget' not in group_segment %}collapsed{% endif %}" href="#budget-menu" data-bs-toggle="collapse" data-bs-target="#budget-menu" aria-controls="budget-menu" role="button">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-            {% if 'budget' in group_segment %}
+            {% if 'accounting' in group_segment %}
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <title>Budget</title>
               <g fill="none">
@@ -106,18 +106,18 @@
           <span class="nav-link-text ms-1">Accounting</span>
         </a>
 
-        <div class="multi-level ms-5 collapse {% if 'budget' in group_segment %}show{% endif %}" role="list" id="budget-menu" aria-expanded="{% if 'budget' in group_segment %}true{% else %}false{% endif %}">
+        <div class="multi-level ms-5 collapse {% if 'accounting' in group_segment %}show{% endif %}" role="list" id="budget-menu" aria-expanded="{% if 'budget' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
-            <li class="nav-item {% if segment == 'budget' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'BUDGET' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'BUDGET' not in role and not request.user.is_superuser %}disabled{% endif %}">Uang Masuk</span>
+            <li class="nav-item {% if segment == 'cash-in' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'CASH-IN' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'cashin-index' %}"{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'CASH-IN' not in role and not request.user.is_superuser %}disabled{% endif %}">Uang Masuk</span>
               </a>
             </li>
-            <li class="nav-item {% if 'budget_upload' in segment %}active{% endif %} list-unstyled">
+            <!-- <li class="nav-item {% if 'budget_upload' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'BUDGET-PERCENTAGE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'BUDGET-PERCENTAGE' not in role and not request.user.is_superuser %}disabled{% endif %}">Uang Keluar</span>
               </a>
-            </li>
+            </li> -->
             <!-- <li class="nav-item {% if segment == 'budget_release' %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'BUDGET-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'budget-release-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'BUDGET-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}">Release</span>

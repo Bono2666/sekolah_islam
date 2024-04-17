@@ -1,0 +1,113 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Buat Uang Masuk {% endblock title %}
+
+{% block content %}
+
+{% load humanize %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'cashin-add' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Buat Uang Masuk</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button type="submit" class="btn bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <a href="{% url 'cashin-index' %}" class="btn bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.order.label_tag }}
+                                        <select name="order" class="form-control form-select-sm">
+                                            <option value="">-- Pilih Order --</option>
+                                            {% for item in orders %}
+                                            <option value="{{ item.order_id }}">{{ item.order_id }} - {{ item.customer_name }} - Rp. {{ item.pending_payment|intcomma }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="text-sm text-danger">
+                                            {{ form.order.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.cashin_type.label_tag }}
+                                        <select name="cashin_type" class="form-control form-select-sm">
+                                            <option value="">-- Pilih Cara Pembayaran --</option>
+                                            <option value="Tunai">Tunai</option>
+                                            <option value="Transfer">Transfer</option>
+                                        </select>
+                                        <div class="text-sm text-danger">
+                                            {{ form.cashin_type.errors }}
+                                        </div>
+                                    </div>  
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.cashin_date.label_tag }}{{ form.cashin_date }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.cashin_date.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="shadow-none">
+                                        {{ form.cashin_amount.label_tag }}{{ form.cashin_amount }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.cashin_amount.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="shadow-none">
+                                        {{ form.bank.label_tag }}{{ form.bank }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.bank.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.evidence.label_tag }}{{ form.evidence }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.evidence.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="shadow-none">
+                                        {{ form.cashin_note.label_tag }}{{ form.cashin_note }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.cashin_note.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

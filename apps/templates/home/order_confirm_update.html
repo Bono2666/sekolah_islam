@@ -62,7 +62,7 @@
                                 <div class="col-md-12">
                                     <div class="shadow-none">
                                         <label class="form-control-label" for="input-info-source">Sumber informasi?</label>
-                                        <select class="form-control form-select-sm" name="info_source" id="input-info-source">
+                                        <select class="form-control form-select-sm" name="info_source" id="input-info-source" required>
                                             <option value="">Pilih sumber informasi</option>
                                             <option value="Google" {% if data.info_source == 'Google' %} selected {% endif %}>Google</option>
                                             <option value="Instagram" {% if data.info_source == 'Instagram' %} selected {% endif %}>Instagram</option>
@@ -92,10 +92,10 @@
                             </div>
                             <div class="row mt-4">
                                 <div class="col-6">
-                                    <a href="{% url 'order-package-update' data.order_id last_package.id last_package.category_id last_package.package_id %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
+                                    <a href="{% url 'order-package-update' data.order_id last_package.id last_package.category_id last_package.package_id last_package.type 0 %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
                                 </div>
                                 <div class="col-6 text-end">
-                                    <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
+                                    <button type="submit" class="btn btn-sm bg-gradient-warning mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
                                 </div>
                             </div>
                         </div>

@@ -31,6 +31,7 @@ from django.template.loader import get_template
 from django.utils.text import Truncator
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from crum import get_current_user
 
 
 @login_required(login_url='/login/')
@@ -1383,12 +1384,14 @@ def package_add(request):
             return render(request, 'home/package_add.html', context)
     else:
         form = FormPackage()
+        message = form.errors
         context = {
             'form': form,
             'categories': categories,
             'segment': 'package',
             'group_segment': 'master',
             'crud': 'add',
+            'message': message,
             'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
             'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
         }
@@ -8296,7 +8299,7 @@ def order_add(request, _reg):
             order.seq_number = _no + 1 if _no else 1
             order.save()
 
-            return HttpResponseRedirect(reverse('order-child-add', args=[_id]))
+            return HttpResponseRedirect(reverse('order-child-add', args=[_id, 0]))
     else:
         form = FormOrder(initial={'order_id': _id})
 
@@ -8321,23 +8324,26 @@ def order_update(request, _id):
 
             child = OrderChild.objects.filter(order_id=_id)
             if child:
-                return HttpResponseRedirect(reverse('order-child-update', args=[_id, child[0].id]))
+                return HttpResponseRedirect(reverse('order-child-update', args=[_id, child.first().id, 0]))
             else:
-                return HttpResponseRedirect(reverse('order-child-add', args=[_id]))
+                return HttpResponseRedirect(reverse('order-child-add', args=[_id, 0]))
     else:
         form = FormOrderUpdate(instance=order)
+
+    msg = form.errors
 
     context = {
         'form': form,
         'data': order,
+        'msg': msg,
         'crud': 'update',
     }
     return render(request, 'home/order_update.html', context)
 
 
-def order_child_add(request, _id):
+def order_child_add(request, _id, _add):
     try:
-        last_child = OrderChild.objects.filter(order=_id).last()
+        last_child = OrderChild.objects.filter(order_id=_id).last()
     except OrderChild.DoesNotExist:
         last_child = None
 
@@ -8350,10 +8356,13 @@ def order_child_add(request, _id):
             child.save()
 
             package = OrderPackage.objects.filter(order_id=_id)
-            if package:
-                return HttpResponseRedirect(reverse('order-package-update', args=[_id, package[0].id, package[0].category, package[0].package_id]))
+            if _add == 1:
+                return HttpResponseRedirect(reverse('order-child-add', args=[_id, 0]))
             else:
-                return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0']))
+                if package:
+                    return HttpResponseRedirect(reverse('order-package-update', args=[_id, package[0].id, package[0].category_id, package[0].package_id, package[0].type, 0]))
+                else:
+                    return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
     else:
         form = FormOrderChild(initial={'order': _id})
 
@@ -8368,15 +8377,37 @@ def order_child_add(request, _id):
     return render(request, 'home/order_child_add.html', context)
 
 
-def order_child_update(request, _id, _child):
+def order_cs_child_add(request, _id):
+    if request.POST:
+        child = OrderChild(
+            order_id=_id,
+            child_name=request.POST.get('child_name'),
+            child_birth=request.POST.get('child_birth'),
+            child_sex=request.POST.get('child_sex'),
+            child_father=request.POST.get('child_father'),
+            child_mother=request.POST.get('child_mother'),
+        )
+        child.save()
+
+    return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
+
+
+def order_child_update(request, _id, _child, _add):
     child = OrderChild.objects.get(order_id=_id, id=_child)
+    children = OrderChild.objects.filter(order_id=_id).order_by('id')
 
     first = False
+    prev_id = 0
+
     first_child = OrderChild.objects.filter(order_id=_id).first()
     if first_child.id == _child:
         first = True
 
-    for i in reversed(OrderChild.objects.filter(order_id=_id)):
+    for index, i in enumerate(children):
+        if i.id == _child:
+            n_child = index + 1
+
+    for i in reversed(children):
         if i.id < _child:
             prev_id = i.id
             break
@@ -8389,16 +8420,19 @@ def order_child_update(request, _id, _child):
             child.save()
 
             last_child = OrderChild.objects.filter(order_id=_id).last()
-            if last_child.id == _child:
-                package = OrderPackage.objects.filter(order_id=_id)
-                if package:
-                    return HttpResponseRedirect(reverse('order-package-update', args=[_id, package[0].id, package[0].category, package[0].package_id]))
-                else:
-                    return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0']))
+            if _add == 1:
+                return HttpResponseRedirect(reverse('order-child-add', args=[_id, 0]))
             else:
-                for i in OrderChild.objects.filter(order_id=_id):
-                    if i.id > _child:
-                        return HttpResponseRedirect(reverse('order-child-update', args=[_id, i.id]))
+                if last_child.id == _child:
+                    package = OrderPackage.objects.filter(order_id=_id)
+                    if package:
+                        return HttpResponseRedirect(reverse('order-package-update', args=[_id, package[0].id, package[0].category_id, package[0].package_id, package[0].type, 0]))
+                    else:
+                        return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
+                else:
+                    for i in OrderChild.objects.filter(order_id=_id):
+                        if i.id > _child:
+                            return HttpResponseRedirect(reverse('order-child-update', args=[_id, i.id, 0]))
     else:
         form = FormOrderChildUpdate(instance=child)
 
@@ -8406,13 +8440,45 @@ def order_child_update(request, _id, _child):
         'form': form,
         'data': child,
         'first_child': first,
+        'n_child': n_child,
+        'children': children,
         'prev_id': prev_id,
         'crud': 'update',
     }
     return render(request, 'home/order_child_update.html', context)
 
 
-def order_package_add(request, _id, _cat, _pack):
+def order_child_cs_update(request, _id, _child):
+    child = OrderChild.objects.get(order_id=_id, id=_child)
+
+    if request.POST:
+        child.child_name = request.POST.get('child_name')
+        child.child_birth = request.POST.get('child_birth')
+        child.child_sex = request.POST.get('child_sex')
+        child.child_father = request.POST.get('child_father')
+        child.child_mother = request.POST.get('child_mother')
+        child.save()
+
+    return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
+
+
+def order_child_delete(request, _id, _child):
+    child = OrderChild.objects.get(order_id=_id, id=_child)
+    child.delete()
+
+    first = OrderChild.objects.filter(order_id=_id).first()
+
+    return HttpResponseRedirect(reverse('order-child-update', args=[_id, first.id, 0]))
+
+
+def order_child_cs_delete(request, _id, _child):
+    child = OrderChild.objects.get(order_id=_id, id=_child)
+    child.delete()
+
+    return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
+
+
+def order_package_add(request, _id, _cat, _pack, _type, _add):
     categories = Category.objects.all()
     packages = Package.objects.filter(category=_cat)
     box_types = BoxType.objects.all()
@@ -8428,6 +8494,7 @@ def order_package_add(request, _id, _cat, _pack):
     selected_package = Package.objects.get(
         package_id=_pack) if _pack != '0' else None
     order = Order.objects.get(order_id=_id)
+    child = OrderChild.objects.filter(order_id=_id).last()
 
     if request.POST:
         form = FormOrderPackage(request.POST)
@@ -8436,6 +8503,7 @@ def order_package_add(request, _id, _cat, _pack):
             package.order_id = _id
             package.category_id = _cat
             package.package_id = _pack
+            package.type = _type
             package.box_type_id = request.POST.get('box_type')
             package.main_cuisine = request.POST.get('main_cuisine')
             package.sub_cuisine = request.POST.get('sub_cuisine')
@@ -8453,7 +8521,10 @@ def order_package_add(request, _id, _cat, _pack):
             order.total_order = total['order']
             order.save()
 
-            return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+            if _add == 1:
+                return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
+            else:
+                return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
     else:
         form = FormOrderPackage(initial={'order': _id})
 
@@ -8464,6 +8535,7 @@ def order_package_add(request, _id, _cat, _pack):
         'crud': 'add',
         'cat': _cat,
         'pack': _pack,
+        'type': _type,
         'categories': categories,
         'packages': packages,
         'box_types': box_types,
@@ -8477,37 +8549,89 @@ def order_package_add(request, _id, _cat, _pack):
         'last_package': last_package,
         'selected_package': selected_package,
         'order_id': _id,
+        'child': child,
         'msg': msg,
     }
     return render(request, 'home/order_package_add.html', context)
 
 
-def order_package_update(request, _id, _package, _cat, _pack):
+def order_cs_package_add(request, _id, _cat, _pack, _type):
+    package = Package.objects.get(package_id=_pack)
+    if request.POST:
+        package = OrderPackage(
+            order_id=_id,
+            category_id=_cat,
+            package_id=_pack,
+            type=_type,
+            box_type_id=request.POST.get('box_type'),
+            main_cuisine=request.POST.get('main_cuisine'),
+            sub_cuisine=request.POST.get('sub_cuisine'),
+            side_cuisine1=request.POST.get('side_cuisine1'),
+            side_cuisine2=request.POST.get('side_cuisine2'),
+            side_cuisine3=request.POST.get('side_cuisine3'),
+            side_cuisine4=request.POST.get('side_cuisine4'),
+            side_cuisine5=request.POST.get('side_cuisine5'),
+            unit_price=package.male_price if _type == 'Jantan' else package.female_price
+        )
+        package.save()
+
+        total = OrderPackage.objects.filter(
+            order_id=_id).aggregate(order=Sum('total_price'))
+        order = Order.objects.get(order_id=_id)
+        order.total_order = total['order']
+        order.save()
+
+    return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
+
+
+def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
+    categories = Category.objects.all()
+    packages = Package.objects.filter(category=_cat)
     package = OrderPackage.objects.get(order_id=_id, id=_package)
+    box_types = BoxType.objects.all()
+    main_cuisines = MainCuisine.objects.filter(package=_pack)
+    sub_cuisines = SubCuisine.objects.filter(package=_pack)
+    side_cuisines1 = SideCuisine1.objects.filter(package=_pack)
+    side_cuisines2 = SideCuisine2.objects.filter(package=_pack)
+    side_cuisines3 = SideCuisine3.objects.filter(package=_pack)
+    side_cuisines4 = SideCuisine4.objects.filter(package=_pack)
+    side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
     last_child = OrderChild.objects.filter(order_id=_id).last()
     selected_package = Package.objects.get(
         package_id=_pack) if _pack != '0' else None
     order = Order.objects.get(order_id=_id)
+    orders = OrderPackage.objects.filter(order_id=_id)
 
     first = False
+    prev_id = 0
+    prev_cat = 0
+    prev_pack = 0
+    prev_type = 0
+
     first_package = OrderPackage.objects.filter(order_id=_id).first()
     if first_package.id == _package:
         first = True
 
+    for index, i in enumerate(OrderPackage.objects.filter(order_id=_id)):
+        if i.id == _package:
+            n_package = index + 1
+
     for i in reversed(OrderPackage.objects.filter(order_id=_id)):
         if i.id < _package:
             prev_id = i.id
-            prev_cat = i.category
-            prev_pack = i.package
+            prev_cat = i.category_id
+            prev_pack = i.package_id
+            prev_type = i.type
             break
 
     if request.POST:
         form = FormOrderPackage(request.POST, instance=package)
         if form.is_valid():
             package = form.save(commit=False)
-            package.category = _cat
-            package.package = _pack
-            package.box_type = request.POST.get('box_type')
+            package.category_id = _cat
+            package.package_id = _pack
+            package.type = _type
+            package.box_type_id = request.POST.get('box_type')
             package.main_cuisine = request.POST.get('main_cuisine')
             package.sub_cuisine = request.POST.get('sub_cuisine')
             package.side_cuisine1 = request.POST.get('side_cuisine1')
@@ -8524,29 +8648,93 @@ def order_package_update(request, _id, _package, _cat, _pack):
             order.total_order = total['order']
             order.save()
 
-            last_package = OrderPackage.objects.filter(order_id=_id).last()
-            if last_package.id == _package:
-                return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+            if _add == 1:
+                return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
             else:
-                for i in OrderPackage.objects.filter(order_id=_id):
-                    if i.id > _package:
-                        return HttpResponseRedirect(reverse('order-package-update', args=[_id, i.id]))
+                last_package = OrderPackage.objects.filter(order_id=_id).last()
+                if last_package.id == _package:
+                    return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+                else:
+                    for i in OrderPackage.objects.filter(order_id=_id):
+                        if i.id > _package:
+                            return HttpResponseRedirect(reverse('order-package-update', args=[_id, i.id, i.category_id, i.package_id, i.type, 0]))
     else:
         form = FormOrderPackage(instance=package)
+
+    msg = form.errors
 
     context = {
         'form': form,
         'data': package,
         'first_package': first,
+        'n_package': n_package,
+        'orders': orders,
         'prev_id': prev_id,
         'prev_cat': prev_cat,
         'prev_pack': prev_pack,
+        'prev_type': prev_type,
         'last_child': last_child,
+        'cat': _cat,
+        'pack': _pack,
+        'type': _type,
         'crud': 'update',
+        'categories': categories,
+        'packages': packages,
+        'box_types': box_types,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
         'selected_package': selected_package,
         'order_id': _id,
+        'msg': msg,
     }
     return render(request, 'home/order_package_update.html', context)
+
+
+def order_package_cs_update(request, _id, _cat, _pack, _type):
+    package = OrderPackage.objects.get(order_id=_id, package=_pack)
+
+    if request.POST:
+        package.category_id = _cat
+        package.package_id = _pack
+        package.type = _type
+        package.box_type_id = request.POST.get('box_type')
+        package.main_cuisine = request.POST.get('main_cuisine')
+        package.sub_cuisine = request.POST.get('sub_cuisine')
+        package.side_cuisine1 = request.POST.get('side_cuisine1')
+        package.side_cuisine2 = request.POST.get('side_cuisine2')
+        package.side_cuisine3 = request.POST.get('side_cuisine3')
+        package.side_cuisine4 = request.POST.get('side_cuisine4')
+        package.side_cuisine5 = request.POST.get('side_cuisine5')
+        package.save()
+
+    return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
+
+
+def order_package_delete(request, _id, _package):
+    package = OrderPackage.objects.get(order_id=_id, id=_package)
+    package.delete()
+
+    total = OrderPackage.objects.filter(
+        order_id=_id).aggregate(order=Sum('total_price'))
+    order = Order.objects.get(order_id=_id)
+    order.total_order = total['order']
+    order.save()
+
+    first = OrderPackage.objects.filter(order_id=_id).first()
+
+    return HttpResponseRedirect(reverse('order-package-update', args=[_id, first.id, first.category_id, first.package_id, first.type, 0]))
+
+
+def order_package_cs_delete(request, _id, _pack):
+    package = OrderPackage.objects.get(order_id=_id, id=_pack)
+    package.delete()
+
+    return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
 
 
 def order_confirm_update(request, _id):
@@ -8591,12 +8779,29 @@ def order_confirm(request, _id):
 
 def order_submit(request, _id):
     order = Order.objects.get(order_id=_id)
-    order.status = 'DRAFT'
+    order.order_status = 'DRAFT'
     order.save()
 
     link_form = AreaSales.objects.get(area_id=order.regional_id).form
 
     return render(request, 'home/order_thankyou.html', {'link_form': link_form})
+
+
+def order_cancel(request, _id):
+    order = Order.objects.get(order_id=_id)
+    order.order_status = 'BATAL'
+    order.save()
+
+    return HttpResponseRedirect(reverse('order-index'))
+
+
+def order_confirmed(request, _id):
+    order = Order.objects.get(order_id=_id)
+    order.order_status = 'CONFIRMED'
+    order.cs = get_current_user().username
+    order.save()
+
+    return HttpResponseRedirect(reverse('order-index'))
 
 
 @login_required(login_url='/login/')
@@ -8614,3 +8819,1032 @@ def form_index(request):
     }
 
     return render(request, 'home/form_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='ORDER')
+def order_index(request):
+    orders = Order.objects.all().order_by('-order_id', 'regional').exclude(order_status__in=[
+        'PENDING', 'BATAL']) if request.user.position == 'CS' else Order.objects.all().order_by('-order_id', 'regional').exclude(order_status='PENDING')
+
+    context = {
+        'data': orders,
+        'segment': 'order',
+        'group_segment': 'transaction',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='ORDER') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/order_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='ORDER')
+def order_view(request, _id, _cat, _pack, _type, _crud):
+    order = Order.objects.get(order_id=_id)
+    child = OrderChild.objects.filter(order_id=_id)
+    package = OrderPackage.objects.filter(order_id=_id)
+    form = FormOrderView(instance=order)
+    formChild = FormOrderChild()
+    category = Category.objects.all()
+    packages = Package.objects.filter(category=_cat).exclude(package_id__in=OrderPackage.objects.filter(
+        order_id=_id).values_list('package_id', flat=True)) if _cat != '0' else None
+    packages_upd = Package.objects.filter(category=_cat).exclude(package_id__in=OrderPackage.objects.filter(
+        order_id=_id).values_list('package_id', flat=True).exclude(package_id=_pack)) if _cat != '0' else None
+    box = BoxType.objects.all()
+    main_cuisines = MainCuisine.objects.filter(package=_pack)
+    sub_cuisines = SubCuisine.objects.filter(package=_pack)
+    side_cuisines1 = SideCuisine1.objects.filter(package=_pack)
+    side_cuisines2 = SideCuisine2.objects.filter(package=_pack)
+    side_cuisines3 = SideCuisine3.objects.filter(package=_pack)
+    side_cuisines4 = SideCuisine4.objects.filter(package=_pack)
+    side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
+    selected_package = Package.objects.get(
+        package_id=_pack) if _pack != '0' else None
+
+    msg = form.errors
+    context = {
+        'form': form,
+        'formChild': formChild,
+        'data': order,
+        'child': child,
+        'package': package,
+        'category': category,
+        'packages': packages,
+        'packages_upd': packages_upd,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'selected_package': selected_package,
+        'box': box,
+        'cat': _cat,
+        'pack': _pack,
+        'type': _type,
+        'crud_det': _crud,
+        'msg': msg,
+        'segment': 'order',
+        'group_segment': 'transaction',
+        'crud': 'view',
+        'status': order.order_status,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='ORDER') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/order_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='ORDER')
+def order_cs_update(request, _id):
+    order = Order.objects.get(order_id=_id)
+    child = OrderChild.objects.filter(order_id=_id)
+    package = OrderPackage.objects.filter(order_id=_id)
+
+    if request.POST:
+        form = FormOrderCSUpdate(request.POST, instance=order)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.customer_name = request.POST.get('customer_name')
+            order.customer_phone = request.POST.get('customer_phone')
+            order.customer_phone2 = request.POST.get('customer_phone2')
+            order.customer_email = request.POST.get('customer_email')
+            order.customer_address = request.POST.get('customer_address')
+            order.customer_city = request.POST.get('customer_city')
+            order.customer_district = request.POST.get('customer_district')
+            order.customer_province = request.POST.get('customer_province')
+            order.delivery_date = request.POST.get('delivery_date')
+            order.time_arrival = request.POST.get('time_arrival')
+            order.use_photo = request.POST.get('use_photo')
+            order.witnessed = request.POST.get('witnessed')
+            order.info_source = request.POST.get('info_source')
+            order.order_note = request.POST.get('order_note')
+            order.save()
+
+        return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
+    else:
+        form = FormOrderCSUpdate(instance=order)
+
+    msg = form.errors
+
+    context = {
+        'form': form,
+        'data': order,
+        'child': child,
+        'package': package,
+        'msg': msg,
+        'segment': 'order',
+        'group_segment': 'transaction',
+        'crud': 'update',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='ORDER') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/order_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CASH-IN')
+def cashin_index(request):
+    cash_in = CashIn.objects.all()
+
+    context = {
+        'data': cash_in,
+        'segment': 'cash-in',
+        'group_segment': 'accounting',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CASH-IN') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/cashin_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CASH-IN')
+def cashin_add(request):
+    orders = Order.objects.filter(order_status__in=['DP', 'CONFIRMED'])
+
+    if request.POST:
+        form = FormCashIn(request.POST)
+        if form.is_valid():
+            cash_in = form.save(commit=False)
+            cash_in.order_id = request.POST.get('order')
+            cash_in.cashin_type = request.POST.get('cashin_type')
+            cash_in.save()
+
+            if not settings.DEBUG:
+                cash_in = CashIn.objects.get(cashin_id=cash_in.cashin_id)
+                my_file = cash_in.evidence
+                filename = '../../www/order/apps/media/' + my_file.name
+                with open(filename, 'wb+') as temp_file:
+                    for chunk in my_file.chunks():
+                        temp_file.write(chunk)
+
+            selected_order = Order.objects.get(
+                order_id=request.POST.get('order'))
+            if cash_in.cashin_amount == selected_order.pending_payment:
+                selected_order.order_status = 'LUNAS'
+            else:
+                selected_order.order_status = 'DP'
+
+            selected_order.down_payment += cash_in.cashin_amount
+            selected_order.save()
+
+            return HttpResponseRedirect(reverse('cashin-index'))
+    else:
+        form = FormCashIn()
+
+    msg = form.errors
+    context = {
+        'form': form,
+        'orders': orders,
+        'segment': 'cash-in',
+        'group_segment': 'accounting',
+        'crud': 'add',
+        'msg': msg,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CASH-IN') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/cashin_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='ORDER')
+def order_invoice(request, _id):
+    order = Order.objects.get(order_id=_id)
+    child = OrderChild.objects.filter(order_id=_id)
+    package = OrderPackage.objects.filter(order_id=_id)
+    region = AreaSales.objects.get(area_id=order.regional_id)
+
+    hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Ahad']
+    bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
+    order_id = _id.replace('/', '-')
+
+    styles = getSampleStyleSheet()
+    normalStyle = styles['Normal']
+    normalStyle.fontSize = 8
+
+    filename = 'INVOICE_' + order_id + '.pdf'
+    pdf_file = canvas.Canvas(filename)
+
+    # Add logo in the top left corner
+    logo_path = 'https://ksisolusi.com/apps/static/img/logo.png'
+    pdf_file.drawImage(logo_path, 35, 745, width=70, height=61)
+
+    title = "INVOICE"
+    title_width = pdf_file.stringWidth(
+        title, "Helvetica-Bold", 12)  # Set font to bold
+    page_width, _ = A4
+    pdf_file.setFont("Helvetica-Bold", 12)  # Set font to bold
+    # Calculate the x position for the title to be in the top right corner
+    title_x = page_width - title_width - 35  # 25 is a margin from the right edge
+    pdf_file.drawString(title_x, 795, title)
+
+    # Add address below logo
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(35, 725, 'Regional :')
+
+    # Add regional info beside regional title with bold font
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(74, 725, order.regional.area_name)
+    pdf_file.setFont("Helvetica", 8)
+    address = 'Kantor Pusat : Jl. KH. Maulana Hasanudin No.88'
+    pdf_file.drawString(35, 713, address)
+    city = 'Poris, Tangerang, 15122'
+    pdf_file.drawString(35, 701, city)
+    phone = 'Telp/Whatsapp : 0812 9658 9090'
+    pdf_file.drawString(35, 689, phone)
+    web = 'www.sahabataqiqah.co.id'
+    pdf_file.drawString(35, 677, web)
+
+    # Add title start from the middle of page
+    pdf_file.setFont("Helvetica-Bold", 8)
+    title = "No. Referensi"
+    page_width, _ = A4
+    title_x = (page_width / 2) - 35
+    pdf_file.drawString(title_x, 770, title)
+    # Add order_id below title
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(title_x, 758, order.order_id)
+    # Add order date below order_id with higher space
+    pdf_file.setFont("Helvetica-Bold", 8)
+    title = "Tanggal Invoice"
+    pdf_file.drawString(title_x, 740, title)
+
+    months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+              'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+    days = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(title_x, 728, days[order.order_date.weekday()] + order.order_date.strftime(
+        ', %d ') + months[order.order_date.month - 1] + order.order_date.strftime(' %Y'))
+    # Add delivery date below order date with higher space
+    pdf_file.setFont("Helvetica-Bold", 8)
+    title = "Tanggal Pengiriman"
+    pdf_file.drawString(title_x, 710, title)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(title_x, 698, days[order.delivery_date.weekday()] + order.delivery_date.strftime(
+        ', %d ') + months[order.delivery_date.month - 1] + order.delivery_date.strftime(' %Y'))
+    # Add customer info below delivery date with higher space
+    pdf_file.setFont("Helvetica-Bold", 8)
+    title = "Nama Pemesan Aqiqah"
+    pdf_file.drawString(title_x, 680, title)
+    pdf_file.drawString(title_x, 668, order.customer_name)
+    # Add customer phone below customer name
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(title_x, 656, order.customer_phone + ' / ' +
+                        order.customer_phone2 if order.customer_phone2 else order.customer_phone)
+    # Add customer address below customer phone
+    y = 641
+    address = order.customer_address.split('\n')
+    for line in address:
+        address_paragraph = Paragraph(line, normalStyle)
+        address_paragraph.wrapOn(pdf_file, 400, 100)
+        address_paragraph.drawOn(pdf_file, title_x, y)
+        y -= 10
+    # Add customer district below customer address
+    y += 4
+    pdf_file.drawString(
+        title_x, y, order.customer_district + ', ' + order.customer_city)
+    # Add customer province below customer district
+    y -= 10
+    pdf_file.drawString(title_x, y, order.customer_province)
+
+    y -= 30
+    # Add table for order detail
+    pdf_file.rect(35, y, 160, 15, stroke=True)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(40, y + 5, 'Produk')
+    pdf_file.rect(195, y, 180, 15, stroke=True)
+    pdf_file.drawString(200, y + 5, 'Deskripsi')
+    pdf_file.rect(375, y, 30, 15, stroke=True)
+    # Calculate the width of the string 'Qty'
+    qty_width = pdf_file.stringWidth('Qty', "Helvetica-Bold", 8)
+    # Calculate the center position of the rectangle
+    center_x = 375 + (30 - qty_width) / 2
+    pdf_file.drawString(center_x, y + 5, 'Qty')
+    pdf_file.rect(405, y, 85, 15, stroke=True)
+    # Calculate the width of the string 'Harga Satuan (Rp)'
+    price_width = pdf_file.stringWidth(
+        'Harga Satuan (Rp)', "Helvetica-Bold", 8)
+    # Calculate the center position of the rectangle
+    center_x = 405 + (85 - price_width) / 2
+    pdf_file.drawString(center_x, y + 5, 'Harga Satuan (Rp)')
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    # Calculate the width of the string 'Jumlah (Rp)'
+    total_width = pdf_file.stringWidth('Jumlah (Rp)', "Helvetica-Bold", 8)
+    # Calculate the center position of the rectangle
+    center_x = 490 + (65 - total_width) / 2
+    pdf_file.drawString(center_x, y + 5, 'Jumlah (Rp)')
+
+    y -= 15
+    total = 0
+    for i in range(1, package.count() + 1):
+        pdf_file.rect(35, y - 15, 160, 30, stroke=True)
+        pdf_file.setFont("Helvetica", 8)
+        pdf_file.drawString(40, y + 5, package[i - 1].category.category_name + ' - ' + package[i -
+                            1].package.package_name + ' - ' + str(package[i - 1].package.quantity) + ' - ')
+        pdf_file.drawString(40, y - 5, 'Hewan ' + package[i - 1].type)
+        pdf_file.rect(195, y - 15, 180, 30, stroke=True)
+
+        maincuisine = package[i - 1].main_cuisine + \
+            ' - ' if package[i - 1].main_cuisine else ''
+        subcuisine = package[i - 1].sub_cuisine + \
+            ' - ' if package[i - 1].sub_cuisine else ''
+        sidecuisine1 = package[i - 1].side_cuisine1 + \
+            ' - ' if package[i - 1].side_cuisine1 else ''
+        sidecuisine2 = package[i - 1].side_cuisine2 + \
+            ' - ' if package[i - 1].side_cuisine2 else ''
+        sidecuisine3 = package[i - 1].side_cuisine3 + \
+            ' - ' if package[i - 1].side_cuisine3 else ''
+        sidecuisine4 = package[i - 1].side_cuisine4 + \
+            ' - ' if package[i - 1].side_cuisine4 else ''
+        sidecuisine5 = package[i - 1].side_cuisine5 + \
+            ' - ' if package[i - 1].side_cuisine5 else ''
+
+        pdf_file.drawString(200, y + 5, maincuisine +
+                            subcuisine + sidecuisine1 + sidecuisine2)
+        pdf_file.drawString(200, y - 5, sidecuisine3 + sidecuisine4 +
+                            sidecuisine5 + str(package[i - 1].package.box) + ' Box (' + package[i - 1].box_type.box_type_name + ')')
+        pdf_file.rect(375, y - 15, 30, 30, stroke=True)
+        pdf_file.setFont("Helvetica", 8)
+        # Calculate the width of the string 'quantity'
+        quantity_width = pdf_file.stringWidth(
+            str(package[i - 1].package.quantity), "Helvetica", 8)
+        # Calculate the center position of the rectangle
+        center_x = 375 + (30 - quantity_width) / 2
+        pdf_file.drawString(
+            center_x, y + 5, str(package[i - 1].package.quantity))
+        pdf_file.rect(405, y - 15, 85, 30, stroke=True)
+        pdf_file.drawString(
+            410, y + 5, "{:,}".format(package[i - 1].unit_price))
+        pdf_file.rect(490, y - 15, 65, 30, stroke=True)
+        total_price = package[i - 1].unit_price * \
+            package[i - 1].package.quantity
+        total += total_price
+        total_price_str = "{:,}".format(total_price)
+        total_price_width = pdf_file.stringWidth(
+            total_price_str, "Helvetica", 8)
+        pdf_file.drawString(490 + 65 - total_price_width -
+                            5, y + 5, total_price_str)
+
+    y -= 30
+    # create rectangle from first column to column 3
+    pdf_file.rect(35, y, 455, 15, stroke=True)
+    total_str = 'Sub Total'
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    total_str = "{:,}".format(total)
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
+
+    y -= 15
+    # create rectangle from first column to column 3
+    pdf_file.rect(35, y, 455, 15, stroke=True)
+    total_str = 'DP'
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    total_str = "{:,}".format(order.down_payment)
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
+
+    y -= 15
+    # create rectangle from first column to column 3
+    pdf_file.rect(35, y, 455, 15, stroke=True)
+    total_str = 'Jumlah Tertagih'
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    total_str = "{:,}".format(order.pending_payment)
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
+
+    y2 = y
+    y -= 30
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(35, y, 'Syarat & Ketentuan')
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(35, y - 15, 'Pengiriman')
+    pdf_file.drawString(95, y - 15, ':')
+    pdf_file.drawString(
+        105, y - 15, hari[int(order.delivery_date.strftime('%w')) - 1] + ', ' + order.delivery_date.strftime('%-d ') + bulan[int(order.delivery_date.strftime('%-m')) - 1] + order.delivery_date.strftime(' %Y'))
+    pdf_file.drawString(35, y - 27, 'Jam Berangkat')
+    pdf_file.drawString(95, y - 27, ':')
+    time_arrival_minus_one_hour = datetime.datetime.strptime(
+        order.time_arrival, '%H:%M') - datetime.timedelta(hours=1)
+    pdf_file.drawString(
+        105, y - 27, time_arrival_minus_one_hour.strftime('%H:%M'))
+    pdf_file.drawString(35, y - 39, 'Jam Tiba')
+    pdf_file.drawString(95, y - 39, ':')
+    pdf_file.drawString(105, y - 39, order.time_arrival)
+    pdf_file.drawString(35, y - 51, 'Catatan')
+    pdf_file.drawString(95, y - 51, ':')
+    notes = order.order_note.split('\n') if order.order_note else ''
+    for line in notes:
+        notes_paragraph = Paragraph(line, normalStyle)
+        notes_paragraph.wrapOn(pdf_file, 515, 100)
+        notes_paragraph.drawOn(pdf_file, 105, y - 55)
+        y -= 10
+
+    y2 -= 30
+    pdf_file.setFont("Helvetica-Bold", 8)
+    page_width = 595.27
+    text = 'Anak yang di aqiqah'
+    text_x = (page_width / 2) + 35
+    pdf_file.drawString(text_x, y2, text)
+    pdf_file.setFont("Helvetica", 8)
+    y2 -= 15
+    for i in range(1, child.count() + 1):
+        pdf_file.drawString(text_x, y2, str(i) + '.')
+        pdf_file.drawString(text_x + 10, y2, child[i - 1].child_name)
+        y2 -= 12
+        pdf_file.drawString(
+            text_x + 10, y2, '(' + child[i - 1].child_birth.strftime('%-d') + ' ' + bulan[int(child[i - 1].child_birth.strftime('%-m')) - 1] + ' ' + child[i - 1].child_birth.strftime('%Y') + ') | ' + 'Laki-laki' if child[i - 1].child_sex == '1' else 'Perempuan')
+        y2 -= 12
+
+    y2 -= 15
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(text_x, y2, 'Anak dari')
+    pdf_file.setFont("Helvetica", 8)
+    y2 -= 15
+    pdf_file.drawString(
+        text_x, y2, child[0].child_father + ' dan')
+    y2 -= 12
+    pdf_file.drawString(text_x, y2, child[0].child_mother)
+
+    y -= 81
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(
+        35, y, 'Sertifikat dan Kartu Ucapan pakai foto atau tidak?')
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(
+        35, y - 12, 'YA' if order.use_photo == '1' else 'TIDAK')
+
+    y -= 27
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(35, y, 'Penyembelihan disaksikan?')
+    y -= 12
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(35, y, 'YA' if order.witnessed == '1' else 'TIDAK')
+
+    y -= 15
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(35, y, 'Sumber Informasi?')
+    y -= 12
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(35, y, order.info_source)
+
+    y -= 30
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(35, y, '* DP minimal 30%')
+
+    y -= 30
+    pdf_file.drawString(
+        35, y, 'Pembayaran dapat dilakukan melalui transfer ke rekening :')
+    y -= 15
+    bank = region.bank_account.split('\n')
+    for line in bank:
+        bank_paragraph = Paragraph(line, normalStyle)
+        bank_paragraph.wrapOn(pdf_file, 200, 100)
+        bank_paragraph.drawOn(pdf_file, 35, y)
+        y -= 10
+
+    y2 -= 30
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(text_x, y2, 'Tangerang, ' + order.order_date.strftime('%-d ') +
+                        bulan[int(order.order_date.strftime('%-m')) - 1] + order.order_date.strftime(' %Y'))
+    y2 -= 55
+    gm = User.objects.get(position='GM')
+    sign_path = gm.signature.path
+    pdf_file.drawImage(sign_path, text_x, y2, width=100, height=50)
+
+    y2 -= 15
+    pdf_file.drawString(text_x, y2, gm.username)
+    y2 -= 12
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(text_x, y2, gm.position.position_name)
+
+    pdf_file.save()
+
+    return FileResponse(open(filename, 'rb'), content_type='application/pdf')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='ORDER')
+def order_bap(request, _id):
+    order = Order.objects.get(order_id=_id)
+    child = OrderChild.objects.filter(order_id=_id)
+    package = OrderPackage.objects.filter(order_id=_id)
+    region = AreaSales.objects.get(area_id=order.regional_id)
+
+    hari = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+    bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
+    order_id = _id.replace('/', '-')
+
+    styles = getSampleStyleSheet()
+    normal_style = styles['Normal']
+    normal_style.fontSize = 8
+    bold_style = styles['Normal']
+    bold_style.fontSize = 8
+    bold_style.fontName = 'Helvetica-Bold'
+
+    filename = 'SURAT_JALAN_' + order_id + '.pdf'
+    pdf_file = canvas.Canvas(filename)
+
+    # Add logo in the top center
+    logo_path = 'https://ksisolusi.com/apps/static/img/logo.png'
+    pdf_file.drawImage(logo_path, 260, 745, width=70, height=61)
+
+    y = 725
+    title = "SURAT JALAN SAHABAT AQIQAH"
+    title_width = pdf_file.stringWidth(title, "Helvetica-Bold", 12)
+    page_width, _ = A4
+    title_x = (page_width / 2) - (title_width / 2)
+    pdf_file.setFont("Helvetica-Bold", 12)
+    pdf_file.drawString(title_x, y, title)
+
+    y -= 50
+    y2 = y
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(35, y, 'Nama Shahibul Aqiqah (1)')
+    pdf_file.drawString(135, y, ':')
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(145, y, child[0].child_name)
+    y -= 12
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(35, y, 'Nama Pemesan')
+    pdf_file.drawString(135, y, ':')
+    pdf_file.drawString(145, y, order.customer_name)
+    y -= 12
+    pdf_file.drawString(35, y, 'No. Telepon')
+    pdf_file.drawString(135, y, ':')
+    pdf_file.drawString(145, y, order.customer_phone +
+                        ' / ' + str(order.customer_phone2) if order.customer_phone2 else order.customer_phone)
+    y -= 12
+    pdf_file.drawString(35, y, 'Alamat')
+    pdf_file.drawString(135, y, ':')
+    address = order.customer_address.split('\n')
+    for line in address:
+        address_paragraph = Paragraph(line, bold_style)
+        address_paragraph.wrapOn(pdf_file, 400, 100)
+        address_paragraph.drawOn(pdf_file, 145, y - 4)
+        y -= 10
+
+    y -= 2
+    pdf_file.drawString(35, y, 'Tanggal Pengiriman')
+    pdf_file.drawString(135, y, ':')
+    pdf_file.drawString(145, y, order.delivery_date.strftime(
+        '%-d ') + bulan[order.delivery_date.month - 1] + order.delivery_date.strftime(' %Y'))
+    y -= 12
+    pdf_file.drawString(35, y, 'Jam Tiba')
+    pdf_file.drawString(135, y, ':')
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(145, y, order.time_arrival)
+
+    # Add table right beside the customer info
+    y2 -= 2
+    pdf_file.rect(405, y2, 150, 15, stroke=True)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    text = 'No. Order'
+    text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
+    box_width = 150
+    text_x = 405 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y2 + 5, text)
+    pdf_file.rect(405, y2 - 15, 150, 15, stroke=True)
+    pdf_file.setFont("Helvetica", 8)
+    text = order.order_id
+    text_width = pdf_file.stringWidth(text, "Helvetica", 8)
+    text_x = 405 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y2 - 10, text)
+
+    y -= 30
+    # Add table for order detail
+    pdf_file.rect(35, y, 160, 15, stroke=True)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(40, y + 5, 'Produk')
+    pdf_file.rect(195, y, 180, 15, stroke=True)
+    pdf_file.drawString(200, y + 5, 'Deskripsi')
+    pdf_file.rect(375, y, 30, 15, stroke=True)
+    # Calculate the width of the string 'Qty'
+    qty_width = pdf_file.stringWidth('Qty', "Helvetica-Bold", 8)
+    # Calculate the center position of the rectangle
+    center_x = 375 + (30 - qty_width) / 2
+    pdf_file.drawString(center_x, y + 5, 'Qty')
+    pdf_file.rect(405, y, 85, 15, stroke=True)
+    # Calculate the width of the string 'Harga Satuan (Rp)'
+    price_width = pdf_file.stringWidth(
+        'Harga Satuan (Rp)', "Helvetica-Bold", 8)
+    # Calculate the center position of the rectangle
+    center_x = 405 + (85 - price_width) / 2
+    pdf_file.drawString(center_x, y + 5, 'Harga Satuan (Rp)')
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    # Calculate the width of the string 'Jumlah (Rp)'
+    total_width = pdf_file.stringWidth('Jumlah (Rp)', "Helvetica-Bold", 8)
+    # Calculate the center position of the rectangle
+    center_x = 490 + (65 - total_width) / 2
+    pdf_file.drawString(center_x, y + 5, 'Jumlah (Rp)')
+
+    y -= 15
+    total = 0
+    for i in range(1, package.count() + 1):
+        pdf_file.rect(35, y - 15, 160, 30, stroke=True)
+        pdf_file.setFont("Helvetica", 8)
+        pdf_file.drawString(40, y + 5, package[i - 1].category.category_name + ' - ' + package[i -
+                            1].package.package_name + ' - ' + str(package[i - 1].package.quantity) + ' - ')
+        pdf_file.drawString(40, y - 5, 'Hewan ' + package[i - 1].type)
+        pdf_file.rect(195, y - 15, 180, 30, stroke=True)
+
+        maincuisine = package[i - 1].main_cuisine + \
+            ' - ' if package[i - 1].main_cuisine else ''
+        subcuisine = package[i - 1].sub_cuisine + \
+            ' - ' if package[i - 1].sub_cuisine else ''
+        sidecuisine1 = package[i - 1].side_cuisine1 + \
+            ' - ' if package[i - 1].side_cuisine1 else ''
+        sidecuisine2 = package[i - 1].side_cuisine2 + \
+            ' - ' if package[i - 1].side_cuisine2 else ''
+        sidecuisine3 = package[i - 1].side_cuisine3 + \
+            ' - ' if package[i - 1].side_cuisine3 else ''
+        sidecuisine4 = package[i - 1].side_cuisine4 + \
+            ' - ' if package[i - 1].side_cuisine4 else ''
+        sidecuisine5 = package[i - 1].side_cuisine5 + \
+            ' - ' if package[i - 1].side_cuisine5 else ''
+
+        pdf_file.drawString(200, y + 5, maincuisine +
+                            subcuisine + sidecuisine1 + sidecuisine2)
+        pdf_file.drawString(200, y - 5, sidecuisine3 + sidecuisine4 +
+                            sidecuisine5 + str(package[i - 1].package.box) + ' Box (' + package[i - 1].box_type.box_type_name + ')')
+        pdf_file.rect(375, y - 15, 30, 30, stroke=True)
+        pdf_file.setFont("Helvetica", 8)
+        # Calculate the width of the string 'quantity'
+        quantity_width = pdf_file.stringWidth(
+            str(package[i - 1].package.quantity), "Helvetica", 8)
+        # Calculate the center position of the rectangle
+        center_x = 375 + (30 - quantity_width) / 2
+        pdf_file.drawString(
+            center_x, y + 5, str(package[i - 1].package.quantity))
+        pdf_file.rect(405, y - 15, 85, 30, stroke=True)
+        pdf_file.drawString(
+            410, y + 5, "{:,}".format(package[i - 1].unit_price))
+        pdf_file.rect(490, y - 15, 65, 30, stroke=True)
+        total_price = package[i - 1].unit_price * \
+            package[i - 1].package.quantity
+        total += total_price
+        total_price_str = "{:,}".format(total_price)
+        total_price_width = pdf_file.stringWidth(
+            total_price_str, "Helvetica", 8)
+        pdf_file.drawString(490 + 65 - total_price_width -
+                            5, y + 5, total_price_str)
+
+    y -= 30
+    # create rectangle from first column to column 3
+    pdf_file.rect(35, y, 455, 15, stroke=True)
+    total_str = 'Sub Total'
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    total_str = "{:,}".format(total)
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
+
+    y -= 15
+    # create rectangle from first column to column 3
+    pdf_file.rect(35, y, 455, 15, stroke=True)
+    total_str = 'DP'
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    total_str = "{:,}".format(order.down_payment)
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
+
+    y -= 15
+    # create rectangle from first column to column 3
+    pdf_file.rect(35, y, 455, 15, stroke=True)
+    total_str = 'Jumlah Tertagih'
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    total_str = "{:,}".format(order.pending_payment)
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
+
+    y -= 60
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.rect(35, y, 100, 15, stroke=False)
+    text = 'GA'
+    text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
+    box_width = 100
+    text_x = 35 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y + 5, text)
+    pdf_file.rect(135, y, 100, 15, stroke=False)
+    text = 'Kurir'
+    text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
+    box_width = 100
+    text_x = 135 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y + 5, text)
+    pdf_file.rect(35, y - 50, 100, 15, stroke=False)
+    text = '( __________________ )'
+    text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
+    box_width = 100
+    text_x = 35 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y - 50, text)
+    pdf_file.rect(135, y - 50, 100, 15, stroke=False)
+    text = '( __________________ )'
+    text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
+    box_width = 100
+    text_x = 135 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y - 50, text)
+
+    pdf_file.rect(250, y, 210, 15, stroke=True)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    text = 'Dengan ini saya menyetujui :'
+    text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
+    box_width = 210
+    text_x = 250 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y + 5, text)
+    pdf_file.rect(460, y, 45, 15, stroke=True)
+    text = 'Checklist'
+    text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
+    box_width = 45
+    text_x = 460 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y + 5, text)
+    pdf_file.rect(505, y, 50, 15, stroke=True)
+    text = 'Penerima'
+    text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
+    box_width = 50
+    text_x = 505 + (box_width - text_width) / 2
+    pdf_file.drawString(text_x, y + 5, text)
+
+    y -= 15
+    pdf_file.rect(250, y, 210, 15, stroke=True)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(
+        255, y + 5, 'Kelengkapan isi box dari paketan sudah sesuai orderan')
+    pdf_file.rect(460, y, 45, 15, stroke=True)
+    pdf_file.rect(505, y - 40, 50, 55, stroke=True)
+    y -= 15
+    pdf_file.rect(250, y - 25, 210, 40, stroke=True)
+    pdf_file.drawString(
+        255, y + 5, 'Ketahanan makanan 3-4 jam setelah makanan tiba di')
+    pdf_file.drawString(
+        255, y - 5, 'lokasi (bersedia mengirimkan sampel basi setelah 3 jam')
+    pdf_file.drawString(
+        255, y - 15, 'via gosend *biaya ditanggung Sahabat Aqiqah)')
+    pdf_file.rect(460, y - 25, 45, 40, stroke=True)
+
+    pdf_file.save()
+
+    return FileResponse(open(filename, 'rb'), content_type='application/pdf')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='ORDER')
+def order_checklist(request, _id):
+    order = Order.objects.get(order_id=_id)
+    child = OrderChild.objects.filter(order_id=_id)
+    package = OrderPackage.objects.filter(order_id=_id)
+    region = AreaSales.objects.get(area_id=order.regional_id)
+
+    hari = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+    bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
+    order_id = _id.replace('/', '-')
+
+    styles = getSampleStyleSheet()
+    normal_style = styles['Normal']
+    normal_style.fontSize = 8
+
+    filename = 'CHECKLIST_' + order_id + '.pdf'
+    pdf_file = canvas.Canvas(filename)
+
+    # Add logo in the top left corner
+    logo_path = 'https://ksisolusi.com/apps/static/img/logo.png'
+    pdf_file.drawImage(logo_path, 35, 745, width=70, height=61)
+
+    title = "CHECKLIST FORM"
+    title_width = pdf_file.stringWidth(
+        title, "Helvetica-Bold", 12)  # Set font to bold
+    page_width, _ = A4
+    pdf_file.setFont("Helvetica-Bold", 12)  # Set font to bold
+    # Calculate the x position for the title to be in the top right corner
+    title_x = page_width - title_width - 35  # 25 is a margin from the right edge
+    pdf_file.drawString(title_x, 795, title)
+
+    # Add address below logo
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(35, 725, 'Regional :')
+
+    # Add regional info beside regional title with bold font
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(74, 725, order.regional.area_name)
+    pdf_file.setFont("Helvetica", 8)
+    address = 'Kantor Pusat : Jl. KH. Maulana Hasanudin No.88'
+    pdf_file.drawString(35, 713, address)
+    city = 'Poris, Tangerang, 15122'
+    pdf_file.drawString(35, 701, city)
+    phone = 'Telp/Whatsapp : 0812 9658 9090'
+    pdf_file.drawString(35, 689, phone)
+    web = 'www.sahabataqiqah.co.id'
+    pdf_file.drawString(35, 677, web)
+
+    y = 745
+    # Add title start from the middle of page
+    title = "No. Invoice"
+    page_width, _ = A4
+    title_x = (page_width / 2) + 35
+    pdf_file.drawString(title_x, y, title)
+    pdf_file.drawString(title_x + 80, y, ':')
+    pdf_file.drawString(title_x + 90, y, order.order_id)
+    y -= 12
+    pdf_file.drawString(title_x, y, "Nama Pemesan")
+    pdf_file.drawString(title_x + 80, y, ':')
+    pdf_file.drawString(title_x + 90, y, order.customer_name)
+    y -= 12
+    pdf_file.drawString(title_x, y, "Tanggal Delivery")
+    pdf_file.drawString(title_x + 80, y, ':')
+    pdf_file.drawString(title_x + 90, y, order.delivery_date.strftime(
+        '%-d ') + bulan[order.delivery_date.month - 1] + order.delivery_date.strftime(' %Y'))
+    y -= 12
+    pdf_file.drawString(title_x, y, "Checker")
+    pdf_file.drawString(title_x + 80, y, ':')
+    pdf_file.drawString(title_x + 90, y, '______________________')
+    y -= 12
+    pdf_file.drawString(title_x, y, "Driver")
+    pdf_file.drawString(title_x + 80, y, ':')
+    pdf_file.drawString(title_x + 90, y, '______________________')
+    y -= 12
+    pdf_file.drawString(title_x, y, "Menu")
+    pdf_file.drawString(title_x + 80, y, ':')
+    pdf_file.drawString(
+        title_x + 90, y, package[0].category.category_name + ' - ' + package[0].package.package_name)
+    y -= 12
+    pdf_file.drawString(title_x, y, "Jumlah Box")
+    pdf_file.drawString(title_x + 80, y, ':')
+    pdf_file.drawString(
+        title_x + 90, y, str(package[0].package.box) + ' Box (' + package[0].box_type.box_type_name + ')')
+
+    y -= 30
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 15
+    y2 = y
+    pdf_file.drawString(40, y, 'DI ISI OLEH DRIVER')
+    pdf_file.drawString(140, y, 'DI ISI OLEH CHECKER')
+    y -= 10
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(140, y + 5, 'Nasi Kebuli / Nasi Kuning / Nasi Putih')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    if package[0].main_cuisine:
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, package[0].main_cuisine)
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+    if package[0].sub_cuisine:
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, package[0].sub_cuisine)
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+    if package[0].side_cuisine1:
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, package[0].side_cuisine1)
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+    if package[0].side_cuisine2:
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, package[0].side_cuisine2)
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+    if package[0].side_cuisine3:
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, package[0].side_cuisine3)
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+    if package[0].side_cuisine4:
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, package[0].side_cuisine4)
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+    if package[0].side_cuisine5:
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, package[0].side_cuisine5)
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'Kerupuk')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'Acar')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'Mr. Jussie / Air Mineral / Kosong')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'Telor Pindang / Telor Balado')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'Sertifikat')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'Kantong Plastik / Tas Serut')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'Boneka Panda / Boneka Domba / Mug')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'BAP & Kwitansi')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(140, y + 5, 'Sisa Masakan Olahan Daging ......')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+    y -= 20
+    pdf_file.rect(40, y, 80, 15, stroke=True)
+    pdf_file.drawString(
+        140, y + 5, 'Sisa Masakan Olahan Tulangan & Jeroan ......')
+    y -= 5
+    pdf_file.line(35, y, page_width - 35, y)
+
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(title_x, y2, 'CATATAN LAINNYA')
+    y2 -= 30
+    pdf_file.rect(title_x, y2, 80, 15, stroke=True)
+    y2 -= 25
+    pdf_file.rect(title_x, y2, 80, 15, stroke=True)
+    y2 -= 25
+    pdf_file.rect(title_x, y2, 80, 15, stroke=True)
+
+    y -= 60
+    title = "TTD CHECKER"
+    title_width = pdf_file.stringWidth(title, "Helvetica-Bold", 8)
+    pdf_file.rect(35, y, (page_width - 2*35) / 2, 15, stroke=False)
+    pdf_file.drawString(35 + (((page_width / 2 - 35) -
+                        title_width) / 2), y + 5, title)
+    string = '( __________________ )'
+    string_width = pdf_file.stringWidth(string, "Helvetica-Bold", 8)
+    pdf_file.drawString(35 + (((page_width / 2 - 35) -
+                        string_width) / 2), y - 80, string)
+    title = "TTD DRIVER"
+    title_width = pdf_file.stringWidth(title, "Helvetica-Bold", 8)
+    pdf_file.rect(35 + (page_width - 2*35) / 2, y,
+                  (page_width - 2*35) / 2, 15, stroke=False)
+    pdf_file.drawString(35 + (page_width - 2*35) / 2 +
+                        ((page_width - 2*35) / 2 - title_width) / 2, y + 5, title)
+    pdf_file.drawString(35 + (page_width - 2*35) / 2 +
+                        ((page_width - 2*35) / 2 - string_width) / 2, y - 80, string)
+
+    pdf_file.save()
+
+    return FileResponse(open(filename, 'rb'), content_type='application/pdf')

@@ -25,11 +25,11 @@
                     </div>
                     <div class="card-body">
                         <div class="pl-lg-0">
-                            {% if message != '0' and crud == 'update' %}
+                            <!-- {% if message != '0' and crud == 'update' %}
                             <div class="alert text-danger text-bg-light mt-2" role="alert">
                                 {{ message }}
                             </div>
-                            {% endif %}
+                            {% endif %} -->
                             {% if msg %}
                             <div class="alert text-danger text-bg-light mt-2" role="alert">
                                 {{ msg }}
@@ -48,7 +48,7 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="shadow-none">
                                                 {{ form.customer_phone.label_tag }}{{ form.customer_phone }}
                                                 <div class="text-sm text-danger">
@@ -56,7 +56,15 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
+                                            <div class="shadow-none">
+                                                {{ form.customer_phone2.label_tag }}{{ form.customer_phone2 }}
+                                                <div class="text-sm text-danger">
+                                                    {{ form.customer_phone2.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
                                             <div class="shadow-none">
                                                 {{ form.customer_email.label_tag }}{{ form.customer_email }}
                                                 <div class="text-sm text-danger">
@@ -104,7 +112,8 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="shadow-none">
-                                        {{ form.delivery_date.label_tag }}{{ form.delivery_date }}
+                                        {{ form.delivery_date.label_tag }}
+                                        <input type="date" name="delivery_date" class="form-control form-control-sm" value="{{ data.delivery_date|date:'Y-m-d' }}">
                                         <div class="text-sm text-danger">
                                             {{ form.delivery_date.errors }}
                                         </div>
@@ -121,7 +130,7 @@
                             </div>
                             <div class="row mt-4">
                                 <div class="col-12 text-end">
-                                    <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
+                                    <button type="submit" class="btn btn-sm bg-gradient-warning mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
                                 </div>
                             </div>
                         </div>

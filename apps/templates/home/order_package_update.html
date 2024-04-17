@@ -13,36 +13,43 @@
 <div class="container-fluid mt-0">
     <div class="row">
         <div class="col-xl-12 order-xl-1">
-            <form action="{% url 'order-package-update' order_id data.id cat pack %}" method="post" enctype="multipart/form-data">
+            <form action="{% url 'order-package-update' order_id data.id cat pack type 0 %}" id="form-add" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
                             <div class="col-6 d-flex align-items-center">
-                                <h5 class="mb-2 text-center">Paket Aqiqah</h5>
+                                <h5 class="mb-2 text-center">Paket Aqiqah ({{ n_package }} dari {{ orders.count }})</h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                {% if not first_package %}
+                                <a href="{% url 'order-package-delete' order_id data.id %}" class="btn btn-sm bg-gradient-warning mb-0 px-4"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</a>
+                                {% endif %}
+                                <button id="add" type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah</button>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="pl-lg-0">
-                            {% if message != '0' and crud == 'update' %}
+                            <!-- {% if message != '0' and crud == 'update' %}
                             <div class="alert text-danger text-bg-light mt-2" role="alert">
                                 {{ message }}
                             </div>
-                            {% endif %}
-                            {% if msg %}
+                            {% endif %} -->
+                            <!-- {% if msg %}
                             <div class="alert text-danger text-bg-light mt-2" role="alert">
                                 {{ msg }}
                             </div>
-                            {% endif %}
+                            {% endif %} -->
+                            {{ form.order }}
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="form-group shadow-none">
-                                        {{ form.category.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="category">Kategori Paket</label>
                                         <select name="category" class="form-control form-select-sm" onchange="window.location.href=this.value">
                                             <option value="">Pilih Kategori</option>
                                             {% for category in categories %}"
-                                            <option value="{% url 'order-package-update' order_id data.id category.category_id '0' %}">{{ category.category_name }}</option>
+                                            <option value="{% url 'order-package-update' order_id data.id category.category_id '0' '0' 0 %}" {% if category.category_id == selected_package.category_id %}selected{% endif %}>{{ category.category_name }}</option>
                                             {% endfor %}
                                         </select>
                                         <div class="text-sm text-danger">
@@ -51,24 +58,25 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group shadow-none">
-                                        {{ form.package.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="package">Paket</label>
                                         <select name="package" class="form-control form-select-sm" onchange="window.location.href=this.value">
                                             <option value="">Pilih Paket</option>
                                             {% for package in packages %}"
-                                            <option value="{% url 'order-package-update' order_id data.id cat package.package_id %}">{{ package.package_name }}</option>
+                                            <option value="{% url 'order-package-update' order_id data.id cat package.package_id package.type 0 %}" {% if package.package_id == selected_package.package_id %}selected{% endif %}>{{ package.package_name }}</option>
                                             {% endfor %}
+                                        </select>
                                         <div class="text-sm text-danger">
                                             {{ form.package.errors }}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group shadow-none">
-                                        {{ form.type.label_tag }}
-                                        <select name="type" id="type" class="form-control form-select-sm">
-                                            <option value="Jantan" {% if selected_package.type == 'Jantan' %}selected{% endif %}>Jantan</option>
-                                            <option value="Betina" {% if selected_package.type == 'Betina' %}selected{% endif %}>Betina</option>
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="type">Jenis Kambing</label>
+                                        <select name="type" id="type" class="form-control form-select-sm" onchange="window.location.href=this.value">
+                                            <option value="{% url 'order-package-update' order_id data.id cat pack 'Jantan' 0 %}" {% if type == 'Jantan' %}selected{% endif %}>Jantan</option>
+                                            <option value="{% url 'order-package-update' order_id data.id cat pack 'Betina' 0 %}" {% if type == 'Betina' %}selected{% endif %}>Betina</option>
                                         </select>
                                         <div class="text-sm text-danger">
                                             {{ form.type.errors }}
@@ -78,7 +86,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="form-group shadow-none">
+                                    <div class="form-group shadow-none mb-0">
                                         {{ form.quantity.label_tag }}{{ form.quantity }}
                                         <div class="text-sm text-danger">
                                             {{ form.quantity.errors }}
@@ -86,24 +94,24 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group shadow-none">
+                                    <div class="form-group shadow-none mb-0">
                                         {{ form.box_type.label_tag }}
                                         <select name="box_type" class="form-control form-select-sm">
                                             <option value="">Pilih Box</option>
                                             {% for box in box_types %}"
-                                            <option value="{{ box.box_type_id }}">{{ box.box_type_name }}</option>
+                                            <option value="{{ box.box_type_id }}" {% if box.box_type_id == data.box_type_id %}selected{% endif %}>{{ box.box_type_name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
                                 </div>
-                                {% if main_cuisine %}
+                                {% if main_cuisines %}
                                 <div class="col-md-4">
-                                    <div class="form-group shadow-none">
-                                        {{ form.main_cuisine.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="main_cuisine">Menu Daging</label>
                                         <select name="main_cuisine" class="form-control form-select-sm">
                                             <option value="">Pilih Menu Daging</option>
                                             {% for cuisine in main_cuisines %}"
-                                            <option value="{{ cuisine.cuisine_id }}">{{ cuisine.cuisine.cuisine_name }}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.main_cuisine %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -111,27 +119,27 @@
                                 {% endif %}
                             </div>
                             <div class="row">
-                                {% if sub_cuisine %}
+                                {% if sub_cuisines %}
                                 <div class="col-md-6">
-                                    <div class="form-group shadow-none">
-                                        {{ form.sub_cuisine.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="sub_cuisine">Menu Olahan</label>
                                         <select name="sub_cuisine" class="form-control form-select-sm">
                                             <option value="">Pilih Menu Olahan</option>
                                             {% for cuisine in sub_cuisines %}"
-                                            <option value="{{ cuisine.cuisine_id }}">{{ cuisine.cuisine.cuisine_name }}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.sub_cuisine %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
                                 </div>
                                 {% endif %}
-                                {% if side_cuisine1 %}
+                                {% if side_cuisines1 %}
                                 <div class="col-md-6">
-                                    <div class="form-group shadow-none">
-                                        {{ form.side_cuisine1.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="side_cuisine1">Menu Pendamping 1</label>
                                         <select name="side_cuisine1" class="form-control form-select-sm">
                                             <option value="">Pilih Pendamping 1</option>
                                             {% for cuisine in side_cuisines1 %}"
-                                            <option value="{{ cuisine.cuisine_id }}">{{ cuisine.cuisine.cuisine_name }}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine1 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -139,27 +147,27 @@
                                 {% endif %}
                             </div>
                             <div class="row">
-                                {% if side_cuisine2 %}
+                                {% if side_cuisines2 %}
                                 <div class="col-md-6">
-                                    <div class="form-group shadow-none">
-                                        {{ form.side_cuisine2.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="side_cuisine2">Menu Pendamping 2</label>
                                         <select name="side_cuisine2" class="form-control form-select-sm">
                                             <option value="">Pilih Pendamping 2</option>
                                             {% for cuisine in side_cuisines2 %}"
-                                            <option value="{{ cuisine.cuisine_id }}">{{ cuisine.cuisine.cuisine_name }}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine2 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
                                 </div>
                                 {% endif %}
-                                {% if side_cuisine3 %}
+                                {% if side_cuisines3 %}
                                 <div class="col-md-6">
-                                    <div class="form-group shadow-none">
-                                        {{ form.side_cuisine3.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="side_cuisine3">Menu Pendamping 3</label>
                                         <select name="side_cuisine3" class="form-control form-select-sm">
                                             <option value="">Pilih Pendamping 3</option>
                                             {% for cuisine in side_cuisines3 %}"
-                                            <option value="{{ cuisine.cuisine_id }}">{{ cuisine.cuisine.cuisine_name }}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine3 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -167,27 +175,27 @@
                                 {% endif %}
                             </div>
                             <div class="row">
-                                {% if side_cuisine4 %}
+                                {% if side_cuisines4 %}
                                 <div class="col-md-6">
-                                    <div class="form-group shadow-none">
-                                        {{ form.side_cuisine4.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="side_cuisine4">Menu Pendamping 4</label>
                                         <select name="side_cuisine4" class="form-control form-select-sm">
                                             <option value="">Pilih Pendamping 4</option>
                                             {% for cuisine in side_cuisines4 %}"
-                                            <option value="{{ cuisine.cuisine_id }}">{{ cuisine.cuisine.cuisine_name }}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name}}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine4 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
                                 </div>
                                 {% endif %}
-                                {% if side_cuisine5 %}
+                                {% if side_cuisines5 %}
                                 <div class="col-md-6">
-                                    <div class="form-group shadow-none">
-                                        {{ form.side_cuisine5.label_tag }}
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="side_cuisine5">Menu Pendamping 5</label>
                                         <select name="side_cuisine5" class="form-control form-select-sm">
                                             <option value="">Pilih Pendamping 5</option>
                                             {% for cuisine in side_cuisines5 %}"
-                                            <option value="{{ cuisine.cuisine_id }}">{{ cuisine.cuisine.cuisine_name }}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine5 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -195,15 +203,17 @@
                                 {% endif %}
                             </div>
                             <div class="row">
+                                {% if data.type %}
                                 <div class="col-md-12">
-                                    <div class="form-group shadow-none">
+                                    <div class="form-group shadow-none mb-0">
                                         <label for="unit_price">Harga Per Paket</label>
-                                        <input type="text" class="form-control form-control-sm {% if selected_package.type != 'jantan' %}d-none{% endif %}" id="male_price" value="{{ selected_package.male_price|rupiah }}" readonly>
-                                        <input type="text" class="form-control form-control-sm {% if selected_package.type != 'betina' %}d-none{% endif %}" id="female_price" value="{{ selected_package.female_price|rupiah }}" readonly>
+                                        <input type="text" class="form-control form-control-sm {% if type != 'Jantan' %}d-none{% endif %}" id="male_price" value="{{ selected_package.male_price|intcomma }}" readonly>
+                                        <input type="text" class="form-control form-control-sm {% if type != 'Betina' %}d-none{% endif %}" id="female_price" value="{{ selected_package.female_price|intcomma }}" readonly>
                                     </div>
                                 </div>
+                                {% endif %}
                                 <div class="col-md-6">
-                                    <div class="form-group shadow-none d-none">
+                                    <div class="form-group shadow-none mb-0 d-none">
                                         {{ form.total_price.label_tag }}{{ form.total_price }}
                                         <div class="text-sm text-danger">
                                             {{ form.total_price.errors }}
@@ -211,17 +221,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- <div class="row">
-                                <div class="col-6 text-center">
-                                    <a href="{% url 'order-package-add' order_id '0' '0' %}" class="btn btn-sm bg-gradient-warning mb-0 px-4"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Paket</a>
-                                </div>
-                            </div> -->
                             <div class="row mt-4">
                                 <div class="col-6">
-                                    <a href="{% if first_package %}{% url 'order-child-update' order_id last_child %}{% else %}{% url 'order-package-update' order_id prev_id prev_cat prev_pack %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
+                                    <a href="{% if first_package %}{% url 'order-child-update' order_id last_child.id 0 %}{% else %}{% url 'order-package-update' order_id prev_id prev_cat prev_pack prev_type 0 %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
                                 </div>
                                 <div class="col-6 text-end">
-                                    <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
+                                    <button type="submit" class="btn btn-sm bg-gradient-warning mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -236,6 +241,14 @@
 
 {% block javascripts %}
 <script>
+    let add = document.getElementById('add');
+    let form = document.getElementById('form-add');
+    
+    add.addEventListener('click', function() {
+        form.action = "{% url 'order-package-update' order_id data.id cat pack type 1 %}";
+        form.submit();
+    });
+
     $(document).ready(function() {
         $('#type').change(function() {
             var type = $(this).val();

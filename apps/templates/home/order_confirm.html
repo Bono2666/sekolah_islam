@@ -143,7 +143,7 @@
                                         <h6 class="mb-0 text-xs">{{ item.child_birth|date:'d F Y' }}</h6>
                                     </td>
                                     <td>
-                                        <h6 class="mb-0 text-xs">{{ item.child_sex }}</h6>
+                                        <h6 class="mb-0 text-xs">{% if item.child_sex == 1 %}Laki-laki{% else %}Perempuan{% endif %}</h6>
                                     </td>
                                     <td>
                                         <h6 class="mb-0 text-xs">{{ item.child_father }}</h6>
@@ -308,7 +308,7 @@
                                 <a href="{% url 'order-confirm-update' data.order_id %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
                             </div>
                             <div class="col-6 text-end">
-                                <a href="{% url 'order-submit' data.order_id %}" type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4">Kirim Pesanan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></a>
+                                <a href="{% url 'order-submit' data.order_id %}" type="button" class="btn btn-sm bg-gradient-warning mb-0 px-4">Kirim Pesanan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></a>
                             </div>
                         </div>
                     </div>

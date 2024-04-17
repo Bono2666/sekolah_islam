@@ -1401,6 +1401,7 @@ class Order(models.Model):
     order_date = models.DateTimeField(null=True)
     customer_name = models.CharField(max_length=200)
     customer_phone = models.CharField(max_length=50, null=True)
+    customer_phone2 = models.CharField(max_length=50, null=True)
     customer_email = models.CharField(max_length=50, null=True)
     customer_address = models.CharField(max_length=200, null=True)
     customer_district = models.CharField(max_length=50, null=True)
@@ -1432,9 +1433,9 @@ class Order(models.Model):
         self.pending_payment = self.total_order - self.down_payment
         if not self.entry_date:
             self.entry_date = timezone.now()
-            self.entry_by = get_current_user().user_id
+            self.entry_by = 'customer'
         self.update_date = timezone.now()
-        self.update_by = get_current_user().user_id
+        self.update_by = 'customer'
         super(Order, self).save(*args, **kwargs)
 
 
@@ -1460,9 +1461,9 @@ class OrderChild(models.Model):
     def save(self, *args, **kwargs):
         if not self.entry_date:
             self.entry_date = timezone.now()
-            self.entry_by = get_current_user().user_id
+            self.entry_by = 'customer'
         self.update_date = timezone.now()
-        self.update_by = get_current_user().user_id
+        self.update_by = 'customer'
         super(OrderChild, self).save(*args, **kwargs)
 
 
@@ -1500,7 +1501,32 @@ class OrderPackage(models.Model):
         self.total_price = self.quantity * self.unit_price
         if not self.entry_date:
             self.entry_date = timezone.now()
+            self.entry_by = 'customer'
+        self.update_date = timezone.now()
+        self.update_by = 'customer'
+        super(OrderPackage, self).save(*args, **kwargs)
+
+
+class CashIn(models.Model):
+    cashin_id = models.BigAutoField(primary_key=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    cashin_date = models.DateTimeField(null=True)
+    cashin_type = models.CharField(max_length=50, null=True)
+    cashin_amount = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    cashin_note = models.CharField(max_length=200, null=True)
+    bank = models.CharField(max_length=50, null=True)
+    evidence = models.FileField(upload_to='cashin/', null=True)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
             self.entry_by = get_current_user().user_id
         self.update_date = timezone.now()
         self.update_by = get_current_user().user_id
-        super(OrderPackage, self).save(*args, **kwargs)
+        super(CashIn, self).save(*args, **kwargs)

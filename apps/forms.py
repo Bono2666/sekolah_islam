@@ -1419,8 +1419,11 @@ class FormOrder(ModelForm):
         self.fields['customer_name'].label = 'Nama Lengkap Pemesan'
         self.fields['customer_name'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
-        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].label = 'Telepon 1'
         self.fields['customer_phone'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_phone2'].label = 'Telepon 2'
+        self.fields['customer_phone2'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
@@ -1440,12 +1443,12 @@ class FormOrder(ModelForm):
 
     class Meta:
         model = Order
-        fields = ['order_id', 'order_date', 'customer_name', 'customer_phone', 'customer_email', 'customer_address',
+        fields = ['order_id', 'order_date', 'customer_name', 'customer_phone', 'customer_phone2', 'customer_email', 'customer_address',
                   'customer_district', 'customer_city', 'customer_province', 'delivery_date', 'time_arrival']
 
         widgets = {
             'customer_address': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 4}),
-            'delivery_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+            'delivery_date': DateInput(attrs={'class': 'form-control form-control-sm'}),
             'time_arrival': TimeInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'timepicker', 'data-time-format': 'HH:ii', 'type': 'time'}),
         }
 
@@ -1454,15 +1457,14 @@ class FormOrderUpdate(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormOrderUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['order_id'].widget = forms.TextInput(
-            attrs={'class': 'd-none'})
-        self.fields['order_date'].widget = forms.DateInput(
-            attrs={'class': 'form-control-sm d-none', 'readonly': 'readonly'})
         self.fields['customer_name'].label = 'Nama Lengkap Pemesan'
         self.fields['customer_name'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
-        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].label = 'Telepon 1'
         self.fields['customer_phone'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['customer_phone2'].label = 'Telepon 2'
+        self.fields['customer_phone2'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
@@ -1482,12 +1484,12 @@ class FormOrderUpdate(ModelForm):
 
     class Meta:
         model = Order
-        fields = ['order_id', 'order_date', 'customer_name', 'customer_phone', 'customer_email', 'customer_address',
+        fields = ['customer_name', 'customer_phone', 'customer_phone2', 'customer_email', 'customer_address',
                   'customer_district', 'customer_city', 'customer_province', 'delivery_date', 'time_arrival']
 
         widgets = {
             'customer_address': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 4}),
-            'delivery_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+            'delivery_date': DateInput(attrs={'class': 'form-control form-control-sm'}),
             'time_arrival': TimeInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'timepicker', 'data-time-format': 'HH:ii', 'type': 'time'}),
         }
 
@@ -1513,6 +1515,32 @@ class FormOrderChild(ModelForm):
     class Meta:
         model = OrderChild
         exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+        widgets = {
+            'child_birth': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+        }
+
+
+class FormOrderCSChild(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrderChild, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['child_name'].label = 'Nama Anak'
+        self.fields['child_name'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['child_birth'].label = 'Tanggal Lahir'
+        self.fields['child_sex'].label = 'Jenis Kelamin'
+        self.fields['child_father'].label = 'Nama Ayah'
+        self.fields['child_father'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['child_mother'].label = 'Nama Ibu'
+        self.fields['child_mother'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+
+    class Meta:
+        model = OrderChild
+        exclude = ['order', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
 
         widgets = {
             'child_birth': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
@@ -1561,7 +1589,7 @@ class FormOrderPackage(ModelForm):
 
     class Meta:
         model = OrderPackage
-        exclude = ['category', 'package', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price',
+        exclude = ['category', 'package', 'type', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price',
                    'entry_by', 'update_date', 'update_by']
 
 
@@ -1578,4 +1606,118 @@ class FormOrderConfirmUpdate(ModelForm):
 
         widgets = {
             'order_note': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
+        }
+
+
+class FormOrderView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrderView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order_date'].widget = forms.DateInput(
+            attrs={'class': 'form-control-sm d-none', 'readonly': 'readonly'})
+        self.fields['customer_name'].label = 'Nama Lengkap Pemesan'
+        self.fields['customer_name'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_email'].label = 'Email'
+        self.fields['customer_email'].widget = forms.EmailInput(
+            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_address'].label = 'Alamat Lengkap Pengiriman'
+        self.fields['customer_district'].label = 'Kecamatan'
+        self.fields['customer_district'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_city'].label = 'Kota/Kabupaten'
+        self.fields['customer_city'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_province'].label = 'Propinsi'
+        self.fields['customer_province'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['delivery_date'].label = 'Tanggal Pengiriman'
+        self.fields['time_arrival'].label = 'Jam Tiba di Lokasi'
+        self.fields['order_note'].label = 'Catatan Pemesanan (Jika Ada)'
+        self.fields['order_note'].required = False
+
+    class Meta:
+        model = Order
+        fields = ['order_date', 'customer_name', 'customer_phone', 'customer_email', 'customer_address',
+                  'customer_district', 'customer_city', 'customer_province', 'delivery_date', 'time_arrival', 'order_note']
+
+        widgets = {
+            'customer_address': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 4, 'readonly': 'readonly'}),
+            'delivery_date': DateInput(attrs={'class': 'form-control form-control-sm', 'disabled': 'disabled'}),
+            'time_arrival': TimeInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'timepicker', 'data-time-format': 'HH:ii', 'type': 'time', 'disabled': 'disabled'}),
+            'order_note': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3, 'readonly': 'readonly'}),
+        }
+
+
+class FormOrderCSUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormOrderCSUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        # self.fields['order_date'].widget = forms.DateInput(
+        #     attrs={'class': 'form-control-sm d-none', 'readonly': 'readonly'})
+        # self.fields['customer_name'].label = 'Nama Lengkap Pemesan'
+        # self.fields['customer_name'].widget = forms.TextInput(
+        #     attrs={'class': 'form-control-sm'})
+        # self.fields['customer_phone'].label = 'Telepon'
+        # self.fields['customer_phone'].widget = forms.TextInput(
+        #     attrs={'class': 'form-control-sm'})
+        # self.fields['customer_email'].label = 'Email'
+        # self.fields['customer_email'].widget = forms.EmailInput(
+        #     attrs={'class': 'form-control-sm'})
+        # self.fields['customer_address'].label = 'Alamat Lengkap Pengiriman'
+        # self.fields['customer_district'].label = 'Kecamatan'
+        # self.fields['customer_district'].widget = forms.TextInput(
+        #     attrs={'class': 'form-control-sm'})
+        # self.fields['customer_city'].label = 'Kota/Kabupaten'
+        # self.fields['customer_city'].widget = forms.TextInput(
+        #     attrs={'class': 'form-control-sm'})
+        # self.fields['customer_province'].label = 'Propinsi'
+        # self.fields['customer_province'].widget = forms.TextInput(
+        #     attrs={'class': 'form-control-sm'})
+        # self.fields['delivery_date'].label = 'Tanggal Pengiriman'
+        # self.fields['time_arrival'].label = 'Jam Tiba di Lokasi'
+        # self.fields['order_note'].label = 'Catatan Pemesanan (Jika Ada)'
+        # self.fields['order_note'].required = False
+
+    class Meta:
+        model = Order
+        fields = []
+
+        widgets = {
+            # 'customer_address': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 4}),
+            # 'delivery_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+            # 'time_arrival': TimeInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'timepicker', 'data-time-format': 'HH:ii', 'type': 'time'}),
+            # 'order_note': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
+        }
+
+
+class FormCashIn(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCashIn, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order'].label = 'Order Pemesanan'
+        self.fields['cashin_type'].label = 'Cara Pembayaran'
+        self.fields['cashin_date'].label = 'Tanggal Pembayaran'
+        self.fields['cashin_amount'].label = 'Jumlah Uang Masuk'
+        self.fields['cashin_amount'].widget = forms.NumberInput(
+            attrs={'class': 'form-control-sm no-spinners'})
+        self.fields['bank'].label = 'Nama Bank'
+        self.fields['bank'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['evidence'].label = 'Bukti Pembayaran'
+        self.fields['evidence'].required = False
+        self.fields['cashin_note'].label = 'Catatan'
+        self.fields['cashin_note'].required = False
+
+    class Meta:
+        model = CashIn
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+        widgets = {
+            'cashin_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+            'evidence': forms.FileInput(attrs={'class': 'form-control form-control-sm'}),
+            'cashin_note': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
         }

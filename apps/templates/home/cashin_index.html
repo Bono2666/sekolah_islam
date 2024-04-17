@@ -1,0 +1,110 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Uang Masuk {% endblock title %}
+
+{% block content %}
+
+{% load humanize %}
+
+<!-- Page content -->
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-0">Uang Masuk</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'cashin-add' %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Buat Uang Masuk</a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Regional</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nomor Invoice</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Pemesan</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal Bayar</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-end">Nominal</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bank</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Catatan</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal Dibuat</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Dibuat Oleh</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr data-href="" class="cursor-pointer">
+                                    <td>
+                                        <div class="d-flex pe-2 py-0">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ item.order.regional.area_name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ item.order_id }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ item.order.customer_name }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ item.cashin_date|date:'d M Y' }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm text-end">{{ item.cashin_amount|intcomma }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ item.bank }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ item.note|truncatechars:20 }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ item.entry_date|date:'d M Y' }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ item.entry_by }}</h6>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+    $(document).ready( function () {
+        new DataTable('#myTable', {
+            // scrollX: true,
+            pageLength: 25,
+        });
+
+        btn = document.getElementsByClassName('paginate_button');
+            for (var i = 0; i < btn.length; i++) {
+                btn[i].classList.add('border-radius-top-start-circle', 'border-radius-bottom-end-circle', 'border-radius-top-end-circle', 'border-radius-bottom-start-circle');
+            }
+        } );
+
+        $(document).on('click', 'tbody tr', function() {
+            var href = $(this).data('href');
+            if(href) { // Check if href data exists
+                window.location = href;
+            } else {
+                console.log("No data in href");
+            }
+        });
+</script>
+
+{% endblock javascripts %}
