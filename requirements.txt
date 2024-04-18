@@ -20,7 +20,6 @@ pypdf2
 requests
 django-tinymce
 xhtml2pdf
+# pip install pyyaml ua-parser user-agents <-- install these packages first for django-user-agents
+django-user-agents
 # djangorestframework
-
-# psycopg2-binary
-# mysqlclient

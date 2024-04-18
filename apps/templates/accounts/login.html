@@ -1,9 +1,14 @@
 {% extends 'layouts/base-fullscreen.html' %}
 
+{% load user_agents %}
+
 {% block content %}
-
-  {% include 'includes/navigation-fullscreen.html' %}
-
+  {% if request|is_mobile %}
+    {% include 'includes/navigation-full-mobile.html' %}
+  {% else %}
+    {% include 'includes/navigation-fullscreen.html' %}
+  {% endif %}
+  
   <main class="main-content  mt-0">
     <section>
       <div class="page-header min-vh-75">

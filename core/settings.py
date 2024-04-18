@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'mathfilters',
     'tinymce',
+    'django_user_agents',
 ]
 
 MIDDLEWARE = [
@@ -85,9 +86,9 @@ DATABASES = {
         'NAME': 'order_online',
         'USER': 'root',
         'PASSWORD': '',
-        # 'NAME': 'ksis8742_abc_is',
-        # 'USER': 'ksis8742_abc_is',
-        # 'PASSWORD': 'B0n0harry!',
+        # 'NAME': 'u8365310_aqiqahon',
+        # 'USER': 'u8365310_aqiqahon',
+        # 'PASSWORD': 'tn,(s0LM_%}0',
         'HOST': 'localhost',
         'PORT': '3306',
     }
