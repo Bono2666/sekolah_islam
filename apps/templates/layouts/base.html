@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 
+{% load user_agents %}
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="canonical" href="https://appseed.us/admin-dashboards/django-dashboard-argon">
   
   <title>
-    Order Online | Sahabat Aqiqah
+    Aqiqah Online | Sahabat Aqiqah
   </title>
 
   <!-- Favicon - loaded as static -->
-  <link rel="icon" href="https://sahabataqiqah.co.id/apps/static/img/favicon.png" type="image/png">
+  <link rel="icon" href="https://aqiqahon.sahabataqiqah.co.id/apps/static/img/favicon.png" type="image/png">
   <!-- Fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
   <!-- Icons -->
-  <link rel="stylesheet" href="https://ksisolusi.com/apps/static/vendor/nucleo/css/nucleo.css" type="text/css">
+  <link rel="stylesheet" href="https://aqiqahon.sahabataqiqah.co.id/apps/static/vendor/nucleo/css/nucleo.css" type="text/css">
   <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
   <!-- Page plugins -->
   <!-- Soft UI Dashboard -->
-  <link id="pagestyle" href="https://sahabataqiqah.co.id/apps/static/css/soft-ui-dashboard.css" rel="stylesheet" />
-  <link id="pagestyle_dark" href="https://ksisolusi.com/apps/static/css/dark-theme-core.css" rel="stylesheet" />
+  <link id="pagestyle" href="https://aqiqahon.sahabataqiqah.co.id/apps/static/css/soft-ui-dashboard.css" rel="stylesheet" />
+  <link id="pagestyle_dark" href="https://aqiqahon.sahabataqiqah.co.id/apps/static/css/dark-theme-core.css" rel="stylesheet" />
   <!-- DataTables -->
   <link rel="stylesheet" href="//cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" type="text/css">
   <!-- CSS jQuery UI -->
@@ -40,7 +42,11 @@
   
   <div class="main-content position-relative min-vh-100 pb-4">
     
-    {% include "includes/navigation.html" %}
+    {% if request|is_mobile %}
+      {% include 'includes/navigation-mobile.html' %}
+    {% else %}
+      {% include 'includes/navigation.html' %}
+    {% endif %}
 
     <div class="mb-3">
       {% block content %}{% endblock content %}
