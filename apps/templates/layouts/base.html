@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-{% load user_agents %}
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -36,18 +34,14 @@
   {{ form.media }}
 </head>
 
-<body class="">
+<body class="g-sidenav-show">
 
   {% include "includes/sidebar.html" %}
   
   <div class="main-content position-relative min-vh-100 pb-4">
     
-    {% if request|is_mobile %}
-      {% include 'includes/navigation-mobile.html' %}
-    {% else %}
       {% include 'includes/navigation.html' %}
-    {% endif %}
-
+    
     <div class="mb-3">
       {% block content %}{% endblock content %}
     </div>
@@ -75,14 +69,14 @@
         let my_button = document.getElementsByClassName('button');
         for (const button of my_button) {
           button.addEventListener('click', function() {
-            alert('Save your data before leaving this page');
+            alert('Simpan data terlebih dahulu sebelum keluar dari halaman ini');
           });
         }
     }
   </script>
 
   <!-- Argon JS -->
-  <script src="https://ksisolusi.com/apps/static/js/argon.js?v=1.2.0"></script>
+  <script src="https://aqiqahon.sahabataqiqah.co.id/apps/static/js/argon.js?v=1.2.0"></script>
   <!-- DataTables -->
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
@@ -90,8 +84,8 @@
   <!-- JavaScript jQuery UI -->
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="https://ksisolusi.com/apps/static/js/soft-ui-dashboard.min.js"></script>
-  <script src="https://ksisolusi.com/apps/static/js/scripts.js"></script>
+  <script src="https://aqiqahon.sahabataqiqah.co.id/apps/static/js/soft-ui-dashboard.min.js"></script>
+  <script src="https://aqiqahon.sahabataqiqah.co.id/apps/static/js/scripts.js"></script>
   <!-- Select2 -->
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </body>

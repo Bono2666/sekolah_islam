@@ -84,12 +84,19 @@
 
 {% block javascripts %}
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready( function () {
-        new DataTable('#myTable', {
-            // scrollX: true,
-            pageLength: 25,
-        });
+        if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            $('#myTable').DataTable({
+                pageLength: 25,
+                lengthChange: false,
+            });
+        } else {
+            new DataTable('#myTable', {
+                pageLength: 25,
+            });
+        }
 
         btn = document.getElementsByClassName('paginate_button');
             for (var i = 0; i < btn.length; i++) {

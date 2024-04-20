@@ -59,14 +59,21 @@
 
 {% block javascripts %}
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready( function () {
-      $('#myTable').DataTable();
+        if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            $('#myTable').DataTable({
+                lengthChange: false,
+            });
+        } else {
+            $('#myTable').DataTable();
+        }
       
-      btn = document.getElementsByClassName('paginate_button');
-      for (var i = 0; i < btn.length; i++) {
-          btn[i].classList.add('border-radius-top-start-circle', 'border-radius-bottom-end-circle', 'border-radius-top-end-circle', 'border-radius-bottom-start-circle');
-      }
+        btn = document.getElementsByClassName('paginate_button');
+        for (var i = 0; i < btn.length; i++) {
+            btn[i].classList.add('border-radius-top-start-circle', 'border-radius-bottom-end-circle', 'border-radius-top-end-circle', 'border-radius-bottom-start-circle');
+        }
     } );
 
     $(document).on('click', 'tbody tr', function() {
