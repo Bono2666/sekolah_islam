@@ -16,8 +16,8 @@
                                 <h4 class="mb-2">Buat User Baru</h4>
                             </div>
                             <div class="col-6 text-end">
-                                <button type="submit" class="btn bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
-                                <a href="{% url 'user-index' %}" class="btn bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</a>
+                                <button type="submit" class="btn btn-sm bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <a href="{% url 'user-index' %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</a>
                             </div>
                         </div>
                     </div>
@@ -110,6 +110,7 @@
 {% endblock content %}
 
 {% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
     $('#show-hide-new-pass').click(function() {
