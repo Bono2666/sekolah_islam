@@ -19,7 +19,7 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-12 d-flex align-items-center">
-                                <h5 class="mb-2 text-center">Konfirmasi Pesanan Anda</h5>
+                                <h5 class="mb-4 text-center">Konfirmasi Pesanan Anda</h5>
                             </div>
                         </div>
                     </div>
@@ -108,7 +108,7 @@
         <div class="col-12">
             <div class="card mb-0 p-4">
                 <div class="row mb-3">
-                    <div class="col-6 d-flex align-items-center">
+                    <div class="col-12 d-flex align-items-center">
                         <h5 class="mb-0">Informasi Anak</h5>
                     </div>
                 </div>
@@ -234,10 +234,10 @@
         </div>
     </div>
 </div>
-<div class="container-fluid py-2">
+<div class="container-fluid pt-2 pb-4">
     <div class="row">
         <div class="col-12">
-            <div class="card mb-0 p-4">
+            <div class="card mb-4 p-4">
                 <div class="row mb-3">
                     <div class="col-6 d-flex align-items-center">
                         <h5 class="mb-0">Konfirmasi</h5>
@@ -304,10 +304,10 @@
                             </div>
                         </div>
                         <div class="row mt-4">
-                            <div class="col-6">
+                            <div class="col-5">
                                 <a href="{% url 'order-confirm-update' data.order_id %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
                             </div>
-                            <div class="col-6 text-end">
+                            <div class="col-7 text-end">
                                 <a href="{% url 'order-submit' data.order_id %}" type="button" class="btn btn-sm bg-gradient-warning mb-0 px-4">Kirim Pesanan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></a>
                             </div>
                         </div>

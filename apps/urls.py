@@ -393,7 +393,7 @@ urlpatterns = [
     path('order/cancel/<path:_id>/', views.order_cancel, name='order-cancel'),
     path('order/confirmed/<path:_id>/',
          views.order_confirmed, name='order-confirmed'),
-    path('order/cs/update/<path:_id>/',
+    path('order/cs/update/<path:_id>/<str:_cat>/<str:_pack>/<str:_type>/',
          views.order_cs_update, name='order-cs-update'),
     path('order/cs/child/add/<path:_id>/',
          views.order_cs_child_add, name='order-cs-child-add'),

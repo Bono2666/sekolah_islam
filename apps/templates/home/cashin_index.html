@@ -99,14 +99,6 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    let btn_menu = document.getElementById('dropdownTable');
-    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
-    
-    // open dropdown menu
-    btn_menu.addEventListener('click', function() {
-        dropdown_menu[0].classList.toggle('show');
-    });
-
     $(document).ready( function () {
         if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             $('#myTable').DataTable({
@@ -115,15 +107,23 @@
             });
         } else {
             new DataTable('#myTable', {
-                pageLength: 25,
+                pageLength: 25, 
             });
         }
 
         btn = document.getElementsByClassName('paginate_button');
-            for (var i = 0; i < btn.length; i++) {
-                btn[i].classList.add('border-radius-top-start-circle', 'border-radius-bottom-end-circle', 'border-radius-top-end-circle', 'border-radius-bottom-start-circle');
-            }
-        } );
+        for (var button of btn) {
+            button.classList.add('border-radius-top-start-circle', 'border-radius-bottom-end-circle', 'border-radius-top-end-circle', 'border-radius-bottom-start-circle');
+        }
+    } );
+
+    let btn_menu = document.getElementById('dropdownTable');
+    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
+    
+    // open dropdown menu
+    btn_menu.addEventListener('click', function() {
+        dropdown_menu[0].classList.toggle('show');
+    });
 
     $(document).on('click', 'tbody tr', function() {
         var href = $(this).data('href');

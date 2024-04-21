@@ -15,11 +15,11 @@
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'order-confirm-update' data.order_id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-header">
                         <div class="row">
                             <div class="col-6 d-flex align-items-center">
-                                <h5 class="mb-2 text-center">Konfirmasi</h5>
+                                <h5 class="mb-4 text-center">Konfirmasi</h5>
                             </div>
                         </div>
                     </div>

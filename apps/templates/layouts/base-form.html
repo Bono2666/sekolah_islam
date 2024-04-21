@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load user_agents %}
 
 <head>
   <meta charset="utf-8" />
@@ -39,6 +40,9 @@
   <div class="main-content position-relative min-vh-100 pb-4">
     
     <div class="mb-6">
+      <a class="navbar-brand button cursor-pointer m-0 pt-4" {% if crud != 'add' and crud != 'update' %}href="{% url 'home' %}"{% endif %}>
+        <img src="https://aqiqahon.sahabataqiqah.co.id/apps/static/img/color.png" class="navbar-brand-img {% if request|is_mobile %}w-50 mt-5 mb-2{% else %}w-15 mt-4{% endif %} ms-5" alt="main_logo">
+      </a>
       {% block content %}{% endblock content %}
     </div>
 

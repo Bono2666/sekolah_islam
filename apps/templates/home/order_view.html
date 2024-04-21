@@ -10,6 +10,8 @@
 
 {% load mathfilters %}
 
+{% load user_agents %}
+
 <form action="" method="post" id="order-form" enctype="multipart/form-data">
     <div class="container-fluid mt-0">
         <div class="row">
@@ -18,16 +20,33 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-6 d-flex align-items-center">
-                                <h5 class="mb-4 text-center">Order Pemesanan: {{ data.order_id }}</h5>
+                            <div class="{% if request|is_mobile %}col-10{% else %}col-6{% endif %} d-flex align-items-center">
+                                <h5 class="mb-4">Order Pemesanan: {% if request|is_mobile %}<br><span class="text-sm">{{ data.order_id }}</span>{% else %}{{ data.order_id }}{% endif %}</h5>
                             </div>
+                            {% if request|is_mobile %}
+                            <div class="col-2 text-end">
+                                <div class="dropdown float-lg-end pe-2">
+                                    <a class="cursor-pointer text-body" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </a>
+                                    <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownTable">
+                                        <li><a class="dropdown-item border-radius-md" href="{% if crud == 'view' %}{% url 'order-index' %}{% else %}{% url 'order-view' data.order_id '0' '0' '0' '0' %}{% endif %}">{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a></li>
+                                        <li><a class="dropdown-item border-radius-md" {% if not btn.edit and not request.user.is_superuser %}hidden{% endif %}{% if status == 'BATAL' %}hidden{% endif %} {% if crud == 'update' %}hidden{% endif %} href="{% url 'order-cs-update' data.order_id '0' '0' '0' %}">Ubah</a></li>
+                                        <li><a class="dropdown-item border-radius-md" id="save-btn" type="submit" {% if crud == 'view' %}hidden{% endif %}>Simpan</a></li>
+                                        <li><a class="dropdown-item border-radius-md" {% if status != 'DRAFT' %}hidden{% else %}{% if not btn.edit and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}{% endif %} data-bs-toggle="modal" data-bs-target="#confirm-{{ data.order_id }}">Confirmed</a></li>
+                                        <li><a class="dropdown-item border-radius-md" {% if status == 'SELESAI' or status == 'BATAL' %}hidden{% else %}{% if not btn.delete and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}{% endif %} data-bs-toggle="modal" data-bs-target="#cancel">Batal</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {% else %}
                             <div class="col-6 text-end">
                                 <a href="{% if crud == 'view' %}{% url 'order-index' %}{% else %}{% url 'order-view' data.order_id '0' '0' '0' '0' %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-3"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a>
-                                <a href="{% url 'order-cs-update' data.order_id %}" class="btn btn-sm bg-gradient-dark mb-0 px-4 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}{% if status == 'BATAL' %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah</a>
+                                <a href="{% url 'order-cs-update' data.order_id '0' '0' '0' %}" class="btn btn-sm bg-gradient-dark mb-0 px-4 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}{% if status == 'BATAL' %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah</a>
                                 <button type="submit" id="save-btn" class="btn btn-sm bg-gradient-dark mb-0 px-4" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
                                 <button type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4 {% if status != 'DRAFT' %}disabled{% else %}{% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.order_id }}"><i class="fas fa-check"></i>&nbsp;&nbsp;Confirmed</button>
-                                <button type="button" class="btn btn-sm bg-gradient-warning mb-0 px-4 {% if status == 'SELESAI' or status == 'BATAL' %}disabled{% else %}{% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#cancel-{{ data.order_id }}"><i class="fas fa-times-circle"></i>&nbsp;&nbsp;Batal</button>
+                                <button type="button" class="btn btn-sm bg-gradient-warning mb-0 px-4 {% if status == 'SELESAI' or status == 'BATAL' %}disabled{% else %}{% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#cancel"><i class="fas fa-times-circle"></i>&nbsp;&nbsp;Batal</button>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="modal fade" id="confirm-{{ data.order_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -48,7 +67,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal fade" id="cancel-{{ data.order_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                    <div class="modal fade" id="cancel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
@@ -156,12 +175,11 @@
             <div class="col-12">
                 <div class="card pb-4 px-4 pt-2">
                     <div class="row">
-                        <div class="col-6 d-flex align-items-center">
-                            <h5 class="mb-0">Konfirmasi</h5>
+                        <div class="col-4 d-flex align-items-center">
+                            <h5 class="mb-4 mt-3">Konfirmasi</h5>
                         </div>
-                        <div class="col-6 text-end shadow-none">
-                            <label class="form-control-label pe-2" for="input-username">Status Pesanan</label>
-                            <button class="text-xs text-white border-0 rounded-3 px-3 py-1 bg-gradient-primary mt-3">{{ data.order_status }}</button>
+                        <div class="col-8 text-end shadow-none pt-1">
+                            <label class="text-xs text-white border-0 rounded-3 px-3 py-1 bg-gradient-primary mt-3">{{ data.order_status }}</button>
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-1">
@@ -248,11 +266,22 @@
         <div class="col-12">
             <div class="card mb-0 p-4">
                 <div class="row mb-3">
-                    <div class="col-6 d-flex align-items-center">
-                        <h5 class="mb-0">Informasi Anak</h5>
+                    <div class="col-8 d-flex align-items-center">
+                        <h5 class="mb-2">Informasi Anak</h5>
                     </div>
-                    <div class="col-6 text-end">
+                    <div class="col-4 text-end">
+                        {% if request|is_mobile %}
+                        <div class="dropdown float-lg-end pe-2" {% if status == 'BATAL' or status == 'SELESAI' %}hidden{% else %}{% if not btn.edit and not request.user.is_superuser %}hidden{% endif %} {% if crud == 'update' %}hidden{% endif %}{% endif %}>
+                            <a class="cursor-pointer text-body" id="dropdownAnak" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownAnak">
+                                <li><a class="dropdown-item border-radius-md" data-bs-toggle="modal" href="#addAnak">Tambah Anak</a></li>
+                            </ul>
+                        </div>
+                        {% else %}
                         <button type="button" class="btn btn-sm bg-gradient-dark mb-0 {% if status == 'BATAL' or status == 'SELESAI' %}disabled{% else %}{% if not btn.edit and not request.user.is_superuser %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#addAnak"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Anak</button>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="modal fade" id="addAnak" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
@@ -473,7 +502,7 @@
                                                 <div class="modal-footer border-0">
                                                     <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
                                                     <button type="submit"
-                                                        class="btn btn-sm bg-gradient-warning text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        class="btn btn-sm bg-gradient-warning text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %} {% if status == 'BATAL' or status == 'SELESAI' %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}">Simpan</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -499,10 +528,21 @@
             <div class="card mb-5 p-4">
                 <div class="row mb-3">
                     <div class="col-6 d-flex align-items-center">
-                        <h5 class="mb-0">Paket Aqiqah</h5>
+                        <h5 class="mb-2">Paket Aqiqah</h5>
                     </div>
                     <div class="col-6 text-end">
+                        {% if request|is_mobile %}
+                        <div class="dropdown float-lg-end pe-2" {% if status == 'BATAL' or status == 'SELESAI' %}hidden{% else %}{% if not btn.edit and not request.user.is_superuser %}hidden{% endif %} {% if crud == 'update' %}hidden{% endif %}{% endif %}>
+                            <a class="cursor-pointer text-body" id="dropdownPaket" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownPaket">
+                                <li><a class="dropdown-item border-radius-md" data-bs-toggle="modal" href="#addPaket">Tambah Paket</a></li>
+                            </ul>
+                        </div>
+                        {% else %}
                         <button type="button" class="btn btn-sm bg-gradient-dark mb-0 {% if status == 'BATAL' or status == 'SELESAI' %}disabled{% else %}{% if not btn.edit and not request.user.is_superuser %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#addPaket"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Paket</button>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="modal modal-lg fade" id="addPaket" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
@@ -769,7 +809,7 @@
                                         </div>
                                     </div>
                                 </tr>
-                                <div class="modal modal-lg fade" id="updPack-{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+                                <div class="modal modal-lg fade" id="updPack-{{ crud_det }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -786,7 +826,7 @@
                                                                     <select class="form-control form-select-sm" name="category" id="id-category" onchange="window.location.href=this.value" required disabled>
                                                                         <option value="">Pilih Kategori</option>
                                                                         {% for ctg in category %}
-                                                                        <option value="{% url 'order-view' data.order_id ctg.category_id '0' '0' item.id %}" {% if cat == ctg.category_id %}selected{% endif %}>{{ ctg.category_name }}</option>
+                                                                        <option value="{% url 'order-view' data.order_id ctg.category_id '0' '0' crud_det %}" {% if cat == ctg.category_id %}selected{% endif %}>{{ ctg.category_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -797,7 +837,7 @@
                                                                     <select class="form-control form-select-sm" name="package" id="id-package" onchange="window.location.href=this.value" required disabled>
                                                                         <option value="">Pilih Paket</option>
                                                                         {% for pkg in packages_upd %}
-                                                                        <option value="{% url 'order-view' data.order_id cat pkg.package_id pkg.type item.id %}" {% if pack == pkg.package_id %}selected{% endif %}>{{ pkg.package_name }}</option>
+                                                                        <option value="{% url 'order-view' data.order_id cat pkg.package_id pkg.type crud_det %}" {% if pack == pkg.package_id %}selected{% endif %}>{{ pkg.package_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -806,8 +846,8 @@
                                                                 <div class="shadow-none">
                                                                     <label class="form-control-label" for="id-type">Jenis Kambing</label>
                                                                     <select class="form-control form-select-sm" name="type" id="id-type" onchange="window.location.href=this.value" required>
-                                                                        <option value="{% url 'order-view' data.order_id cat pack 'Jantan' item.id %}" {% if type == 'Jantan' %}selected{% endif %}>Jantan</option>
-                                                                        <option value="{% url 'order-view' data.order_id cat pack 'Betina' item.id %}" {% if type == 'Betina' %}selected{% endif %}>Betina</option>
+                                                                        <option value="{% url 'order-view' data.order_id cat pack 'Jantan' crud_det %}" {% if type == 'Jantan' %}selected{% endif %}>Jantan</option>
+                                                                        <option value="{% url 'order-view' data.order_id cat pack 'Betina' crud_det %}" {% if type == 'Betina' %}selected{% endif %}>Betina</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -816,7 +856,7 @@
                                                             <div class="col-md-4">
                                                                 <div class="shadow-none">
                                                                     <label class="form-control-label" for="id-quantity">Jumlah Paket</label>
-                                                                    <input type="number" name="quantity" id="id-quantity" class="form-control form-control-sm" value="{{ item.quantity }}" required>
+                                                                    <input type="number" name="quantity" id="id-quantity" class="form-control form-control-sm" value="{{ upd_package.quantity }}" required>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-4">
@@ -825,7 +865,7 @@
                                                                     <select class="form-control form-select-sm" name="box_type" id="id-box-type" required>
                                                                         <option value="">Pilih Box</option>
                                                                         {% for item_box in box %}
-                                                                        <option value="{{ item_box.box_type_id }}" {% if item.box_type_id == item_box.box_type_id %}selected{% endif %}>{{ item_box.box_type_name }}</option>
+                                                                        <option value="{{ item_box.box_type_id }}" {% if upd_package.box_type_id == item_box.box_type_id %}selected{% endif %}>{{ item_box.box_type_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -837,7 +877,7 @@
                                                                     <select class="form-control form-select-sm" name="main_cuisine" id="id-main-cuisine" required>
                                                                         <option value="">Pilih Menu Daging</option>
                                                                         {% for cuisine in main_cuisines %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if item.main_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.main_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -852,7 +892,7 @@
                                                                     <select class="form-control form-select-sm" name="sub_cuisine" id="id-sub-cuisine" required>
                                                                         <option value="">Pilih Menu Olahan</option>
                                                                         {% for cuisine in sub_cuisines %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if item.sub_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.sub_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -865,7 +905,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine1" id="id-side-cuisine1" required>
                                                                         <option value="">Pilih Menu Pendamping 1</option>
                                                                         {% for cuisine in side_cuisines1 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if item.side_cuisine1 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine1 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -880,7 +920,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine2" id="id-side-cuisine2" required>
                                                                         <option value="">Pilih Menu Pendamping 2</option>
                                                                         {% for cuisine in side_cuisines2 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if item.side_cuisine2 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine2 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -893,7 +933,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine3" id="id-side-cuisine3" required>
                                                                         <option value="">Pilih Menu Pendamping 3</option>
                                                                         {% for cuisine in side_cuisines3 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if item.side_cuisine3 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine3 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -908,7 +948,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine4" id="id-side-cuisine4" required>
                                                                         <option value="">Pilih Menu Pendamping 4</option>
                                                                         {% for cuisine in side_cuisines4 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if item.side_cuisine4 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine4 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -921,7 +961,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine5" id="id-side-cuisine5" required>
                                                                         <option value="">Pilih Menu Pendamping 5</option>
                                                                         {% for cuisine in side_cuisines5 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if item.side_cuisine5 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine5 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -950,7 +990,7 @@
                                                 <div class="modal-footer border-0">
                                                     <a href="{% url 'order-view' data.order_id '0' '0' '0' '0' %}" role="button" class="btn btn-sm bg-gradient-dark">Batal</a>
                                                     <button type="button" id="btn-edit-paket"
-                                                        class="btn btn-sm bg-gradient-warning text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        class="btn btn-sm bg-gradient-warning text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %} {% if status == 'BATAL' or status == 'SELESAI' %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}">Simpan</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -971,49 +1011,6 @@
 {% block javascripts %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    let crudStatus = '{{ crud_det }}';
-    let btnSavePaket = document.getElementById('btn-save-paket');
-    let btnEditPaket = document.getElementById('btn-edit-paket');
-    let packForm = document.getElementById('packForm');
-    let editPackForm = document.getElementById('editPackForm');
-
-    $(document).on('click', 'tbody tr td:not(:last-child)', function() {
-        var href = $(this).parent().data('href');
-        if(href) { // Check if href data exists
-            window.location = href;
-        } else {
-            console.log("No data in href");
-        }
-    });
-
-    btnSavePaket.addEventListener('click', function () {
-        packForm.submit();
-    });
-
-    btnEditPaket.addEventListener('click', function () {
-        editPackForm.submit();
-    });
-
-    if (crudStatus == 'add') {
-        $('#addPaket').modal({
-            backdrop: 'static',
-            keyboard: false
-        });
-    } else if (crudStatus != '0') {
-        $('#updPack-' + crudStatus).modal({
-            backdrop: 'static',
-            keyboard: false
-        });
-    }
-
-    btnSavePaket.addEventListener('click', function () {
-        let quantity = document.getElementById('id-quantity').value;
-        let unitPrice = document.getElementById('id-unit-price').value;
-        let totalPrice = document.getElementById('id-total-price');
-
-        totalPrice.value = quantity * unitPrice;
-    });
-
     $(document).ready(function () {
         $('#childTable').DataTable({
             'searching': false,
@@ -1029,6 +1026,68 @@
             'info': false,
             'cell-border': true,
         });
+    });
+
+    $(document).on('click', 'tbody tr td:not(:last-child)', function() {
+        var href = $(this).parent().data('href');
+        if(href) { // Check if href data exists
+            window.location = href;
+        } else {
+            console.log("No data in href");
+        }
+    });
+
+    let crudStatus = '{{ crud_det }}';
+    const modal_add = document.getElementById('addPaket');
+    const modalAdd = new bootstrap.Modal(modal_add);
+    const modal_edit = document.getElementById('updPack-{{ crud_det }}');
+    const modalEdit = new bootstrap.Modal(modal_edit);
+    
+    if (crudStatus == 'add') {
+        modalAdd.show();
+        modalAdd._config.keyboard = false;
+    } else if (crudStatus != '0') {
+        modalEdit.show();
+        modalEdit._config.keyboard = false;
+    }
+
+    let btnSavePaket = document.getElementById('btn-save-paket');
+    let btnEditPaket = document.getElementById('btn-edit-paket');
+    let packForm = document.getElementById('packForm');
+    let editPackForm = document.getElementById('editPackForm');
+
+    btnSavePaket.addEventListener('click', function () {
+        packForm.submit();
+    });
+
+    btnEditPaket.addEventListener('click', function () {
+        editPackForm.submit();
+    });
+
+    btnSavePaket.addEventListener('click', function () {
+        let quantity = document.getElementById('id-quantity').value;
+        let unitPrice = document.getElementById('id-unit-price').value;
+        let totalPrice = document.getElementById('id-total-price');
+
+        totalPrice.value = quantity * unitPrice;
+    });
+    
+    let btn_menu = document.getElementById('dropdownTable');
+    let btn_anak = document.getElementById('dropdownAnak');
+    let btn_paket = document.getElementById('dropdownPaket');
+    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
+    
+    // open dropdown menu
+    btn_menu.addEventListener('click', function() {
+        dropdown_menu[0].classList.toggle('show');
+    });
+
+    btn_anak.addEventListener('click', function() {
+        dropdown_menu[1].classList.toggle('show');
+    });
+
+    btn_paket.addEventListener('click', function() {
+        dropdown_menu[2].classList.toggle('show');
     });
 </script>
 {% endblock javascripts %}

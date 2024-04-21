@@ -8639,8 +8639,7 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             package.side_cuisine3 = request.POST.get('side_cuisine3')
             package.side_cuisine4 = request.POST.get('side_cuisine4')
             package.side_cuisine5 = request.POST.get('side_cuisine5')
-            package.unit_price = selected_package.male_price if request.POST.get(
-                'type') == 'Jantan' else selected_package.female_price
+            package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
             package.save()
 
             total = OrderPackage.objects.filter(
@@ -8697,11 +8696,14 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
 
 def order_package_cs_update(request, _id, _cat, _pack, _type):
     package = OrderPackage.objects.get(order_id=_id, package=_pack)
+    order = Order.objects.get(order_id=_id)
+    selected_package = Package.objects.get(package_id=_pack)
 
     if request.POST:
         package.category_id = _cat
         package.package_id = _pack
         package.type = _type
+        package.quantity = int(request.POST.get('quantity'))
         package.box_type_id = request.POST.get('box_type')
         package.main_cuisine = request.POST.get('main_cuisine')
         package.sub_cuisine = request.POST.get('sub_cuisine')
@@ -8710,7 +8712,14 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
         package.side_cuisine3 = request.POST.get('side_cuisine3')
         package.side_cuisine4 = request.POST.get('side_cuisine4')
         package.side_cuisine5 = request.POST.get('side_cuisine5')
+        package.unit_price = selected_package.male_price if request.POST.get(
+            'type') == 'Jantan' else selected_package.female_price
         package.save()
+
+        total = OrderPackage.objects.filter(
+            order_id=_id).aggregate(order=Sum('total_price'))
+        order.total_order = total['order']
+        order.save()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
 
@@ -8733,6 +8742,12 @@ def order_package_delete(request, _id, _package):
 def order_package_cs_delete(request, _id, _pack):
     package = OrderPackage.objects.get(order_id=_id, id=_pack)
     package.delete()
+
+    total = OrderPackage.objects.filter(
+        order_id=_id).aggregate(order=Sum('total_price'))
+    order = Order.objects.get(order_id=_id)
+    order.total_order = total['order']
+    order.save()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
 
@@ -8862,6 +8877,8 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
     side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
     selected_package = Package.objects.get(
         package_id=_pack) if _pack != '0' else None
+    upd_package = OrderPackage.objects.get(order_id=_id, id=_crud) if _crud not in [
+        '0', 'add'] else None
 
     msg = form.errors
     context = {
@@ -8881,6 +8898,7 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
         'selected_package': selected_package,
+        'upd_package': upd_package,
         'box': box,
         'cat': _cat,
         'pack': _pack,
@@ -8900,7 +8918,7 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='ORDER')
-def order_cs_update(request, _id):
+def order_cs_update(request, _id, _cat, _pack, _type):
     order = Order.objects.get(order_id=_id)
     child = OrderChild.objects.filter(order_id=_id)
     package = OrderPackage.objects.filter(order_id=_id)
@@ -8936,6 +8954,9 @@ def order_cs_update(request, _id):
         'data': order,
         'child': child,
         'package': package,
+        'cat': _cat,
+        'pack': _pack,
+        'type': _type,
         'msg': msg,
         'segment': 'order',
         'group_segment': 'transaction',

@@ -15,11 +15,11 @@
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'order-add' reg %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-6 d-flex align-items-center">
-                                <h5 class="mb-2 text-center">Informasi Pesanan</h5>
+                            <div class="col-12 d-flex align-items-center">
+                                <h5 class="mb-4">Informasi Pesanan</h5>
                             </div>
                         </div>
                     </div>

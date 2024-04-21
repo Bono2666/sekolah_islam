@@ -10,22 +10,56 @@
 
 {% load mathfilters %}
 
+{% load user_agents %}
+
 <div class="container-fluid mt-0">
     <div class="row">
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'order-package-update' order_id data.id cat pack type 0 %}" id="form-add" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-6 d-flex align-items-center">
-                                <h5 class="mb-2 text-center">Paket Aqiqah ({{ n_package }} dari {{ orders.count }})</h5>
+                            <div class="col-9 d-flex align-items-center">
+                                <h5 class="mb-4 text-center">Paket Aqiqah ({{ n_package }} dari {{ orders.count }})</h5>
                             </div>
-                            <div class="col-6 text-end">
-                                {% if not first_package %}
-                                <a href="{% url 'order-package-delete' order_id data.id %}" class="btn btn-sm bg-gradient-warning mb-0 px-4"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</a>
+                            <div class="col-3 text-end">
+                                {% if request|is_mobile %}
+                                    <div class="dropdown float-lg-end pe-2">
+                                        <a class="cursor-pointer text-body" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </a>
+                                        <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownTable">
+                                            {% if not first_package %}
+                                            <li><button class="dropdown-item border-radius-md" type="button" data-bs-toggle="modal" data-bs-target="#delpack-{{ data.id }}">Hapus</button></li>
+                                            {% endif %}
+                                            <li><button id="add" type="button" class="dropdown-item border-radius-md">Tambah</button></li>
+                                        </ul>
+                                    </div>
+                                {% else %}
+                                    {% if not first_package %}
+                                    <button type="button" class="btn btn-sm bg-gradient-warning mb-0 px-4" data-bs-toggle="modal" data-bs-target="#delpack-{{ data.id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
+                                    {% endif %}
+                                    <button id="add" type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah</button>
                                 {% endif %}
-                                <button id="add" type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="delpack-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                </div>
+                                <div class="modal-body border-bottom-0">
+                                    Anda yakin akan menghapus pesanan paket <strong>{{ data.package.package_name }}</strong>?
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'order-package-delete' order_id data.id %}" role="button" class="btn bg-gradient-warning text-white">Hapus
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -243,10 +277,17 @@
 <script>
     let add = document.getElementById('add');
     let form = document.getElementById('form-add');
+    let btn_menu = document.getElementById('dropdownTable');
+    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
     
     add.addEventListener('click', function() {
         form.action = "{% url 'order-package-update' order_id data.id cat pack type 1 %}";
         form.submit();
+    });
+
+    // open dropdown menu
+    btn_menu.addEventListener('click', function() {
+        dropdown_menu[0].classList.toggle('show');
     });
 
     $(document).ready(function() {
