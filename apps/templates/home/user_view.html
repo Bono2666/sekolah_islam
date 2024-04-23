@@ -44,6 +44,11 @@
                     </div>
                     <div class="card-body">
                         <div class="pl-lg-0">
+                            {% if message %}
+                            <div class="alert text-danger text-sm text-bg-light" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endif %}
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="shadow-none">

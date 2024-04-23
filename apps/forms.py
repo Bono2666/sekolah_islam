@@ -1708,7 +1708,6 @@ class FormCashIn(ModelForm):
         self.fields['bank'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
         self.fields['evidence'].label = 'Bukti Pembayaran'
-        self.fields['evidence'].required = False
         self.fields['cashin_note'].label = 'Catatan'
         self.fields['cashin_note'].required = False
 
