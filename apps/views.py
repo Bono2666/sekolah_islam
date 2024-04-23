@@ -8839,8 +8839,8 @@ def form_index(request):
 @login_required(login_url='/login/')
 @role_required(allowed_roles='ORDER')
 def order_index(request):
-    orders = Order.objects.all().order_by('-order_id', 'regional').exclude(order_status__in=[
-        'PENDING', 'BATAL']) if request.user.position == 'CS' else Order.objects.all().order_by('-order_id', 'regional').exclude(order_status='PENDING')
+    orders = Order.objects.filter(regional_id__in=AreaUser.objects.filter(user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id', 'regional').exclude(order_status__in=[
+        'PENDING', 'BATAL']) if request.user.position == 'CS' else Order.objects.filter(regional_id__in=AreaUser.objects.filter(user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id', 'regional').exclude(order_status__in=['PENDING'])
 
     context = {
         'data': orders,
@@ -8971,7 +8971,8 @@ def order_cs_update(request, _id, _cat, _pack, _type):
 @login_required(login_url='/login/')
 @role_required(allowed_roles='CASH-IN')
 def cashin_index(request):
-    cash_in = CashIn.objects.all()
+    cash_in = CashIn.objects.filter(order_id__regional_id__in=AreaUser.objects.filter(
+        user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-cashin_id')
 
     context = {
         'data': cash_in,
@@ -8988,7 +8989,8 @@ def cashin_index(request):
 @login_required(login_url='/login/')
 @role_required(allowed_roles='CASH-IN')
 def cashin_add(request):
-    orders = Order.objects.filter(order_status__in=['DP', 'CONFIRMED'])
+    orders = Order.objects.filter(order_status__in=['DP', 'CONFIRMED'], regional_id__in=AreaUser.objects.filter(
+        user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id')
 
     if request.POST:
         form = FormCashIn(request.POST)

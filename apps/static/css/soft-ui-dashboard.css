@@ -22724,8 +22724,12 @@ pre[class*=language-] {
 }
 /*# sourceMappingURL=soft-ui-dashboard.css.map */
 
-#tabTable_filter, #tabTable2_filter, #detailTable_filter {
+#tabTable_filter, #detailTable_filter {
   margin-right: 180px;
+}
+
+#tabTable2_filter {
+    margin-right: 200px;
 }
 
 #myBtn {
