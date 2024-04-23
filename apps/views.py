@@ -71,10 +71,10 @@ def user_add(request):
         form = FormUser(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            if not settings.DEBUG:
+            if not settings.DEBUG and form.instance.signature:
                 user = User.objects.get(user_id=form.instance.user_id)
                 my_file = user.signature
-                filename = '../../www/selmar/apps/media/' + my_file.name
+                filename = '../../www/aqiqahon/apps/media/' + my_file.name
                 with open(filename, 'wb+') as temp_file:
                     for chunk in my_file.chunks():
                         temp_file.write(chunk)
@@ -268,9 +268,9 @@ def user_update(request, _id):
         form = FormUserUpdate(request.POST, request.FILES, instance=users)
         if form.is_valid():
             form.save()
-            if not settings.DEBUG:
+            if not settings.DEBUG and users.signature:
                 my_file = users.signature
-                filename = '../../www/selmar/apps/media/' + my_file.name
+                filename = '../../www/aqiqahon/apps/media/' + my_file.name
                 with open(filename, 'wb+') as temp_file:
                     for chunk in my_file.chunks():
                         temp_file.write(chunk)
@@ -4766,7 +4766,7 @@ def proposal_add(request, _area, _budget, _channel):
                         proposal_id=parent.proposal_id)
                     if proposal.attachment:
                         my_file = proposal.attachment
-                        filename = '../../www/selmar/apps/media/' + my_file.name
+                        filename = '../../www/aqiqahon/apps/media/' + my_file.name
                         with open(filename, 'wb+') as temp_file:
                             for chunk in my_file.chunks():
                                 temp_file.write(chunk)
@@ -5177,7 +5177,7 @@ def proposal_update(request, _tab, _id):
                 parent.save()
                 if not settings.DEBUG:
                     my_file = proposal.attachment
-                    filename = '../../www/selmar/apps/media/' + my_file.name
+                    filename = '../../www/aqiqahon/apps/media/' + my_file.name
                     with open(filename, 'wb+') as temp_file:
                         for chunk in my_file.chunks():
                             temp_file.write(chunk)
@@ -9001,7 +9001,7 @@ def cashin_add(request):
             if not settings.DEBUG:
                 cash_in = CashIn.objects.get(cashin_id=cash_in.cashin_id)
                 my_file = cash_in.evidence
-                filename = '../../www/order/apps/media/' + my_file.name
+                filename = '../../www/aqiqahon/apps/media/' + my_file.name
                 with open(filename, 'wb+') as temp_file:
                     for chunk in my_file.chunks():
                         temp_file.write(chunk)
