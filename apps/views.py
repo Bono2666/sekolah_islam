@@ -9195,7 +9195,7 @@ def order_invoice(request, _id):
                 row.append(cuisine)
 
         for j in range(0, len(row)):
-            str_cuisine = row[j] + ' - ' if j < len(row) - 1 else row[j]
+            str_cuisine += row[j] + ' - '
 
         pdf_file.drawString(200, y + 5, str_cuisine)
 
@@ -9209,7 +9209,9 @@ def order_invoice(request, _id):
                 row.append(cuisine)
 
         for j in range(0, len(row)):
-            str_cuisine = row[j] + ' - ' if j < len(row) - 1 else row[j]
+            str_cuisine += row[j]
+            if j < len(row) - 1:
+                str_cuisine += ' - '
 
         str_box = ' - ' + str(package[i - 1].package.box) + ' Box (' + package[i -
                                                                                1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
@@ -9411,6 +9413,7 @@ def order_bap(request, _id):
              'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
 
     order_id = _id.replace('/', '-')
+    customer_name = order.customer_name.replace(' ', '_')
 
     styles = getSampleStyleSheet()
     normal_style = styles['Normal']
@@ -9419,7 +9422,7 @@ def order_bap(request, _id):
     bold_style.fontSize = 8
     bold_style.fontName = 'Helvetica-Bold'
 
-    filename = 'SURAT_JALAN_' + order_id + '.pdf'
+    filename = 'SURAT_JALAN_' + order_id + '_' + customer_name + '.pdf'
     pdf_file = canvas.Canvas(filename)
 
     # Add logo in the top center
@@ -9538,7 +9541,7 @@ def order_bap(request, _id):
                 row.append(cuisine)
 
         for j in range(0, len(row)):
-            str_cuisine = row[j] + ' - ' if j < len(row) - 1 else row[j]
+            str_cuisine += row[j] + ' - '
 
         pdf_file.drawString(200, y + 5, str_cuisine)
 
@@ -9552,7 +9555,9 @@ def order_bap(request, _id):
                 row.append(cuisine)
 
         for j in range(0, len(row)):
-            str_cuisine = row[j] + ' - ' if j < len(row) - 1 else row[j]
+            str_cuisine += row[j]
+            if j < len(row) - 1:
+                str_cuisine += ' - '
 
         str_box = ' - ' + str(package[i - 1].package.box) + ' Box (' + package[i -
                                                                                1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
@@ -9704,21 +9709,19 @@ def order_bap(request, _id):
 @role_required(allowed_roles='ORDER')
 def order_checklist(request, _id):
     order = Order.objects.get(order_id=_id)
-    child = OrderChild.objects.filter(order_id=_id)
     package = OrderPackage.objects.filter(order_id=_id)
-    region = AreaSales.objects.get(area_id=order.regional_id)
 
-    hari = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
     bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
              'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
 
     order_id = _id.replace('/', '-')
+    customer_name = order.customer_name.replace(' ', '_')
 
     styles = getSampleStyleSheet()
     normal_style = styles['Normal']
     normal_style.fontSize = 8
 
-    filename = 'CHECKLIST_' + order_id + '.pdf'
+    filename = 'CHECKLIST_' + order_id + '_' + customer_name + '.pdf'
     pdf_file = canvas.Canvas(filename)
 
     # Add logo in the top left corner
