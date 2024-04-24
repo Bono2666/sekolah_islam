@@ -83,7 +83,7 @@
                                         <select name="category" class="form-control form-select-sm" onchange="window.location.href=this.value">
                                             <option value="">Pilih Kategori</option>
                                             {% for category in categories %}"
-                                            <option value="{% url 'order-package-update' order_id data.id category.category_id '0' '0' 0 %}" {% if category.category_id == selected_package.category_id %}selected{% endif %}>{{ category.category_name }}</option>
+                                            <option value="{% url 'order-package-update' order_id data.id category.category_id '0' '0' 0 %}" {% if category.category_id == cat %}selected{% endif %}>{{ category.category_name }}</option>
                                             {% endfor %}
                                         </select>
                                         <div class="text-sm text-danger">
@@ -91,7 +91,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="{% if selected_package.quantity > 0 %}col-md-4{% else %}col-md-8{% endif %}">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="package">Paket</label>
                                         <select name="package" class="form-control form-select-sm" onchange="window.location.href=this.value">
@@ -105,18 +105,24 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% if selected_package.quantity > 0 %}
                                 <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="type">Jenis Kambing</label>
                                         <select name="type" id="type" class="form-control form-select-sm" onchange="window.location.href=this.value">
+                                            {% if selected_package.male_price > 0 %}
                                             <option value="{% url 'order-package-update' order_id data.id cat pack 'Jantan' 0 %}" {% if type == 'Jantan' %}selected{% endif %}>Jantan</option>
+                                            {% endif %}
+                                            {% if selected_package.female_price > 0 %}
                                             <option value="{% url 'order-package-update' order_id data.id cat pack 'Betina' 0 %}" {% if type == 'Betina' %}selected{% endif %}>Betina</option>
+                                            {% endif %}
                                         </select>
                                         <div class="text-sm text-danger">
                                             {{ form.type.errors }}
                                         </div>
                                     </div>
                                 </div>
+                                {% endif %}
                             </div>
                             <div class="row">
                                 <div class="col-md-4">
@@ -127,11 +133,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
                                     <div class="form-group shadow-none mb-0">
                                         {{ form.box_type.label_tag }}
                                         <select name="box_type" class="form-control form-select-sm">
+                                            {% if selected_package.box > 0 %}
                                             <option value="">Pilih Box</option>
+                                            {% endif %}
                                             {% for box in box_types %}"
                                             <option value="{{ box.box_type_id }}" {% if box.box_type_id == data.box_type_id %}selected{% endif %}>{{ box.box_type_name }}</option>
                                             {% endfor %}
@@ -237,7 +245,7 @@
                                 {% endif %}
                             </div>
                             <div class="row">
-                                {% if data.type %}
+                                {% if type != '0' %}
                                 <div class="col-md-12">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="unit_price">Harga Per Paket</label>

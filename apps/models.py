@@ -1413,6 +1413,8 @@ class Order(models.Model):
         max_digits=12, decimal_places=0, default=0)
     down_payment = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    discount = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     pending_payment = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
     use_photo = models.BooleanField(default=False)
@@ -1430,7 +1432,7 @@ class Order(models.Model):
     update_by = models.CharField(max_length=50, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        self.pending_payment = self.total_order - self.down_payment
+        self.pending_payment = self.total_order - self.down_payment - self.discount
         if not self.entry_date:
             self.entry_date = timezone.now()
             self.entry_by = 'customer'

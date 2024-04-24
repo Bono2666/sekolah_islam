@@ -193,6 +193,12 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="shadow-none">
+                                        <label class="form-control-label" for="id-discount">Diskon</label>
+                                        <input type="text" name="discount" id="id-discount" class="form-control form-control-sm" value="{% if crud == 'view' %}{{ data.discount|intcomma }}{% else %}{{ data.discount }}{% endif %}" {% if crud == 'view' %}readonly{% endif %}>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="shadow-none">
                                         <label class="form-control-label" for="input-username">Down Payment</label>
                                         <h5 class="text-bolder ps-1">Rp. {{ data.down_payment|intcomma }}</h5>
                                     </div>
@@ -567,7 +573,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="{% if selected_package.quantity > 0 %}col-md-4{% else %}col-md-8{% endif %}">
                                                 <div class="shadow-none">
                                                     <label class="form-control-label" for="id-package">Paket</label>
                                                     <select class="form-control form-select-sm" name="package" id="id-package" onchange="window.location.href=this.value" required>
@@ -578,15 +584,21 @@
                                                     </select>
                                                 </div>
                                             </div>
+                                            {% if selected_package.quantity > 0 %}
                                             <div class="col-md-4">
                                                 <div class="shadow-none">
                                                     <label class="form-control-label" for="id-type">Jenis Kambing</label>
                                                     <select class="form-control form-select-sm" name="type" id="id-type" onchange="window.location.href=this.value" required>
+                                                        {% if selected_package.male_price > 0 %}
                                                         <option value="{% url 'order-view' data.order_id cat pack 'Jantan' 'add' %}" {% if type == 'Jantan' %}selected{% endif %}>Jantan</option>
+                                                        {% endif %}
+                                                        {% if selected_package.female_price > 0 %}
                                                         <option value="{% url 'order-view' data.order_id cat pack 'Betina' 'add' %}" {% if type == 'Betina' %}selected{% endif %}>Betina</option>
+                                                        {% endif %}
                                                     </select>
                                                 </div>
                                             </div>
+                                            {% endif %}
                                         </div>
                                         <div class="row">
                                             <div class="col-md-4">
@@ -595,11 +607,13 @@
                                                     <input type="number" name="quantity" id="id-quantity" class="form-control form-control-sm" value="1" required>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
                                                 <div class="shadow-none">
                                                     <label class="form-control-label" for="id-box-type">Jenis Box</label>
                                                     <select class="form-control form-select-sm" name="box_type" id="id-box-type" required>
+                                                        {% if selected_package.box > 0 %}
                                                         <option value="">Pilih Box</option>
+                                                        {% endif %}
                                                         {% for item in box %}
                                                         <option value="{{ item.box_type_id }}">{{ item.box_type_name }}</option>
                                                         {% endfor %}
@@ -767,16 +781,16 @@
                                         <h6 class="mb-0 text-xs">{{ item.package.package_name }}</h6>
                                     </td>
                                     <td>
-                                        <h6 class="mb-0 text-xs">{{ item.main_cuisine }}</h6>
+                                        <h6 class="mb-0 text-xs">{% if item.main_cuisine %}{{ item.main_cuisine }}{% endif %}</h6>
                                     </td>
                                     <td>
-                                        <h6 class="mb-0 text-xs">{{ item.sub_cuisine }}</h6>
+                                        <h6 class="mb-0 text-xs">{% if item.sub_cuisine %}{{ item.sub_cuisine }}{% endif %}</h6>
                                     </td>
                                     <td>
                                         <h6 class="mb-0 text-xs text-end">{{ item.package.box }}</h6>
                                     </td>
                                     <td>
-                                        <h6 class="mb-0 text-xs">{{ item.type }}</h6>
+                                        <h6 class="mb-0 text-xs">{% if item.package.quantity > 0 %}{{ item.type }}{% endif %}</h6>
                                     </td>
                                     <td>
                                         <h6 class="mb-0 text-xs text-end">{{ item.quantity }}</h6>
@@ -831,7 +845,7 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-4">
+                                                            <div class="{% if selected_package.quantity > 0 %}col-md-4{% else %}col-md-8{% endif %}">
                                                                 <div class="shadow-none">
                                                                     <label class="form-control-label" for="id-package">Paket</label>
                                                                     <select class="form-control form-select-sm" name="package" id="id-package" onchange="window.location.href=this.value" required disabled>
@@ -842,15 +856,21 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
+                                                            {% if selected_package.quantity > 0 %}
                                                             <div class="col-md-4">
                                                                 <div class="shadow-none">
                                                                     <label class="form-control-label" for="id-type">Jenis Kambing</label>
                                                                     <select class="form-control form-select-sm" name="type" id="id-type" onchange="window.location.href=this.value" required>
+                                                                        {% if selected_package.male_price > 0 %}
                                                                         <option value="{% url 'order-view' data.order_id cat pack 'Jantan' crud_det %}" {% if type == 'Jantan' %}selected{% endif %}>Jantan</option>
+                                                                        {% endif %}
+                                                                        {% if selected_package.female_price > 0 %}
                                                                         <option value="{% url 'order-view' data.order_id cat pack 'Betina' crud_det %}" {% if type == 'Betina' %}selected{% endif %}>Betina</option>
+                                                                        {% endif %}
                                                                     </select>
                                                                 </div>
                                                             </div>
+                                                            {% endif %}
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-md-4">
@@ -859,11 +879,13 @@
                                                                     <input type="number" name="quantity" id="id-quantity" class="form-control form-control-sm" value="{{ upd_package.quantity }}" required>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-4">
+                                                            <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
                                                                 <div class="shadow-none">
                                                                     <label class="form-control-label" for="id-box-type">Jenis Box</label>
                                                                     <select class="form-control form-select-sm" name="box_type" id="id-box-type" required>
+                                                                        {% if selected_package.box > 0 %}
                                                                         <option value="">Pilih Box</option>
+                                                                        {% endif %}
                                                                         {% for item_box in box %}
                                                                         <option value="{{ item_box.box_type_id }}" {% if upd_package.box_type_id == item_box.box_type_id %}selected{% endif %}>{{ item_box.box_type_name }}</option>
                                                                         {% endfor %}

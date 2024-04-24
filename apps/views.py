@@ -3327,7 +3327,7 @@ def proposal_print(request, _id):
     pdf_file.setFont("Helvetica-Bold", 11)  # Set font to bold
 
     # Add logo in the top left corner
-    logo_path = 'https://ksisolusi.com/apps/static/img/favicon.png'
+    logo_path = 'https://aqiqahon.sahabataqiqah.co.id/apps/static/img/logo.png'
     pdf_file.drawImage(logo_path, 25, 515, width=60, height=60)
 
     # Add title beside the logo in the center of the page
@@ -6868,7 +6868,7 @@ def claim_print(request, _id):
     pdf_file.setFont('Helvetica-Bold', 11)
 
     # Add logo in the center of the page
-    logo_path = 'https://ksisolusi.com/apps/static/img/favicon.png'
+    logo_path = 'https://aqiqahon.sahabataqiqah.co.id/apps/static/img/logo.png'
     logo_width = 60
     logo_height = 60
     page_width = landscape(A4)
@@ -7862,7 +7862,7 @@ def cl_print(request, _id):
     pdf_file.setFont('Helvetica-Bold', 8)
 
     # Add logo in the center of the page
-    logo_path = 'https://ksisolusi.com/apps/static/img/favicon.png'
+    logo_path = 'https://aqiqahon.sahabataqiqah.co.id/apps/static/img/logo.png'
     logo_width = 60
     logo_height = 60
     page_width = landscape(A4)
@@ -8279,7 +8279,8 @@ def customer_detail_delete(request, _id):
 
 def order_add(request, _reg):
     try:
-        _no = Order.objects.latest('seq_number').seq_number
+        _no = Order.objects.filter(
+            order_date__year=datetime.datetime.now().year).latest('seq_number').seq_number
     except Order.DoesNotExist:
         _no = None
     if _no is None:
@@ -8287,7 +8288,7 @@ def order_add(request, _reg):
     else:
         format_no = '{:05d}'.format(_no + 1)
 
-    _id = 'INV-1' + format_no + '/' + _reg + '/SA/' + str(datetime.datetime.now().strftime('%m')) + \
+    _id = 'INV-1' + format_no + '/' + _reg.upper() + '/SA/' + str(datetime.datetime.now().strftime('%m')) + \
         '/' + str(datetime.datetime.now().year)
 
     if request.POST:
@@ -8840,7 +8841,7 @@ def form_index(request):
 @role_required(allowed_roles='ORDER')
 def order_index(request):
     orders = Order.objects.filter(regional_id__in=AreaUser.objects.filter(user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id', 'regional').exclude(order_status__in=[
-        'PENDING', 'BATAL']) if request.user.position == 'CS' else Order.objects.filter(regional_id__in=AreaUser.objects.filter(user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id', 'regional').exclude(order_status__in=['PENDING'])
+        'PENDING', 'BATAL']) if request.user.position_id == 'CS' else Order.objects.filter(regional_id__in=AreaUser.objects.filter(user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id', 'regional').exclude(order_status__in=['PENDING'])
 
     context = {
         'data': orders,
@@ -8941,6 +8942,7 @@ def order_cs_update(request, _id, _cat, _pack, _type):
             order.witnessed = request.POST.get('witnessed')
             order.info_source = request.POST.get('info_source')
             order.order_note = request.POST.get('order_note')
+            order.discount = int(request.POST.get('discount'))
             order.save()
 
         return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
@@ -8957,6 +8959,7 @@ def order_cs_update(request, _id, _cat, _pack, _type):
         'cat': _cat,
         'pack': _pack,
         'type': _type,
+        'crud_det': '0',
         'msg': msg,
         'segment': 'order',
         'group_segment': 'transaction',
@@ -9050,16 +9053,17 @@ def order_invoice(request, _id):
              'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
 
     order_id = _id.replace('/', '-')
+    customer_name = order.customer_name.replace(' ', '_')
 
     styles = getSampleStyleSheet()
     normalStyle = styles['Normal']
     normalStyle.fontSize = 8
 
-    filename = 'INVOICE_' + order_id + '.pdf'
+    filename = 'INVOICE_' + order_id + '_' + customer_name + '.pdf'
     pdf_file = canvas.Canvas(filename)
 
     # Add logo in the top left corner
-    logo_path = 'https://ksisolusi.com/apps/static/img/logo.png'
+    logo_path = '../../www/aqiqahon/apps/static/img/logo.png'
     pdf_file.drawImage(logo_path, 35, 745, width=70, height=61)
 
     title = "INVOICE"
@@ -9173,45 +9177,58 @@ def order_invoice(request, _id):
     for i in range(1, package.count() + 1):
         pdf_file.rect(35, y - 15, 160, 30, stroke=True)
         pdf_file.setFont("Helvetica", 8)
-        pdf_file.drawString(40, y + 5, package[i - 1].category.category_name + ' - ' + package[i -
-                            1].package.package_name + ' - ' + str(package[i - 1].package.quantity) + ' - ')
-        pdf_file.drawString(40, y - 5, 'Hewan ' + package[i - 1].type)
+        qty = ' - ' + str(package[i - 1].package.quantity) + \
+            ' - ' if package[i - 1].package.quantity > 0 else ''
+        pdf_file.drawString(
+            40, y + 5, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
+        if package[i - 1].package.quantity > 0:
+            pdf_file.drawString(40, y - 5, 'Hewan ' + package[i - 1].type)
         pdf_file.rect(195, y - 15, 180, 30, stroke=True)
 
-        maincuisine = package[i - 1].main_cuisine + \
-            ' - ' if package[i - 1].main_cuisine else ''
-        subcuisine = package[i - 1].sub_cuisine + \
-            ' - ' if package[i - 1].sub_cuisine else ''
-        sidecuisine1 = package[i - 1].side_cuisine1 + \
-            ' - ' if package[i - 1].side_cuisine1 else ''
-        sidecuisine2 = package[i - 1].side_cuisine2 + \
-            ' - ' if package[i - 1].side_cuisine2 else ''
-        sidecuisine3 = package[i - 1].side_cuisine3 + \
-            ' - ' if package[i - 1].side_cuisine3 else ''
-        sidecuisine4 = package[i - 1].side_cuisine4 + \
-            ' - ' if package[i - 1].side_cuisine4 else ''
-        sidecuisine5 = package[i - 1].side_cuisine5 + \
-            ' - ' if package[i - 1].side_cuisine5 else ''
+        cuisines = [package[i - 1].main_cuisine, package[i - 1].sub_cuisine,
+                    package[i - 1].side_cuisine1, package[i - 1].side_cuisine2]
+        row = []
+        str_cuisine = ''
 
-        pdf_file.drawString(200, y + 5, maincuisine +
-                            subcuisine + sidecuisine1 + sidecuisine2)
-        pdf_file.drawString(200, y - 5, sidecuisine3 + sidecuisine4 +
-                            sidecuisine5 + str(package[i - 1].package.box) + ' Box (' + package[i - 1].box_type.box_type_name + ')')
+        for cuisine in cuisines:
+            if cuisine:
+                row.append(cuisine)
+
+        for j in range(0, len(row)):
+            str_cuisine = row[j] + ' - ' if j < len(row) - 1 else row[j]
+
+        pdf_file.drawString(200, y + 5, str_cuisine)
+
+        cuisines = [package[i - 1].side_cuisine3,
+                    package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
+        row = []
+        str_cuisine = ''
+
+        for cuisine in cuisines:
+            if cuisine:
+                row.append(cuisine)
+
+        for j in range(0, len(row)):
+            str_cuisine = row[j] + ' - ' if j < len(row) - 1 else row[j]
+
+        str_box = ' - ' + str(package[i - 1].package.box) + ' Box (' + package[i -
+                                                                               1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
+
+        pdf_file.drawString(200, y - 5, str_cuisine + str_box)
         pdf_file.rect(375, y - 15, 30, 30, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         # Calculate the width of the string 'quantity'
         quantity_width = pdf_file.stringWidth(
-            str(package[i - 1].package.quantity), "Helvetica", 8)
+            str(package[i - 1].quantity), "Helvetica", 8)
         # Calculate the center position of the rectangle
         center_x = 375 + (30 - quantity_width) / 2
         pdf_file.drawString(
-            center_x, y + 5, str(package[i - 1].package.quantity))
+            center_x, y + 5, str(package[i - 1].quantity))
         pdf_file.rect(405, y - 15, 85, 30, stroke=True)
         pdf_file.drawString(
             410, y + 5, "{:,}".format(package[i - 1].unit_price))
         pdf_file.rect(490, y - 15, 65, 30, stroke=True)
-        total_price = package[i - 1].unit_price * \
-            package[i - 1].package.quantity
+        total_price = package[i - 1].unit_price * package[i - 1].quantity
         total += total_price
         total_price_str = "{:,}".format(total_price)
         total_price_width = pdf_file.stringWidth(
@@ -9228,6 +9245,19 @@ def order_invoice(request, _id):
     pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
     pdf_file.rect(490, y, 65, 15, stroke=True)
     total_str = "{:,}".format(total)
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
+
+    y -= 15
+    # create rectangle from first column to column 3
+    pdf_file.rect(35, y, 455, 15, stroke=True)
+    total_str = 'Diskon'
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    total_str = "{:,}".format(order.discount)
     total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
     pdf_file.setFont("Helvetica", 8)
     pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
@@ -9393,7 +9423,7 @@ def order_bap(request, _id):
     pdf_file = canvas.Canvas(filename)
 
     # Add logo in the top center
-    logo_path = 'https://ksisolusi.com/apps/static/img/logo.png'
+    logo_path = '../../www/aqiqahon/apps/static/img/logo.png'
     pdf_file.drawImage(logo_path, 260, 745, width=70, height=61)
 
     y = 725
@@ -9490,45 +9520,58 @@ def order_bap(request, _id):
     for i in range(1, package.count() + 1):
         pdf_file.rect(35, y - 15, 160, 30, stroke=True)
         pdf_file.setFont("Helvetica", 8)
-        pdf_file.drawString(40, y + 5, package[i - 1].category.category_name + ' - ' + package[i -
-                            1].package.package_name + ' - ' + str(package[i - 1].package.quantity) + ' - ')
-        pdf_file.drawString(40, y - 5, 'Hewan ' + package[i - 1].type)
+        qty = ' - ' + str(package[i - 1].package.quantity) + \
+            ' - ' if package[i - 1].package.quantity > 0 else ''
+        pdf_file.drawString(
+            40, y + 5, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
+        if package[i - 1].package.quantity > 0:
+            pdf_file.drawString(40, y - 5, 'Hewan ' + package[i - 1].type)
         pdf_file.rect(195, y - 15, 180, 30, stroke=True)
 
-        maincuisine = package[i - 1].main_cuisine + \
-            ' - ' if package[i - 1].main_cuisine else ''
-        subcuisine = package[i - 1].sub_cuisine + \
-            ' - ' if package[i - 1].sub_cuisine else ''
-        sidecuisine1 = package[i - 1].side_cuisine1 + \
-            ' - ' if package[i - 1].side_cuisine1 else ''
-        sidecuisine2 = package[i - 1].side_cuisine2 + \
-            ' - ' if package[i - 1].side_cuisine2 else ''
-        sidecuisine3 = package[i - 1].side_cuisine3 + \
-            ' - ' if package[i - 1].side_cuisine3 else ''
-        sidecuisine4 = package[i - 1].side_cuisine4 + \
-            ' - ' if package[i - 1].side_cuisine4 else ''
-        sidecuisine5 = package[i - 1].side_cuisine5 + \
-            ' - ' if package[i - 1].side_cuisine5 else ''
+        cuisines = [package[i - 1].main_cuisine, package[i - 1].sub_cuisine,
+                    package[i - 1].side_cuisine1, package[i - 1].side_cuisine2]
+        row = []
+        str_cuisine = ''
 
-        pdf_file.drawString(200, y + 5, maincuisine +
-                            subcuisine + sidecuisine1 + sidecuisine2)
-        pdf_file.drawString(200, y - 5, sidecuisine3 + sidecuisine4 +
-                            sidecuisine5 + str(package[i - 1].package.box) + ' Box (' + package[i - 1].box_type.box_type_name + ')')
+        for cuisine in cuisines:
+            if cuisine:
+                row.append(cuisine)
+
+        for j in range(0, len(row)):
+            str_cuisine = row[j] + ' - ' if j < len(row) - 1 else row[j]
+
+        pdf_file.drawString(200, y + 5, str_cuisine)
+
+        cuisines = [package[i - 1].side_cuisine3,
+                    package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
+        row = []
+        str_cuisine = ''
+
+        for cuisine in cuisines:
+            if cuisine:
+                row.append(cuisine)
+
+        for j in range(0, len(row)):
+            str_cuisine = row[j] + ' - ' if j < len(row) - 1 else row[j]
+
+        str_box = ' - ' + str(package[i - 1].package.box) + ' Box (' + package[i -
+                                                                               1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
+
+        pdf_file.drawString(200, y - 5, str_cuisine + str_box)
         pdf_file.rect(375, y - 15, 30, 30, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         # Calculate the width of the string 'quantity'
         quantity_width = pdf_file.stringWidth(
-            str(package[i - 1].package.quantity), "Helvetica", 8)
+            str(package[i - 1].quantity), "Helvetica", 8)
         # Calculate the center position of the rectangle
         center_x = 375 + (30 - quantity_width) / 2
         pdf_file.drawString(
-            center_x, y + 5, str(package[i - 1].package.quantity))
+            center_x, y + 5, str(package[i - 1].quantity))
         pdf_file.rect(405, y - 15, 85, 30, stroke=True)
         pdf_file.drawString(
             410, y + 5, "{:,}".format(package[i - 1].unit_price))
         pdf_file.rect(490, y - 15, 65, 30, stroke=True)
-        total_price = package[i - 1].unit_price * \
-            package[i - 1].package.quantity
+        total_price = package[i - 1].unit_price * package[i - 1].quantity
         total += total_price
         total_price_str = "{:,}".format(total_price)
         total_price_width = pdf_file.stringWidth(
@@ -9545,6 +9588,19 @@ def order_bap(request, _id):
     pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
     pdf_file.rect(490, y, 65, 15, stroke=True)
     total_str = "{:,}".format(total)
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
+    pdf_file.setFont("Helvetica", 8)
+    pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
+
+    y -= 15
+    # create rectangle from first column to column 3
+    pdf_file.rect(35, y, 455, 15, stroke=True)
+    total_str = 'Diskon'
+    total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
+    pdf_file.setFont("Helvetica-Bold", 8)
+    pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
+    pdf_file.rect(490, y, 65, 15, stroke=True)
+    total_str = "{:,}".format(order.discount)
     total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
     pdf_file.setFont("Helvetica", 8)
     pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
@@ -9666,7 +9722,7 @@ def order_checklist(request, _id):
     pdf_file = canvas.Canvas(filename)
 
     # Add logo in the top left corner
-    logo_path = 'https://ksisolusi.com/apps/static/img/logo.png'
+    logo_path = '../../www/aqiqahon/apps/static/img/logo.png'
     pdf_file.drawImage(logo_path, 35, 745, width=70, height=61)
 
     title = "CHECKLIST FORM"
