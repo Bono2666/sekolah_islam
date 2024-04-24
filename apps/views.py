@@ -9203,6 +9203,7 @@ def order_invoice(request, _id):
                     package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
         row = []
         str_cuisine = ''
+        str_box = ''
 
         for cuisine in cuisines:
             if cuisine:
@@ -9213,8 +9214,10 @@ def order_invoice(request, _id):
             if j < len(row) - 1:
                 str_cuisine += ' - '
 
-        str_box = ' - ' + str(package[i - 1].package.box) + ' Box (' + package[i -
-                                                                               1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
+        if str_cuisine != '' and package[i - 1].package.box > 0:
+            str_box = ' - '
+        str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
+                                                                        1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
 
         pdf_file.drawString(200, y - 5, str_cuisine + str_box)
         pdf_file.rect(375, y - 15, 30, 30, stroke=True)
@@ -9549,6 +9552,7 @@ def order_bap(request, _id):
                     package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
         row = []
         str_cuisine = ''
+        str_box = ''
 
         for cuisine in cuisines:
             if cuisine:
@@ -9559,8 +9563,10 @@ def order_bap(request, _id):
             if j < len(row) - 1:
                 str_cuisine += ' - '
 
-        str_box = ' - ' + str(package[i - 1].package.box) + ' Box (' + package[i -
-                                                                               1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
+        if str_cuisine != '' and package[i - 1].package.box > 0:
+            str_box = ' - '
+        str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
+                                                                        1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
 
         pdf_file.drawString(200, y - 5, str_cuisine + str_box)
         pdf_file.rect(375, y - 15, 30, 30, stroke=True)
