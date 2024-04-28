@@ -8996,7 +8996,7 @@ def cashin_add(request):
         user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id')
 
     if request.POST:
-        form = FormCashIn(request.POST)
+        form = FormCashIn(request.POST, request.FILES)
         if form.is_valid():
             cash_in = form.save(commit=False)
             cash_in.order_id = request.POST.get('order')
@@ -9068,7 +9068,7 @@ def cashin_update(request, _id):
     cash_in = CashIn.objects.get(cashin_id=_id)
 
     if request.POST:
-        form = FormCashInUpdate(request.POST, instance=cash_in)
+        form = FormCashInUpdate(request.POST, request.FILES, instance=cash_in)
         if form.is_valid():
             update = form.save(commit=False)
             update.order_id = request.POST.get('order')
@@ -9397,8 +9397,9 @@ def order_invoice(request, _id):
         pdf_file.drawString(text_x, y2, str(i) + '.')
         pdf_file.drawString(text_x + 10, y2, child[i - 1].child_name)
         y2 -= 12
+        sex = 'Laki-laki' if child[i - 1].child_sex == '1' else 'Perempuan'
         pdf_file.drawString(
-            text_x + 10, y2, '(' + child[i - 1].child_birth.strftime('%-d') + ' ' + bulan[int(child[i - 1].child_birth.strftime('%-m')) - 1] + ' ' + child[i - 1].child_birth.strftime('%Y') + ') | ' + 'Laki-laki' if child[i - 1].child_sex == '1' else 'Perempuan')
+            text_x + 10, y2, '(' + child[i - 1].child_birth.strftime('%-d') + ' ' + bulan[int(child[i - 1].child_birth.strftime('%-m')) - 1] + ' ' + child[i - 1].child_birth.strftime('%Y') + ') | ' + sex)
         y2 -= 12
 
     y2 -= 15
@@ -9407,7 +9408,7 @@ def order_invoice(request, _id):
     pdf_file.setFont("Helvetica", 8)
     y2 -= 15
     pdf_file.drawString(
-        text_x, y2, child[0].child_father + ' dan')
+        text_x, y2, child[0].child_father)
     y2 -= 12
     pdf_file.drawString(text_x, y2, child[0].child_mother)
 
