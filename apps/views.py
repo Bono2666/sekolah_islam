@@ -9123,7 +9123,7 @@ def order_invoice(request, _id):
     normalStyle = styles['Normal']
     normalStyle.fontSize = 8
 
-    filename = 'INVOICE_' + order_id + '_' + customer_name + '.pdf'
+    filename = 'INVOICE_' + customer_name + '_' + order_id + '.pdf'
     pdf_file = canvas.Canvas(filename)
 
     # Add logo in the top left corner
@@ -9236,9 +9236,10 @@ def order_invoice(request, _id):
     center_x = 490 + (65 - total_width) / 2
     pdf_file.drawString(center_x, y + 5, 'Jumlah (Rp)')
 
-    y -= 15
+    y += 15
     total = 0
     for i in range(1, package.count() + 1):
+        y -= 30
         pdf_file.rect(35, y - 15, 160, 30, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         qty = ' - ' + str(package[i - 1].package.quantity) + \
@@ -9489,7 +9490,7 @@ def order_bap(request, _id):
     bold_style.fontSize = 8
     bold_style.fontName = 'Helvetica-Bold'
 
-    filename = 'SURAT_JALAN_' + order_id + '_' + customer_name + '.pdf'
+    filename = 'SURAT_JALAN_' + customer_name + '_' + order_id + '.pdf'
     pdf_file = canvas.Canvas(filename)
 
     # Add logo in the top center
@@ -9791,7 +9792,7 @@ def order_checklist(request, _id):
     normal_style = styles['Normal']
     normal_style.fontSize = 8
 
-    filename = 'CHECKLIST_' + order_id + '_' + customer_name + '.pdf'
+    filename = 'CHECKLIST_' + customer_name + '_' + order_id + '.pdf'
     pdf_file = canvas.Canvas(filename)
 
     # Add logo in the top left corner
