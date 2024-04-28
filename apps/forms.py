@@ -94,11 +94,11 @@ class FormChangePassword(PasswordChangeForm):
         self.fields['new_password1'].label = 'Password Baru'
         self.fields['new_password2'].label = 'Konfirmasi Password Baru'
         self.fields['old_password'].widget = forms.PasswordInput(
-            {'class': 'form-control-sm'})
+            {'class': 'form-control-sm z-index-2'})
         self.fields['new_password1'].widget = forms.PasswordInput(
-            {'class': 'form-control-sm'})
+            {'class': 'form-control-sm z-index-2'})
         self.fields['new_password2'].widget = forms.PasswordInput(
-            {'class': 'form-control-sm'})
+            {'class': 'form-control-sm z-index-2'})
 
 
 class FormSetPassword(SetPasswordForm):

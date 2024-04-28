@@ -8481,7 +8481,8 @@ def order_child_cs_delete(request, _id, _child):
 
 def order_package_add(request, _id, _cat, _pack, _type, _add):
     categories = Category.objects.all()
-    packages = Package.objects.filter(category=_cat)
+    packages = Package.objects.filter(category=_cat).exclude(package_id__in=OrderPackage.objects.filter(
+        order_id=_id).values_list('package_id', flat=True)) if _cat != '0' else None
     box_types = BoxType.objects.all()
     main_cuisines = MainCuisine.objects.filter(package=_pack)
     sub_cuisines = SubCuisine.objects.filter(package=_pack)
@@ -8513,8 +8514,7 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
             package.side_cuisine3 = request.POST.get('side_cuisine3')
             package.side_cuisine4 = request.POST.get('side_cuisine4')
             package.side_cuisine5 = request.POST.get('side_cuisine5')
-            package.unit_price = selected_package.male_price if request.POST.get(
-                'type') == 'Jantan' else selected_package.female_price
+            package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
             package.save()
 
             total = OrderPackage.objects.filter(
@@ -8587,7 +8587,8 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
 
 def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
     categories = Category.objects.all()
-    packages = Package.objects.filter(category=_cat)
+    packages = Package.objects.filter(category=_cat).exclude(package_id__in=OrderPackage.objects.filter(
+        order_id=_id).values_list('package_id', flat=True).exclude(package_id=_pack)) if _cat != '0' else None
     package = OrderPackage.objects.get(order_id=_id, id=_package)
     box_types = BoxType.objects.all()
     main_cuisines = MainCuisine.objects.filter(package=_pack)
@@ -8713,8 +8714,7 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
         package.side_cuisine3 = request.POST.get('side_cuisine3')
         package.side_cuisine4 = request.POST.get('side_cuisine4')
         package.side_cuisine5 = request.POST.get('side_cuisine5')
-        package.unit_price = selected_package.male_price if request.POST.get(
-            'type') == 'Jantan' else selected_package.female_price
+        package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
         package.save()
 
         total = OrderPackage.objects.filter(

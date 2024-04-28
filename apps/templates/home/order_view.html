@@ -1073,10 +1073,16 @@
         modalEdit._config.keyboard = false;
     }
 
+    let btnSaveOrder = document.getElementById('save-btn');
     let btnSavePaket = document.getElementById('btn-save-paket');
     let btnEditPaket = document.getElementById('btn-edit-paket');
+    let orderForm = document.getElementById('order-form');
     let packForm = document.getElementById('packForm');
     let editPackForm = document.getElementById('editPackForm');
+
+    btnSaveOrder.addEventListener('click', function () {
+        orderForm.submit();
+    });
 
     btnSavePaket.addEventListener('click', function () {
         packForm.submit();
