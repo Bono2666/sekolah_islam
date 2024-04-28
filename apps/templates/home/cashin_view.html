@@ -1,0 +1,132 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Uang Masuk {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'cashin-update' data.cashin_id %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">ID Kategori: {{ data.cashin_id }}</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% if crud == 'view' %}{% url 'cashin-index' %}{% else %}{% url 'cashin-view' data.cashin_id %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a>
+                                <a href="{% url 'cashin-update' data.cashin_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <button type="button" class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.cashin_id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirm-{{ data.cashin_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                </div>
+                                <div class="modal-body border-bottom-0">
+                                    Anda yakin ingin menghapus uang masuk untuk Order No. <strong>{{ data.order_id }}</strong>?
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-sm bg-gradient-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'cashin-delete' data.cashin_id %}" role="button" class="btn btn-sm bg-gradient-primary text-white">Hapus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.order.label_tag }}
+                                        <select name="order" class="form-control form-select-sm" {% if crud == 'view' %}disabled{% endif %}>
+                                            <option value="">-- Pilih Order --</option>
+                                            {% for item in orders %}
+                                            <option value="{{ item.order_id }}" {% if item.order_id == data.order_id %}selected{% endif %}>{{ item.order_id }} - {{ item.customer_name }} - Rp. {{ item.pending_payment|intcomma }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="text-sm text-danger">
+                                            {{ form.order.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.cashin_type.label_tag }}
+                                        <select name="cashin_type" class="form-control form-select-sm" {% if crud == 'view' %}disabled{% endif %}>
+                                            {% if data.cashin_type %}
+                                            <option value="">-- Pilih Cara Pembayaran --</option>
+                                            <option value="Tunai" {% if data.cashin_type == 'Tunai' %}selected{% endif %}>Tunai</option>
+                                            <option value="Transfer" {% if data.cashin_type == 'Transfer' %}selected{% endif %}>Transfer</option>
+                                        </select>
+                                        <div class="text-sm text-danger">
+                                            {{ form.cashin_type.errors }}
+                                        </div>
+                                    </div>  
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.cashin_date.label_tag }}{{ form.cashin_date }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.cashin_date.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="shadow-none">
+                                        {{ form.cashin_amount.label_tag }}{{ form.cashin_amount }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.cashin_amount.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="shadow-none">
+                                        {{ form.bank.label_tag }}{{ form.bank }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.bank.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.evidence.label_tag }}{{ form.evidence }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.evidence.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="shadow-none">
+                                        {{ form.cashin_note.label_tag }}{{ form.cashin_note }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.cashin_note.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

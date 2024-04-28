@@ -9041,6 +9041,70 @@ def cashin_add(request):
 
 
 @login_required(login_url='/login/')
+@role_required(allowed_roles='CASH-IN')
+def cashin_view(request, _id):
+    cash_in = CashIn.objects.get(cashin_id=_id)
+    form = FormCashInView(instance=cash_in)
+    orders = Order.objects.filter(order_status__in=['DP', 'CONFIRMED'], regional_id__in=AreaUser.objects.filter(
+        user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id')
+
+    context = {
+        'data': cash_in,
+        'form': form,
+        'orders': orders,
+        'segment': 'cash-in',
+        'group_segment': 'accounting',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CASH-IN') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/cashin_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CASH-IN')
+def cashin_update(request, _id):
+    cash_in = CashIn.objects.get(cashin_id=_id)
+
+    if request.POST:
+        form = FormCashInUpdate(request.POST, instance=cash_in)
+        if form.is_valid():
+            update = form.save(commit=False)
+            update.order_id = request.POST.get('order')
+            update.cashin_type = request.POST.get('cashin_type')
+            update.save()
+
+            selected_order = Order.objects.get(
+                order_id=request.POST.get('order'))
+            if cash_in.cashin_amount == selected_order.pending_payment:
+                selected_order.order_status = 'LUNAS'
+            else:
+                selected_order.order_status = 'DP'
+
+            selected_order.down_payment += cash_in.cashin_amount
+            selected_order.save()
+
+            return HttpResponseRedirect(reverse('cashin-index'))
+    else:
+        form = FormCashInUpdate(instance=cash_in)
+
+    msg = form.errors
+    context = {
+        'form': form,
+        'data': cash_in,
+        'segment': 'cash-in',
+        'group_segment': 'accounting',
+        'crud': 'update',
+        'msg': msg,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CASH-IN') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/cashin_view.html', context)
+
+
+@login_required(login_url='/login/')
 @role_required(allowed_roles='ORDER')
 def order_invoice(request, _id):
     order = Order.objects.get(order_id=_id)
@@ -9352,14 +9416,14 @@ def order_invoice(request, _id):
         35, y, 'Sertifikat dan Kartu Ucapan pakai foto atau tidak?')
     pdf_file.setFont("Helvetica", 8)
     pdf_file.drawString(
-        35, y - 12, 'YA' if order.use_photo == '1' else 'TIDAK')
+        35, y - 12, 'YA' if order.use_photo == 1 else 'TIDAK')
 
     y -= 27
     pdf_file.setFont("Helvetica-Bold", 8)
     pdf_file.drawString(35, y, 'Penyembelihan disaksikan?')
     y -= 12
     pdf_file.setFont("Helvetica", 8)
-    pdf_file.drawString(35, y, 'YA' if order.witnessed == '1' else 'TIDAK')
+    pdf_file.drawString(35, y, 'YA' if order.witnessed == 1 else 'TIDAK')
 
     y -= 15
     pdf_file.setFont("Helvetica-Bold", 8)

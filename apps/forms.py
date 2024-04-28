@@ -1428,6 +1428,7 @@ class FormOrder(ModelForm):
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
             attrs={'class': 'form-control-sm'})
+        self.fields['customer_email'].required = False
         self.fields['customer_address'].label = 'Alamat Lengkap Pengiriman'
         self.fields['customer_district'].label = 'Kecamatan'
         self.fields['customer_district'].widget = forms.TextInput(
@@ -1469,6 +1470,7 @@ class FormOrderUpdate(ModelForm):
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
             attrs={'class': 'form-control-sm'})
+        self.fields['customer_email'].required = False
         self.fields['customer_address'].label = 'Alamat Lengkap Pengiriman'
         self.fields['customer_district'].label = 'Kecamatan'
         self.fields['customer_district'].widget = forms.TextInput(
@@ -1697,6 +1699,63 @@ class FormOrderCSUpdate(ModelForm):
 class FormCashIn(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormCashIn, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order'].label = 'Order Pemesanan'
+        self.fields['cashin_type'].label = 'Cara Pembayaran'
+        self.fields['cashin_date'].label = 'Tanggal Pembayaran'
+        self.fields['cashin_amount'].label = 'Jumlah Uang Masuk'
+        self.fields['cashin_amount'].widget = forms.NumberInput(
+            attrs={'class': 'form-control-sm no-spinners'})
+        self.fields['bank'].label = 'Nama Bank'
+        self.fields['bank'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm'})
+        self.fields['evidence'].label = 'Bukti Pembayaran'
+        self.fields['cashin_note'].label = 'Catatan'
+        self.fields['cashin_note'].required = False
+
+    class Meta:
+        model = CashIn
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+        widgets = {
+            'cashin_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
+            'evidence': forms.FileInput(attrs={'class': 'form-control form-control-sm'}),
+            'cashin_note': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
+        }
+
+
+class FormCashInView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCashInView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['order'].label = 'Order Pemesanan'
+        self.fields['cashin_type'].label = 'Cara Pembayaran'
+        self.fields['cashin_date'].label = 'Tanggal Pembayaran'
+        self.fields['cashin_amount'].label = 'Jumlah Uang Masuk'
+        self.fields['cashin_amount'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['bank'].label = 'Nama Bank'
+        self.fields['bank'].widget = forms.TextInput(
+            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['evidence'].label = 'Bukti Pembayaran'
+        self.fields['cashin_note'].label = 'Catatan'
+        self.fields['cashin_note'].widget = forms.Textarea(
+            attrs={'class': 'form-control-sm', 'rows': 3, 'readonly': 'readonly'})
+
+    class Meta:
+        model = CashIn
+        exclude = ['cashin_id', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+        widgets = {
+            'cashin_date': DateInput(attrs={'class': 'form-control form-control-sm', 'readonly': 'readonly'}),
+            'evidence': forms.FileInput(attrs={'class': 'form-control form-control-sm', 'readonly': 'readonly'}),
+        }
+
+
+class FormCashInUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormCashInUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
         self.fields['order'].label = 'Order Pemesanan'
         self.fields['cashin_type'].label = 'Cara Pembayaran'
