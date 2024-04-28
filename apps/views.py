@@ -9108,7 +9108,7 @@ def order_invoice(request, _id):
 
     months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
               'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-    days = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+    days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Ahad']
 
     pdf_file.setFont("Helvetica", 8)
     pdf_file.drawString(title_x, 728, days[order.order_date.weekday()] + order.order_date.strftime(
