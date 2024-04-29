@@ -9118,6 +9118,7 @@ def order_invoice(request, _id):
 
     order_id = _id.replace('/', '-')
     customer_name = order.customer_name.replace(' ', '_')
+    customer_name = customer_name.replace('/', '-')
 
     styles = getSampleStyleSheet()
     normalStyle = styles['Normal']
@@ -9194,11 +9195,11 @@ def order_invoice(request, _id):
     pdf_file.drawString(title_x, 656, order.customer_phone + ' / ' +
                         order.customer_phone2 if order.customer_phone2 else order.customer_phone)
     # Add customer address below customer phone
-    y = 641
+    y = 631
     address = order.customer_address.split('\n')
     for line in address:
         address_paragraph = Paragraph(line, normalStyle)
-        address_paragraph.wrapOn(pdf_file, 400, 100)
+        address_paragraph.wrapOn(pdf_file, 280, 50)
         address_paragraph.drawOn(pdf_file, title_x, y)
         y -= 10
     # Add customer district below customer address
@@ -9483,6 +9484,7 @@ def order_bap(request, _id):
 
     order_id = _id.replace('/', '-')
     customer_name = order.customer_name.replace(' ', '_')
+    customer_name = customer_name.replace('/', '-')
 
     styles = getSampleStyleSheet()
     normal_style = styles['Normal']
@@ -9788,6 +9790,7 @@ def order_checklist(request, _id):
 
     order_id = _id.replace('/', '-')
     customer_name = order.customer_name.replace(' ', '_')
+    customer_name = customer_name.replace('/', '-')
 
     styles = getSampleStyleSheet()
     normal_style = styles['Normal']
