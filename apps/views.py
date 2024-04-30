@@ -9194,20 +9194,27 @@ def order_invoice(request, _id):
     pdf_file.setFont("Helvetica", 8)
     pdf_file.drawString(title_x, 656, order.customer_phone + ' / ' +
                         order.customer_phone2 if order.customer_phone2 else order.customer_phone)
+
     # Add customer address below customer phone
-    y = 631
+    y = 641
+    rows = len(order.customer_address) // 70
+    for i in range(0, rows):
+        y -= 13
+
     address = order.customer_address.split('\n')
+
     for line in address:
         address_paragraph = Paragraph(line, normalStyle)
-        address_paragraph.wrapOn(pdf_file, 280, 50)
+        address_paragraph.wrapOn(pdf_file, 280, 0)
         address_paragraph.drawOn(pdf_file, title_x, y)
         y -= 10
+
     # Add customer district below customer address
-    y += 4
+    y += 1
     pdf_file.drawString(
         title_x, y, order.customer_district + ', ' + order.customer_city)
     # Add customer province below customer district
-    y -= 10
+    y -= 13
     pdf_file.drawString(title_x, y, order.customer_province)
 
     y -= 30
@@ -9528,10 +9535,16 @@ def order_bap(request, _id):
     y -= 12
     pdf_file.drawString(35, y, 'Alamat')
     pdf_file.drawString(135, y, ':')
+
+    y += 1
+    rows = len(order.customer_address) // 60
+    for i in range(0, rows):
+        y -= 13
+
     address = order.customer_address.split('\n')
     for line in address:
         address_paragraph = Paragraph(line, bold_style)
-        address_paragraph.wrapOn(pdf_file, 400, 100)
+        address_paragraph.wrapOn(pdf_file, 250, 100)
         address_paragraph.drawOn(pdf_file, 145, y - 4)
         y -= 10
 
@@ -9589,9 +9602,10 @@ def order_bap(request, _id):
     center_x = 490 + (65 - total_width) / 2
     pdf_file.drawString(center_x, y + 5, 'Jumlah (Rp)')
 
-    y -= 15
+    y += 15
     total = 0
     for i in range(1, package.count() + 1):
+        y -= 30
         pdf_file.rect(35, y - 15, 160, 30, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         qty = ' - ' + str(package[i - 1].package.quantity) + \
