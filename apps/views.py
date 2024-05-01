@@ -9549,13 +9549,13 @@ def order_bap(request, _id):
     for i, line in enumerate(address):
         address_width = pdf_file.stringWidth(
             address[i], "Helvetica", 8)
-        rows = int(address_width) // 250
+        rows = int(address_width) // 240
         for j in range(0, rows):
             y -= 13
 
     for line in address:
         address_paragraph = Paragraph(line, bold_style)
-        address_paragraph.wrapOn(pdf_file, 250, 100)
+        address_paragraph.wrapOn(pdf_file, 240, 100)
         address_paragraph.drawOn(pdf_file, 145, y - 4)
         y -= 10
 
