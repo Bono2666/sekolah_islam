@@ -9197,7 +9197,9 @@ def order_invoice(request, _id):
 
     # Add customer address below customer phone
     y = 641
-    rows = len(order.customer_address) // 70
+    address_width = pdf_file.stringWidth(
+        order.customer_address, "Helvetica", 8)
+    rows = int(address_width) // 270
     for i in range(0, rows):
         y -= 13
 
@@ -9205,7 +9207,7 @@ def order_invoice(request, _id):
 
     for line in address:
         address_paragraph = Paragraph(line, normalStyle)
-        address_paragraph.wrapOn(pdf_file, 280, 0)
+        address_paragraph.wrapOn(pdf_file, 270, 0)
         address_paragraph.drawOn(pdf_file, title_x, y)
         y -= 10
 
@@ -9386,10 +9388,16 @@ def order_invoice(request, _id):
     pdf_file.drawString(105, y - 39, order.time_arrival)
     pdf_file.drawString(35, y - 51, 'Catatan')
     pdf_file.drawString(95, y - 51, ':')
+
+    note_width = pdf_file.stringWidth(order.order_note, "Helvetica", 8)
+    rows = int(note_width) // 200
+    for i in range(0, rows):
+        y -= 13
+
     notes = order.order_note.split('\n') if order.order_note else ''
     for line in notes:
         notes_paragraph = Paragraph(line, normalStyle)
-        notes_paragraph.wrapOn(pdf_file, 515, 100)
+        notes_paragraph.wrapOn(pdf_file, 200, 100)
         notes_paragraph.drawOn(pdf_file, 105, y - 55)
         y -= 10
 
@@ -9537,7 +9545,9 @@ def order_bap(request, _id):
     pdf_file.drawString(135, y, ':')
 
     y += 1
-    rows = len(order.customer_address) // 60
+    address_width = pdf_file.stringWidth(
+        order.customer_address, "Helvetica", 8)
+    rows = int(address_width) // 250
     for i in range(0, rows):
         y -= 13
 
