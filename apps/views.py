@@ -9197,13 +9197,12 @@ def order_invoice(request, _id):
 
     # Add customer address below customer phone
     y = 641
-    address_width = pdf_file.stringWidth(
-        order.customer_address, "Helvetica", 8)
-    rows = int(address_width) // 270
-    for i in range(0, rows):
-        y -= 13
-
     address = order.customer_address.split('\n')
+    for i, line in enumerate(address):
+        address_width = pdf_file.stringWidth(address[i], "Helvetica", 8)
+        rows = int(address_width) // 270
+        for j in range(0, rows):
+            y -= 13
 
     for line in address:
         address_paragraph = Paragraph(line, normalStyle)
@@ -9389,12 +9388,13 @@ def order_invoice(request, _id):
     pdf_file.drawString(35, y - 51, 'Catatan')
     pdf_file.drawString(95, y - 51, ':')
 
-    note_width = pdf_file.stringWidth(order.order_note, "Helvetica", 8)
-    rows = int(note_width) // 200
-    for i in range(0, rows):
-        y -= 13
-
     notes = order.order_note.split('\n') if order.order_note else ''
+    for i, line in enumerate(notes):
+        note_width = pdf_file.stringWidth(notes[i], "Helvetica", 8)
+        rows = int(note_width) // 200
+        for j in range(0, rows):
+            y -= 13
+
     for line in notes:
         notes_paragraph = Paragraph(line, normalStyle)
         notes_paragraph.wrapOn(pdf_file, 200, 100)
@@ -9545,13 +9545,14 @@ def order_bap(request, _id):
     pdf_file.drawString(135, y, ':')
 
     y += 1
-    address_width = pdf_file.stringWidth(
-        order.customer_address, "Helvetica", 8)
-    rows = int(address_width) // 250
-    for i in range(0, rows):
-        y -= 13
-
     address = order.customer_address.split('\n')
+    for i, line in enumerate(address):
+        address_width = pdf_file.stringWidth(
+            address[i], "Helvetica", 8)
+        rows = int(address_width) // 250
+        for j in range(0, rows):
+            y -= 13
+
     for line in address:
         address_paragraph = Paragraph(line, bold_style)
         address_paragraph.wrapOn(pdf_file, 250, 100)
