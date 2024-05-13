@@ -8991,7 +8991,7 @@ def cashin_index(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='CASH-IN')
-def cashin_add(request):
+def cashin_add(request, _msg):
     orders = Order.objects.filter(order_status__in=['DP', 'CONFIRMED'], regional_id__in=AreaUser.objects.filter(
         user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id')
 
@@ -9001,6 +9001,8 @@ def cashin_add(request):
             cash_in = form.save(commit=False)
             cash_in.order_id = request.POST.get('order')
             cash_in.cashin_type = request.POST.get('cashin_type')
+            if cash_in.cashin_amount > Order.objects.get(order_id=request.POST.get('order')).pending_payment:
+                return HttpResponseRedirect(reverse('cashin-add', args=['1']))
             cash_in.save()
 
             if not settings.DEBUG:
@@ -9029,10 +9031,10 @@ def cashin_add(request):
     context = {
         'form': form,
         'orders': orders,
+        'msg': _msg,
         'segment': 'cash-in',
         'group_segment': 'accounting',
         'crud': 'add',
-        'msg': msg,
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CASH-IN') if not request.user.is_superuser else Auth.objects.all(),
     }
@@ -9045,7 +9047,7 @@ def cashin_add(request):
 def cashin_view(request, _id):
     cash_in = CashIn.objects.get(cashin_id=_id)
     form = FormCashInView(instance=cash_in)
-    orders = Order.objects.filter(order_status__in=['DP', 'CONFIRMED'], regional_id__in=AreaUser.objects.filter(
+    orders = Order.objects.filter(regional_id__in=AreaUser.objects.filter(
         user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id')
 
     context = {
@@ -9064,7 +9066,7 @@ def cashin_view(request, _id):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='CASH-IN')
-def cashin_update(request, _id):
+def cashin_update(request, _id, _msg):
     cash_in = CashIn.objects.get(cashin_id=_id)
 
     if request.POST:
@@ -9073,35 +9075,66 @@ def cashin_update(request, _id):
             update = form.save(commit=False)
             update.order_id = request.POST.get('order')
             update.cashin_type = request.POST.get('cashin_type')
+            if update.cashin_amount > Order.objects.get(order_id=request.POST.get('order')).pending_payment + cash_in.cashin_amount:
+                return HttpResponseRedirect(reverse('cashin-update', args=['1']))
             update.save()
+
+            if not settings.DEBUG:
+                cash_in = CashIn.objects.get(cashin_id=cash_in.cashin_id)
+                my_file = cash_in.evidence
+                filename = '../../www/aqiqahon/apps/media/' + my_file.name
+                with open(filename, 'wb+') as temp_file:
+                    for chunk in my_file.chunks():
+                        temp_file.write(chunk)
 
             selected_order = Order.objects.get(
                 order_id=request.POST.get('order'))
-            if cash_in.cashin_amount == selected_order.pending_payment:
+            selected_order.down_payment = CashIn.objects.filter(
+                order_id=request.POST.get('order')).aggregate(cashin=Sum('cashin_amount'))['cashin']
+            selected_order.save()
+
+            if selected_order.pending_payment == 0:
                 selected_order.order_status = 'LUNAS'
             else:
                 selected_order.order_status = 'DP'
-
-            selected_order.down_payment += cash_in.cashin_amount
-            selected_order.save()
 
             return HttpResponseRedirect(reverse('cashin-index'))
     else:
         form = FormCashInUpdate(instance=cash_in)
 
-    msg = form.errors
+    # msg = form.errors
     context = {
         'form': form,
         'data': cash_in,
         'segment': 'cash-in',
         'group_segment': 'accounting',
         'crud': 'update',
-        'msg': msg,
+        'msg': _msg,
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CASH-IN') if not request.user.is_superuser else Auth.objects.all(),
     }
 
     return render(request, 'home/cashin_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='CASH-IN')
+def cashin_delete(request, _id):
+    cash_in = CashIn.objects.get(cashin_id=_id)
+    _order_id = cash_in.order_id
+    cash_in.delete()
+
+    selected_order = Order.objects.get(order_id=_order_id)
+    selected_order.down_payment = CashIn.objects.filter(
+        order_id=_order_id).aggregate(cashin=Sum('cashin_amount'))['cashin']
+    selected_order.save()
+
+    if selected_order.pending_payment == 0:
+        selected_order.order_status = 'LUNAS'
+    else:
+        selected_order.order_status = 'DP'
+
+    return HttpResponseRedirect(reverse('cashin-index'))
 
 
 @login_required(login_url='/login/')
@@ -9888,7 +9921,8 @@ def order_checklist(request, _id):
     pdf_file.drawString(title_x, y, "Jumlah Box")
     pdf_file.drawString(title_x + 80, y, ':')
     pdf_file.drawString(
-        title_x + 90, y, str(package[0].package.box) + ' Box (' + package[0].box_type.box_type_name + ')')
+        title_x + 90, y, str(package[0].package.box * package[0].quantity if package[0].package.box > 0 else package[0].quantity
+                             ) + ' ' + package[0].box_type.box_type_name)
 
     y -= 30
     pdf_file.setFont("Helvetica-Bold", 8)
