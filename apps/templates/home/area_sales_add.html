@@ -29,37 +29,45 @@
                             </div>
                             {% endif %} -->
                             <div class="row">
-                                <div class="col-md-3">
-                                    <div class="shadow-none">
-                                        {{ form.area_id.label_tag }}{{ form.area_id }}
-                                        <div class="text-sm text-danger">
-                                            {{ form.area_id.errors }}
+                                <div class="col-6">
+                                    <div class="row">
+                                        <div class="shadow-none">
+                                            {{ form.area_id.label_tag }}{{ form.area_id }}
+                                            <div class="text-sm text-danger">
+                                                {{ form.area_id.errors }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="shadow-none">
+                                            {{ form.area_name.label_tag }}{{ form.area_name }}
+                                            <div class="text-sm text-danger">
+                                                {{ form.area_name.errors }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="shadow-none">
+                                            {{ form.manager.label_tag }}
+                                            <select name="manager" class="form-control form-select-sm">
+                                                <option value="">-- Pilih Manager --</option>
+                                                {% for item in manager %}
+                                                <option value="{{ item.user_id }}">{{ item.username }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <div class="text-sm text-danger">
+                                                {{ form.manager.errors }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="shadow-none">
-                                        {{ form.area_name.label_tag }}{{ form.area_name }}
-                                        <div class="text-sm text-danger">
-                                            {{ form.area_name.errors }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="shadow-none">
-                                        {{ form.manager.label_tag }}
-                                        <select name="manager" class="form-control form-select-sm">
-                                            <option value="">-- Pilih Manager --</option>
-                                            {% for item in manager %}
-                                            <option value="{{ item.user_id }}">{{ item.username }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <div class="text-sm text-danger">
-                                            {{ form.manager.errors }}
+                                <div class="col-6">
+                                    <div class="row">
+                                        <div class="shadow-none">
+                                            {{ form.bank_account.label_tag }}{{ form.bank_account }}
+                                            <div class="text-sm text-danger">
+                                                {{ form.bank_account.errors }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -67,57 +75,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="card mt-4 mb-4 p-4">
-                    <div class="row mb-0">
-                        <div class="col-12 d-flex align-items-center">
-                            <h5 class="mb-0">Distributor List</h5>
-                        </div>
-                        <div class="mt-3">
-                            <label>Distributor Name</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group shadow-none mt-0 mb-0 border-top">
-                                {{ formset.management_form }}
-                                {% for form in formset %}
-                                <div class="pb-0 mb-3 distributor-list border-bottom border-top">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            {{ form.distributor }}
-                                        </div>
-                                        <div class="d-none">
-                                            {{ form.DELETE }}
-                                            {{ form.id }}
-                                        </div>
-                                        <div class="col-6 d-flex align-items-end">
-                                            <button type="button" class="btn delete-btn bg-transparent shadow-none btn-lg p-0 mt-2" {% if crud == 'view' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <div id="empty-form" class="border-bottom pb-0 d-none">
-                                <div class="row">
-                                    <div class="col-6">
-                                        {{ formset.empty_form.distributor }}
-                                    </div>
-                                    <div class="d-none">
-                                        {{ formset.empty_form.DELETE }}
-                                        {{ formset.empty_form.id }}
-                                    </div>
-                                    <div class="col-6 d-flex align-items-end">
-                                        <button type="button" class="btn delete-btn bg-transparent shadow-none btn-lg p-0 mt-2" {% if crud == 'view' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
-                                    </div>
-                                </div>
-                                <div class="text-sm text-danger">
-                                    {{ formset.empty_form.distributor.errors }}
-                                </div>
-                            </div>
-                            <button id="add-more" type="button" class="border-0 bg-transparent text-danger mt-3" {% if crud == 'view' %}disabled{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Add More Distributor</button>
-                        </div>
-                    </div>
-                </div> -->
             </form>
         </div>
     </div>
@@ -126,53 +83,5 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script>
-    const addMore = document.getElementById('add-more');
-    const totalNewForm = document.getElementById('id_form-TOTAL_FORMS');
-    let currentDistributorCount = document.getElementsByClassName('distributor-list').length;
-    
-    function deleteForm() {
-        const deleteButtons = document.getElementsByClassName('delete-btn');
-        const inputChecked = document.getElementsByClassName('form-check-input');
-        for (let i = 0; i < deleteButtons.length; i++) {
-            console.log(i);
-            deleteButtons[i].addEventListener('click', function (event) {
-                if (event) {
-                    event.preventDefault();
-                }
-                currentDistributorCount = document.getElementsByClassName('distributor-list').length;
-                if (currentDistributorCount > 0) {
-                    const form = this.closest('.distributor-list');
-                    inputChecked[i + 1].checked = true;
-                    form.classList.add('d-none');
-                }
-            });
-        }
-    }
-    document.addEventListener('DOMContentLoaded', function () {
-        deleteForm();
-    });
-    
-    addMore.addEventListener('click', function(event) {
-        if (event) {
-            event.preventDefault();
-        }
-        currentDistributorCount = document.getElementsByClassName('distributor-list').length;
-        const emptyForm = document.getElementById('empty-form');
-        const clone = emptyForm.cloneNode(true);
-        clone.id = `form-${currentDistributorCount}`;
-        clone.classList.remove('d-none');
-        clone.classList.add('distributor-list');
-        const regex = new RegExp('__prefix__', 'g');
-        clone.innerHTML = clone.innerHTML.replace(regex, currentDistributorCount);
-        totalNewForm.value = currentDistributorCount + 1;
-        emptyForm.parentNode.insertBefore(clone, emptyForm);
-        // $('.select2').select2({
-        //     placeholder: 'Select Distributor',
-        //     allowClear: true,
-        //     width: '100%'
-        // });
-        deleteForm();
-    });
-</script>
+
 {% endblock javascripts %}

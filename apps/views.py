@@ -488,43 +488,17 @@ def area_sales_index(request):
 @login_required(login_url='/login/')
 @role_required(allowed_roles='AREA')
 def area_sales_add(request):
-    AreaSalesDetailFormSet = modelformset_factory(
-        AreaSalesDetail, form=FormAreaSalesDetail, extra=0, can_delete=True, can_delete_extra=True)
-    distributor = Distributor.objects.all()
     manager = User.objects.filter(position_id='ASM')
 
     if request.POST:
         form = FormAreaSales(request.POST, request.FILES)
-        formset = AreaSalesDetailFormSet(
-            request.POST, queryset=AreaSalesDetail.objects.none())
-
+    
         if form.is_valid():
             new = form.save(commit=False)
             new.area_id = form.cleaned_data.get('area_id').replace(' ', '')
             new.form = host.url + 'order/new/' + new.area_id
             new.save()
             return HttpResponseRedirect(reverse('area-sales-view', args=[form.instance.area_id, ]))
-        # if all([form.is_valid(), formset.is_valid()]):
-        #     try:
-        #         parent = form.save(commit=False)
-        #         parent.save()
-        #         for form in formset:
-        #             if form.cleaned_data.get('distributor') is None:
-        #                 if form.cleaned_data.get('DELETE'):
-        #                     continue
-        #                 else:
-        #                     continue
-        #             else:
-        #                 if form.cleaned_data.get('DELETE'):
-        #                     form.instance.delete()
-        #                     continue
-
-        #             child = form.save(commit=False)
-        #             child.area = parent
-        #             child.save()
-        #         return HttpResponseRedirect(reverse('area-sales-index'))
-        #     except Exception:
-        #         return HttpResponseRedirect(reverse('area-sales-index'))
         else:
             message = form.errors
             context = {
@@ -535,26 +509,21 @@ def area_sales_add(request):
                 'crud': 'add',
                 'message': message,
                 'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-                'distributors': distributor,
                 'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='AREA') if not request.user.is_superuser else Auth.objects.all(),
             }
             return render(request, 'home/area_sales_add.html', context)
     else:
         form = FormAreaSales()
-        formset = AreaSalesDetailFormSet(
-            queryset=AreaSalesDetail.objects.none())
-
         message = form.errors
+
         context = {
             'form': form,
             'manager': manager,
-            'formset': formset,
             'segment': 'area_sales',
             'group_segment': 'master',
             'crud': 'add',
             'message': message,
             'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-            'distributors': distributor,
             'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='AREA') if not request.user.is_superuser else Auth.objects.all(),
         }
         return render(request, 'home/area_sales_add.html', context)
@@ -565,49 +534,17 @@ def area_sales_add(request):
 @role_required(allowed_roles='AREA')
 def area_sales_view(request, _id):
     area_sales = AreaSales.objects.get(area_id=_id)
-    AreaSalesDetailFormSet = modelformset_factory(
-        AreaSalesDetail, form=FormAreaSalesDetailView, extra=0)
-    qs = area_sales.areasalesdetail_set.all()
     form = FormAreaSalesView(instance=area_sales)
-    formset = AreaSalesDetailFormSet(queryset=qs)
-    detail = AreaSalesDetail.objects.filter(area_id=_id)
     managers = User.objects.filter(position_id='ASM')
-    # distributor = Distributor.objects.all()
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT apps_distributor.distributor_id, distributor_name, q_distributor.distributor_id FROM apps_distributor LEFT JOIN (SELECT * FROM apps_areasalesdetail WHERE area_id = '" + str(_id) + "') AS q_distributor ON apps_distributor.distributor_id = q_distributor.distributor_id WHERE q_distributor.distributor_id IS NULL")
-        distributor = cursor.fetchall()
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT area_id, area_name, username FROM apps_areasales INNER JOIN apps_user ON apps_areasales.manager = apps_user.user_id WHERE area_id = '" + str(_id) + "'")
-        areas = cursor.fetchall()
-
-    if request.POST:
-        check = request.POST.getlist('checks[]')
-        for i in distributor:
-            if str(i[0]) in check:
-                try:
-                    detail = AreaSalesDetail(area_id=_id, distributor_id=i[0])
-                    detail.save()
-                except IntegrityError:
-                    continue
-            else:
-                AreaSalesDetail.objects.filter(
-                    area_id=_id, distributor_id=i[0]).delete()
-        return HttpResponseRedirect(reverse('area-sales-view', args=[_id, ]))
 
     context = {
         'form': form,
-        'formset': formset,
         'data': area_sales,
-        'areas': areas,
-        'detail': detail,
         'managers': managers,
         'segment': 'area_sales',
         'group_segment': 'master',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'distributors': distributor,
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='AREA') if not request.user.is_superuser else Auth.objects.all(),
     }
     return render(request, 'home/area_sales_view.html', context)
@@ -618,58 +555,26 @@ def area_sales_view(request, _id):
 @role_required(allowed_roles='AREA')
 def area_sales_update(request, _id):
     area_sales = AreaSales.objects.get(area_id=_id)
-    AreaSalesDetailFormSet = modelformset_factory(
-        AreaSalesDetail, form=FormAreaSalesDetail, extra=0, can_delete=True, can_delete_extra=True)
-    qs = area_sales.areasalesdetail_set.all()
-    distributor = Distributor.objects.all()
-    detail = AreaSalesDetail.objects.filter(area_id=_id)
     managers = User.objects.filter(position_id='ASM')
 
     if request.POST:
-        form = FormAreaSalesUpdate(
-            request.POST, request.FILES, instance=area_sales)
-        formset = AreaSalesDetailFormSet(request.POST, queryset=qs)
+        form = FormAreaSalesUpdate(request.POST, request.FILES, instance=area_sales)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('area-sales-view', args=[_id, ]))
-        # if all([form.is_valid(), formset.is_valid()]):
-        #     try:
-        #         parent = form.save(commit=False)
-        #         parent.save()
-        #         for form in formset:
-        #             if form.cleaned_data.get('distributor') is None:
-        #                 if form.cleaned_data.get('DELETE'):
-        #                     continue
-        #                 else:
-        #                     continue
-        #             else:
-        #                 if form.cleaned_data.get('DELETE'):
-        #                     form.instance.delete()
-        #                     continue
-
-        #             child = form.save(commit=False)
-        #             child.area = parent
-        #             child.save()
-        #         return HttpResponseRedirect(reverse('area-sales-view', args=[_id, ]))
-        #     except Exception:
-        #         return HttpResponseRedirect(reverse('area-sales-view', args=[_id, ]))
     else:
         form = FormAreaSalesUpdate(instance=area_sales)
-        formset = AreaSalesDetailFormSet(queryset=qs)
-
+        
     message = form.errors
     context = {
         'form': form,
-        'formset': formset,
         'data': area_sales,
-        'detail': detail,
         'managers': managers,
         'segment': 'area_sales',
         'group_segment': 'master',
         'crud': 'update',
         'message': message,
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'distributors': distributor,
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='AREA') if not request.user.is_superuser else Auth.objects.all(),
     }
     return render(request, 'home/area_sales_view.html', context)
@@ -683,16 +588,6 @@ def area_sales_delete(request, _id):
 
     area_sales.delete()
     return HttpResponseRedirect(reverse('area-sales-index'))
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='AREA')
-def area_sales_detail_delete(request, _id, _distributor):
-    area_sales_detail = AreaSalesDetail.objects.get(
-        area_id=_id, distributor_id=_distributor)
-
-    area_sales_detail.delete()
-    return HttpResponseRedirect(reverse('area-sales-view', args=[_id, ]))
 
 
 @login_required(login_url='/login/')

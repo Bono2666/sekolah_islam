@@ -31,6 +31,7 @@
                                     <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
                                 </div>
                                 <div class="modal-body border-bottom-0">
+                                    Jika Anda menghapus regional ini, semua data yang terkait dengan regional ini akan dihapus juga.
                                     Anda yakin akan menghapus regional <strong>{{ data.area_name }}</strong>?
                                 </div>
                                 <div class="modal-footer border-0">
@@ -52,9 +53,10 @@
                                 <div class="col-md-6">
                                     <div class="shadow-none">
                                         {{ form.area_name.label_tag }}{{ form.area_name }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.area_name.errors }}
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
                                     <div class="shadow-none">
                                         {{ form.manager.label_tag }}
                                         <select class="form-control form-select-sm" name="manager" {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %} {% if crud == 'view' %}disabled{% endif %}>
@@ -62,6 +64,17 @@
                                             <option value="{{ item.user_id }}" {% if item.user_id == data.manager %}selected{% endif %}>{{ item.username }}</option>
                                             {% endfor %}
                                         </select>
+                                        <div class="text-sm text-danger">
+                                            {{ form.manager.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.bank_account.label_tag }}{{ form.bank_account }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.bank_account.errors }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

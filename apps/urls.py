@@ -34,8 +34,6 @@ urlpatterns = [
          views.area_sales_update, name='area-sales-update'),
     path('master/area-sales/delete/<str:_id>/',
          views.area_sales_delete, name='area-sales-delete'),
-    path('master/area-sales-detail/delete/<str:_id>/<str:_distributor>/',
-         views.area_sales_detail_delete, name='area-sales-detail-delete'),
     path('master/position/', views.position_index, name='position-index'),
     path('master/position/add/', views.position_add, name='position-add'),
     path('master/position/view/<str:_id>/',

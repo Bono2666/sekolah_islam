@@ -172,16 +172,19 @@ class FormAreaSales(ModelForm):
         self.fields['area_id'].label = 'ID Regional'
         self.fields['area_name'].label = 'Nama Regional'
         self.fields['manager'].label = 'Manager'
+        self.fields['bank_account'].label = 'Bank Account'
         self.fields['area_id'].widget = forms.TextInput(
             {'class': 'form-control-sm text-uppercase'})
         self.fields['area_name'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['manager'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
+        self.fields['bank_account'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 7})
 
     class Meta:
         model = AreaSales
-        exclude = ['bank_account', 'form', 'entry_date',
+        exclude = ['form', 'entry_date',
                    'entry_by', 'update_date', 'update_by']
 
 
@@ -191,14 +194,17 @@ class FormAreaSalesView(ModelForm):
         self.label_suffix = ''
         self.fields['area_name'].label = 'Nama Regional'
         self.fields['manager'].label = 'Manager'
+        self.fields['bank_account'].label = 'Bank Account'
         self.fields['area_name'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['manager'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['bank_account'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 4, 'readonly': 'readonly'})
 
     class Meta:
         model = AreaSales
-        fields = ['area_id', 'area_name', 'manager']
+        fields = ['area_id', 'area_name', 'manager', 'bank_account']
 
 
 class FormAreaSalesUpdate(ModelForm):
@@ -207,46 +213,17 @@ class FormAreaSalesUpdate(ModelForm):
         self.label_suffix = ''
         self.fields['area_name'].label = 'Nama Regional'
         self.fields['manager'].label = 'Manager'
+        self.fields['bank_account'].label = 'Bank Account'
         self.fields['area_name'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['manager'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
+        self.fields['bank_account'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 4})
 
     class Meta:
         model = AreaSales
-        exclude = ['area_id', 'form', 'bank_account', 'entry_date',
-                   'entry_by', 'update_date', 'update_by']
-
-
-class FormAreaSalesDetailView(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormAreaSalesDetailView, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['distributor'].label = ''
-
-    class Meta:
-        model = AreaSalesDetail
-        fields = ['distributor']
-
-        widgets = {
-            'distributor': forms.Select(attrs={'class': 'form-control select2 border-0 ps-1 shadow-none bg-transparent', 'disabled': 'disabled'}),
-        }
-
-
-class FormAreaSalesDetail(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormAreaSalesDetail, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['distributor'].label = ''
-
-    class Meta:
-        model = AreaSalesDetail
-        exclude = ['area', 'entry_date',
-                   'entry_by', 'update_date', 'update_by']
-
-        widgets = {
-            'distributor': forms.Select(attrs={'class': 'form-control select2 border-0 ps-1 shadow-none bg-transparent cursor-pointer', 'placeholder': 'Select Distributor'}),
-        }
+        exclude = ['area_id', 'form', 'entry_date', 'entry_by', 'update_date', 'update_by']
 
 
 class FormAreaChannel(ModelForm):
