@@ -1,11 +1,12 @@
-    <footer class="footer py-5">
-      <div class="container">
-        <div class="row">
-          <div class="col-12 mx-auto text-center mt-6">
-            <p class="mb-0 text-secondary">
-              Copyright &copy; {% now 'Y' %} <a href="https://sahabataqiqah.co.id/" class="text-muted" target="_blank">Sahabat Aqiqah</a>. All Rights Reserved.
-            </p>
-          </div>
-        </div>
+{% load user_agents %}
+<footer class="footer py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 mx-auto text-center mt-6">
+        <p class="mb-0 text-secondary">
+          Copyright &copy; {% now 'Y' %} <a href="https://sahabataqiqah.co.id/" class="text-muted" target="_blank">Sahabat Aqiqah</a>.{% if request|is_mobile %}<br>{% else %} {% endif %}All Rights Reserved.
+        </p>
       </div>
-    </footer>
+    </div>
+  </div>
+</footer>

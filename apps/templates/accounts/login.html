@@ -1,13 +1,8 @@
 {% extends 'layouts/base-fullscreen.html' %}
 
-{% load user_agents %}
-
 {% block content %}
-  {% if request|is_mobile %}
-    {% include 'includes/navigation-full-mobile.html' %}
-  {% else %}
-    {% include 'includes/navigation-fullscreen.html' %}
-  {% endif %}
+
+  {% include 'includes/navigation-fullscreen.html' %}
   
   <main class="main-content  mt-0">
     <section>
