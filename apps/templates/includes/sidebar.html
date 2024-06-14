@@ -188,56 +188,6 @@
         </div>
       </li> -->
       <!-- <li class="nav-item">
-        <a class="nav-link {% if 'program' in group_segment %}active{% endif %} {% if 'program' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#program-menu">
-          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-            {% if 'program' in group_segment %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-              <title>program</title>
-              <g stroke-width="2" fill="#F7F7F7" stroke="#F7F7F7">
-                <path d="M3,18H1v9a2.946,2.946,0,0,0,3,3" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10"></path> 
-                <path d="M7,2V27a2.946,2.946,0,0,1-3,3H27a2.946,2.946,0,0,0,3-3V2Z" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10"></path> 
-                <rect x="12" y="7" width="13" height="7" fill="none" stroke-linecap="square" stroke-miterlimit="10"></rect> 
-                <line x1="25" y1="24" x2="12" y2="24" fill="none" stroke-linecap="square" stroke-miterlimit="10"></line> 
-                <line x1="25" y1="19" x2="12" y2="19" fill="none" stroke-linecap="square" stroke-miterlimit="10"></line>
-              </g>
-            </svg>
-            {% else %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-              <title>program</title>
-              <g stroke-width="2" fill="#212121" stroke="#212121">
-                <path d="M3,18H1v9a2.946,2.946,0,0,0,3,3" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10"></path> 
-                <path d="M7,2V27a2.946,2.946,0,0,1-3,3H27a2.946,2.946,0,0,0,3-3V2Z" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10"></path> 
-                <rect x="12" y="7" width="13" height="7" fill="none" stroke-linecap="square" stroke-miterlimit="10"></rect> 
-                <line x1="25" y1="24" x2="12" y2="24" fill="none" stroke-linecap="square" stroke-miterlimit="10"></line> 
-                <line x1="25" y1="19" x2="12" y2="19" fill="none" stroke-linecap="square" stroke-miterlimit="10"></line>
-              </g>
-            </svg>
-            {% endif %}
-          </div>
-          <span class="nav-link-text ms-1">Program</span>
-        </a>
-
-        <div class="multi-level ms-5 collapse {% if 'program' in group_segment %}show{% endif %}" role="list" id="program-menu" aria-expanded="{% if 'program' in group_segment %}true{% else %}false{% endif %}">
-          <ul class="flex-column nav">
-            <li class="nav-item {% if segment == 'program' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'PROGRAM' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'program-index' 'open' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'PROGRAM' not in role and not request.user.is_superuser %}disabled{% endif %}">List</span>
-              </a>
-            </li>
-            <li class="nav-item {% if segment == 'program_release' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'PROGRAM-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'program-release-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'PROGRAM-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}">Release</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'program_archive' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'PROGRAM-ARCHIVE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'program-archive-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'PROGRAM-ARCHIVE' not in role and not request.user.is_superuser %}disabled{% endif %}">Archive</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </li> -->
-      <!-- <li class="nav-item">
         <a class="nav-link {% if group_segment == 'cl' %}active{% endif %} {% if group_segment != 'cl' %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#cl-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if group_segment == 'cl' %}
@@ -379,58 +329,6 @@
           </ul>
         </div>
       </li>
-      <!-- <li class="nav-item">
-        <a class="nav-link {% if 'approval' in group_segment %}active{% endif %} {% if 'approval' not in group_segment %}collapsed{% endif %}" href="{% url 'budget-approval-index' %}" data-bs-toggle="collapse" data-bs-target="#approval-menu">
-          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-            {% if 'approval' in group_segment %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <title>Approval</title>
-              <g fill="none">
-                <path d="M4 16v6h16v-6c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2zm14 2H6v-2h12v2zM12 2C9.24 2 7 4.24 7 7l5 7 5-7c0-2.76-2.24-5-5-5zm0 9L9 7c0-1.66 1.34-3 3-3s3 1.34 3 3l-3 4z" fill="#F7F7F7"></path>
-              </g>
-            </svg>
-            {% else %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <title>Approval</title>
-              <g fill="none">
-                <path d="M4 16v6h16v-6c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2zm14 2H6v-2h12v2zM12 2C9.24 2 7 4.24 7 7l5 7 5-7c0-2.76-2.24-5-5-5zm0 9L9 7c0-1.66 1.34-3 3-3s3 1.34 3 3l-3 4z" fill="#212121"></path>
-              </g>
-            </svg>
-            {% endif %}
-          </div>
-          <span class="nav-link-text ms-1">Approval Matrix</span>
-        </a>
-
-        <div class="multi-level ms-5 collapse {% if 'approval' in group_segment %}show{% endif %}" role="list" id="approval-menu" aria-expanded="{% if 'budget' in group_segment %}true{% else %}false{% endif %}">
-          <ul class="flex-column nav">
-            <li class="nav-item {% if 'budget_approval' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'BUDGET-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'budget-approval-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'BUDGET-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}">Budget Approval</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'proposal_matrix' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'PROPOSAL-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'proposal-matrix-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'PROPOSAL-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}">Proposal Approval</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'program_matrix' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'PROGRAM-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'program-matrix-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'PROGRAM-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}">Program Approval</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'claim_matrix' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CLAIM-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'claim-matrix-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CLAIM-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}">Claim Approval</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'cl_matrix' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CL-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'cl-matrix-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CL-APPROVAL' not in role and not request.user.is_superuser %}disabled{% endif %}">CL Approval</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </li> -->
     </ul>
   </div>
 </aside>

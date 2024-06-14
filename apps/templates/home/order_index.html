@@ -10,7 +10,7 @@
 <div class="container-fluid py-0">
     <div class="row">
         <div class="col-12">
-            <div class="card mb-4 p-4">
+            <div class="card mb-6 p-4">
                 <div class="row mb-4">
                     <div class="col-12 d-flex align-items-center">
                         <h4 class="mb-0">Order Pemesanan</h4>
@@ -108,7 +108,8 @@
         } else {
             new DataTable('#myTable', {
                 scrollX: true,
-                pageLength: 25, 
+                pageLength: 25,
+                lengthMenu: [25, 50, 100, 250, 500],
                 order: [[1, 'desc']],
             });
         }

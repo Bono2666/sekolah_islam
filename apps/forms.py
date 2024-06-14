@@ -223,7 +223,8 @@ class FormAreaSalesUpdate(ModelForm):
 
     class Meta:
         model = AreaSales
-        exclude = ['area_id', 'form', 'entry_date', 'entry_by', 'update_date', 'update_by']
+        exclude = ['area_id', 'form', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
 
 
 class FormAreaChannel(ModelForm):
@@ -1043,67 +1044,6 @@ class FormProposalUpdate(ModelForm):
             'period_end': DateInput(attrs={'class': 'form-control form-control-sm'}),
             'attachment': forms.FileInput(attrs={'class': 'form-control form-control-sm'}),
         }
-
-
-class FormProgram(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormProgram, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['area'].widget = forms.TextInput(
-            attrs={'class': 'd-none'})
-        self.fields['deadline'].label = 'Claim Deadline'
-
-    class Meta:
-        model = Program
-        fields = ['area', 'deadline', 'content', 'approval']
-
-        widgets = {
-            'deadline': DateInput(attrs={'class': 'form-control form-control-sm'}),
-            'content': TinyMCE(attrs={'cols': 80, 'rows': 30}),
-            'approval': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
-        }
-
-
-class FormProgramView(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormProgramView, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['deadline'].label = 'Claim Deadline'
-
-    class Meta:
-        model = Program
-        fields = ['deadline', 'content']
-
-        widgets = {
-            'deadline': DateInput(attrs={'class': 'form-control form-control-sm', 'disabled': 'disabled'}),
-            'content': TinyMCE(attrs={'cols': 80, 'rows': 30, 'readonly': 'readonly'}),
-        }
-
-
-class FormProgramUpdate(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormProgramUpdate, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['deadline'].label = 'Claim Deadline'
-
-    class Meta:
-        model = Program
-        fields = ['deadline', 'content']
-
-        widgets = {
-            'deadline': DateInput(attrs={'class': 'form-control form-control-sm'}),
-            'content': TinyMCE(attrs={'cols': 80, 'rows': 30}),
-        }
-
-
-class FormProgramMatrix(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormProgramMatrix, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-
-    class Meta:
-        model = ProgramMatrix
-        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
 
 
 class FormClaim(ModelForm):
