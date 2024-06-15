@@ -138,56 +138,6 @@
         </div>
       </li>
       <!-- <li class="nav-item">
-        <a class="nav-link {% if 'proposal' in group_segment %}active{% endif %} {% if 'proposal' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#proposal-menu">
-          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-            {% if 'proposal' in group_segment %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-              <title>Proposal</title>
-              <g stroke-width="2" fill="#F7F7F7" stroke="#F7F7F7">
-                <polyline fill="none" stroke="#F7F7F7" stroke-miterlimit="10" points="30,2 30,14 42,14 " stroke-linejoin="miter" stroke-linecap="butt"></polyline> 
-                <polygon fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" points="30,2 6,2 6,46 42,46 42,14 " stroke-linejoin="miter"></polygon> 
-                <line fill="none" stroke-linecap="square" stroke-miterlimit="10" x1="14" y1="36" x2="34" y2="36" stroke-linejoin="miter"></line> 
-                <line fill="none" stroke-linecap="square" stroke-miterlimit="10" x1="14" y1="26" x2="34" y2="26" stroke-linejoin="miter"></line> 
-                <line fill="none" stroke-linecap="square" stroke-miterlimit="10" x1="14" y1="16" x2="22" y2="16" stroke-linejoin="miter"></line>
-              </g>
-            </svg>
-            {% else %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-              <title>Proposal</title>
-              <g stroke-width="2" fill="#212121" stroke="#212121">
-                <polyline fill="none" stroke="#212121" stroke-miterlimit="10" points="30,2 30,14 42,14 " stroke-linejoin="miter" stroke-linecap="butt"></polyline> 
-                <polygon fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" points="30,2 6,2 6,46 42,46 42,14 " stroke-linejoin="miter"></polygon> 
-                <line fill="none" stroke-linecap="square" stroke-miterlimit="10" x1="14" y1="36" x2="34" y2="36" stroke-linejoin="miter"></line> 
-                <line fill="none" stroke-linecap="square" stroke-miterlimit="10" x1="14" y1="26" x2="34" y2="26" stroke-linejoin="miter"></line> 
-                <line fill="none" stroke-linecap="square" stroke-miterlimit="10" x1="14" y1="16" x2="22" y2="16" stroke-linejoin="miter"></line>
-              </g>
-            </svg>
-            {% endif %}
-          </div>
-          <span class="nav-link-text ms-1">Proposal</span>
-        </a>
-
-        <div class="multi-level ms-5 collapse {% if 'proposal' in group_segment %}show{% endif %}" role="list" id="proposal-menu" aria-expanded="{% if 'proposal' in group_segment %}true{% else %}false{% endif %}">
-          <ul class="flex-column nav">
-            <li class="nav-item {% if segment == 'proposal' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'PROPOSAL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'proposal-index' 'open' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'PROPOSAL' not in role and not request.user.is_superuser %}disabled{% endif %}">List</span>
-              </a>
-            </li>
-            <li class="nav-item {% if segment == 'proposal_release' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'PROPOSAL-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'proposal-release-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'PROPOSAL-RELEASE' not in role and not request.user.is_superuser %}disabled{% endif %}">Release</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'proposal_archive' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'PROPOSAL-ARCHIVE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'proposal-archive-index' 'close' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'PROPOSAL-ARCHIVE' not in role and not request.user.is_superuser %}disabled{% endif %}">Archive</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </li> -->
-      <!-- <li class="nav-item">
         <a class="nav-link {% if group_segment == 'cl' %}active{% endif %} {% if group_segment != 'cl' %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#cl-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if group_segment == 'cl' %}
