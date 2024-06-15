@@ -12,7 +12,7 @@
 <div class="container-fluid py-0">
     <div class="row">
         <div class="col-12">
-            <div class="card mb-4 p-4">
+            <div class="card mb-6 p-4">
                 <div class="row mb-4">
                     <div class="col-6 d-flex align-items-center">
                         <h4 class="mb-0">Uang Masuk</h4>
@@ -71,7 +71,7 @@
                                         <h6 class="mb-0 text-sm text-end">{{ item.cashin_amount|intcomma }}</h6>
                                     </td>
                                     <td>
-                                        <h6 class="mb-0 text-sm">{{ item.bank }}</h6>
+                                        <h6 class="mb-0 text-sm">{% if item.bank %}{{ item.bank }}{% endif %}</h6>
                                     </td>
                                     <td>
                                         <h6 class="mb-0 text-sm">{{ item.note|truncatechars:20 }}</h6>

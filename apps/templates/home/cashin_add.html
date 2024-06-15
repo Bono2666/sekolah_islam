@@ -16,10 +16,10 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-6 d-flex align-items-center">
+                            <div class="{% if request|is_mobile %}col-11{% else %}col-6{% endif %} d-flex align-items-center">
                                 <h4 class="mb-4">Buat Uang Masuk</h4>
                             </div>
-                            <div class="col-6 text-end">
+                            <div class="{% if request|is_mobile %}col-1{% else %}col-6{% endif %} text-end">
                                 {% if request|is_mobile %}
                                 <div class="dropdown float-lg-end pe-2">
                                     <a class="cursor-pointer text-body" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
@@ -50,7 +50,7 @@
                                 <div class="col-md-6">
                                     <div class="shadow-none">
                                         {{ form.order.label_tag }}
-                                        <select name="order" class="form-control form-select-sm">
+                                        <select name="order" class="form-control form-select-sm" required>
                                             <option value="">-- Pilih Order --</option>
                                             {% for item in orders %}
                                             <option value="{{ item.order_id }}">{{ item.order_id }} - {{ item.customer_name }} - Rp. {{ item.pending_payment|intcomma }}</option>
@@ -64,7 +64,7 @@
                                 <div class="col-md-3">
                                     <div class="shadow-none">
                                         {{ form.cashin_type.label_tag }}
-                                        <select name="cashin_type" class="form-control form-select-sm">
+                                        <select name="cashin_type" class="form-control form-select-sm" required>
                                             <option value="">-- Pilih Cara Pembayaran --</option>
                                             <option value="Tunai">Tunai</option>
                                             <option value="Transfer">Transfer</option>
@@ -131,6 +131,18 @@
 
 {% block javascripts %}
 <script>
+    let cashin_type = document.getElementsByName('cashin_type')[0];
+    let bank = document.getElementsByName('bank')[0];
+
+    // remove required attribute from bank field if cashin type is tunai
+    cashin_type.addEventListener('change', function() {
+        if (cashin_type.value == 'Tunai') {
+            bank.removeAttribute('required');
+        } else {
+            bank.setAttribute('required', '');
+        }
+    });
+    
     let btn_menu = document.getElementById('dropdownTable');
     let dropdown_menu = document.getElementsByClassName('dropdown-menu');
     

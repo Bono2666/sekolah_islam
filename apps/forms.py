@@ -564,138 +564,6 @@ class FormPackageView(ModelForm):
                   'male_price', 'female_price', 'box', 'quantity', 'type']
 
 
-class FormBudget(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormBudget, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['budget_year'].label = 'Year'
-        self.fields['budget_month'].label = 'Month'
-        self.fields['budget_area'].label = 'Area'
-        self.fields['budget_distributor'].label = 'Distributor'
-        self.fields['budget_amount'].label = 'Beginning Balance'
-        self.fields['budget_upping'].label = 'Upping Price'
-        self.fields['budget_total'].label = 'Total Budget'
-        self.fields['budget_year'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
-        self.fields['budget_month'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
-        self.fields['budget_amount'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners'})
-        self.fields['budget_upping'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
-        self.fields['budget_total'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
-
-    class Meta:
-        model = Budget
-        exclude = ['budget_id', 'budget_balance', 'budget_status', 'entry_date',
-                   'entry_by', 'update_date', 'update_by']
-
-        YEAR_CHOICES = []
-        for r in range((datetime.datetime.now().year-1), (datetime.datetime.now().year+2)):
-            YEAR_CHOICES.append((r, r))
-
-        MONTH_CHOICES = []
-        for r in range(1, 13):
-            MONTH_CHOICES.append((r, r))
-
-
-class FormBudgetUpdate(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormBudgetUpdate, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['budget_upping'].label = 'Upping Price'
-        self.fields['budget_upping'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners'})
-        self.fields['budget_amount'].label = 'Beginning Balance'
-        self.fields['budget_amount'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners', 'readonly': 'readonly'})
-
-    class Meta:
-        model = Budget
-        fields = ['budget_upping', 'budget_amount']
-
-
-class FormNewBudgetUpdate(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormNewBudgetUpdate, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['budget_amount'].label = 'Beginning Balance'
-        self.fields['budget_amount'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners'})
-        self.fields['budget_upping'].label = 'Upping Price'
-        self.fields['budget_upping'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners', 'readonly': 'readonly'})
-
-    class Meta:
-        model = Budget
-        fields = ['budget_amount', 'budget_upping']
-
-
-class FormBudgetView(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormBudgetView, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['budget_year'].label = 'Year'
-        self.fields['budget_month'].label = 'Month'
-        self.fields['budget_area'].label = 'Area'
-        self.fields['budget_distributor'].label = 'Distributor'
-        self.fields['budget_amount'].label = 'Beginning Balance'
-        self.fields['budget_upping'].label = 'Upping Price'
-        self.fields['budget_total'].label = 'Total Budget'
-        self.fields['budget_amount'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
-        self.fields['budget_upping'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
-        self.fields['budget_total'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
-
-    class Meta:
-        model = Budget
-        fields = ['budget_id', 'budget_year', 'budget_month', 'budget_area',
-                  'budget_distributor', 'budget_amount', 'budget_upping', 'budget_total']
-
-        widgets = {
-            'budget_area': forms.Select(attrs={'class': 'form-control form-select-sm', 'disabled': 'disabled'}),
-            'budget_distributor': forms.Select(attrs={'class': 'form-control form-select-sm', 'disabled': 'disabled'}),
-        }
-
-
-class FormBudgetDetailUpdate(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormBudgetDetailUpdate, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['budget_percent'].label = 'Percent'
-        self.fields['budget_percent'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners'})
-
-    class Meta:
-        model = BudgetDetail
-        fields = ['budget_percent']
-
-
-class FormBudgetDetailView(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormBudgetDetailView, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-        self.fields['budget_percent'].widget = forms.NumberInput(
-            attrs={'class': 'form-control', 'readonly': 'readonly'})
-
-    class Meta:
-        model = BudgetDetail
-        fields = ['budget_percent']
-
-
-class FormBudgetApproval(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FormBudgetApproval, self).__init__(*args, **kwargs)
-        self.label_suffix = ''
-
-    class Meta:
-        model = BudgetApproval
-        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
-
-
 class FormProposalMatrix(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormProposalMatrix, self).__init__(*args, **kwargs)
@@ -1423,10 +1291,11 @@ class FormCashIn(ModelForm):
         self.fields['cashin_date'].label = 'Tanggal Pembayaran'
         self.fields['cashin_amount'].label = 'Jumlah Uang Masuk'
         self.fields['cashin_amount'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners'})
+            attrs={'class': 'form-control-sm no-spinners', 'min': 1})
         self.fields['bank'].label = 'Nama Bank'
         self.fields['bank'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
+        self.fields['bank'].required = False
         self.fields['evidence'].label = 'Bukti Pembayaran'
         self.fields['cashin_note'].label = 'Catatan'
         self.fields['cashin_note'].required = False
@@ -1467,7 +1336,7 @@ class FormCashInView(ModelForm):
 
         widgets = {
             'cashin_date': DateInput(attrs={'class': 'form-control form-control-sm', 'readonly': 'readonly'}),
-            'evidence': forms.FileInput(attrs={'class': 'form-control form-control-sm', 'readonly': 'readonly'}),
+            'evidence': forms.FileInput(attrs={'class': 'form-control form-control-sm', 'disabled': 'disabled'}),
         }
 
 
@@ -1475,22 +1344,23 @@ class FormCashInUpdate(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormCashInUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['order'].label = 'Order Pemesanan'
         self.fields['cashin_type'].label = 'Cara Pembayaran'
         self.fields['cashin_date'].label = 'Tanggal Pembayaran'
         self.fields['cashin_amount'].label = 'Jumlah Uang Masuk'
         self.fields['cashin_amount'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners'})
+            attrs={'class': 'form-control-sm no-spinners', 'min': 1})
         self.fields['bank'].label = 'Nama Bank'
         self.fields['bank'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
+        self.fields['bank'].required = False
         self.fields['evidence'].label = 'Bukti Pembayaran'
         self.fields['cashin_note'].label = 'Catatan'
         self.fields['cashin_note'].required = False
 
     class Meta:
         model = CashIn
-        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+        exclude = ['entry_date', 'entry_by',
+                   'update_date', 'update_by', 'order']
 
         widgets = {
             'cashin_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),

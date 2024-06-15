@@ -52,7 +52,7 @@
                                     Anda yakin ingin menghapus uang masuk untuk Order No. <strong>{{ data.order_id }}</strong>?
                                 </div>
                                 <div class="modal-footer border-0">
-                                    <button type="button" class="btn btn-sm bg-gradient-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
                                     <a href="{% url 'cashin-delete' data.cashin_id %}" role="button" class="btn btn-sm bg-gradient-primary text-white">Hapus
                                     </a>
                                 </div>
@@ -71,16 +71,13 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="shadow-none">
-                                        {{ form.order.label_tag }}
+                                        <label class="form-control-label">Order Pemesanan</label>
                                         <select name="order" class="form-control form-select-sm" disabled>
                                             <option value="">-- Pilih Order --</option>
                                             {% for item in orders %}
                                             <option value="{{ item.order_id }}" {% if item.order_id == data.order_id %}selected{% endif %}>{{ item.order_id }} - {{ item.customer_name }} - Rp. {{ item.pending_payment|intcomma }}</option>
                                             {% endfor %}
                                         </select>
-                                        <div class="text-sm text-danger">
-                                            {{ form.order.errors }}
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -107,16 +104,20 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="shadow-none">
                                         {{ form.cashin_amount.label_tag }}
-                                        <input type="number" name="cashin_amount" class="form-control form-control-sm" value="{{ data.cashin_amount|intcomma }}" {% if crud == 'view' %}disabled{% endif %}>
+                                        {% if crud == 'view' %}
+                                        <input type="text" name="cashin_amount" class="form-control form-control-sm" {% if crud == 'view' %}disabled{% endif %} value="{{ data.cashin_amount|intcomma }}">
+                                        {% else %}
+                                        {{ form.cashin_amount }}
+                                        {% endif %}
                                         <div class="text-sm text-danger">
                                             {{ form.cashin_amount.errors }}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="shadow-none">
                                         {{ form.bank.label_tag }}{{ form.bank }}
                                         <div class="text-sm text-danger">
@@ -124,11 +125,41 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-5">
                                     <div class="shadow-none">
-                                        {{ form.evidence.label_tag }}{{ form.evidence }}
+                                        {{ form.evidence.label_tag }}
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group input-group-alternative">
+                                            <a {% if data.evidence %}href="{{ data.evidence.url }}"{% endif %} target="_blank" class="form-control form-control-sm border">{% if data.evidence %}{{ data.evidence|truncatechars:40 }}{% else %}Tidak ada bukti pembayaran{% endif %}</a>
+                                            <span class="input-group-text bg-transparent end-0 pe-3 py-2 {% if crud == 'update' %}cursor-pointer{% endif %} text-body {% if crud == 'view' %}disabled{% endif %} z-index-0" data-bs-toggle="modal" {% if crud == 'update' %}data-bs-target="#delete-evidence"{% endif %}><i class="fas fa-times-circle"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="shadow-none">
+                                        {% if request|is_mobile %}<div class="pb-2"></div>{% else %}<label class="pb-3"></label>{% endif %}
+                                        {{ form.evidence }}
                                         <div class="text-sm text-danger">
                                             {{ form.evidence.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="delete-evidence" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                            </div>
+                                            <div class="modal-body border-bottom-0">
+                                                Anda yakin akan menghapus bukti pembayaran ini?
+                                            </div>
+                                            <div class="modal-footer border-0">
+                                                <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                <a href="{% url 'remove-evidence' data.cashin_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -155,6 +186,18 @@
 
 {% block javascripts %}
 <script>
+    let cashin_type = document.getElementsByName('cashin_type')[0];
+    let bank = document.getElementsByName('bank')[0];
+
+    // remove required attribute from bank field if cashin type is tunai
+    cashin_type.addEventListener('change', function() {
+        if (cashin_type.value == 'Tunai') {
+            bank.removeAttribute('required');
+        } else {
+            bank.setAttribute('required', '');
+        }
+    });
+
     let btn_menu = document.getElementById('dropdownTable');
     let dropdown_menu = document.getElementsByClassName('dropdown-menu');
     
