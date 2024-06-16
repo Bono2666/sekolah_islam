@@ -28,8 +28,8 @@
                                     <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownTable">
                                         <li><a class="dropdown-item border-radius-md" href="{% if crud == 'view' %}{% url 'cashin-index' %}{% else %}{% url 'cashin-view' data.cashin_id %}{% endif %}">{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a></li>
                                         <li><a class="dropdown-item border-radius-md" href="{% url 'cashin-update' data.cashin_id '0' %}" {% if not btn.edit and not request.user.is_superuser %}hidden{% endif %} {% if crud == 'update' %}hidden{% endif %}>Edit</a></li>
-                                        <li><button class="dropdown-item border-radius-md" {% if crud == 'view' %}hidden{% endif %} type="submit">Simpan</button></li>
-                                        <li><button class="dropdown-item border-radius-md" {% if crud == 'update' %}hidden{% endif %} {% if not btn.edit and not request.user.is_superuser %}hidden{% endif %} data-bs-toggle="modal" data-bs-target="#confirm-{{ data.cashin_id }}">Hapus</button></li>
+                                        <li><button class="dropdown-item border-radius-md text-body" {% if crud == 'view' %}hidden{% endif %} type="submit">Simpan</button></li>
+                                        <li><button class="dropdown-item border-radius-md text-body" {% if crud == 'update' %}hidden{% endif %} {% if not btn.edit and not request.user.is_superuser %}hidden{% endif %} data-bs-toggle="modal" data-bs-target="#confirm-{{ data.cashin_id }}">Hapus</button></li>
                                     </ul>
                                 </div>
                                 {% else %}

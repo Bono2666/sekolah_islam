@@ -1308,6 +1308,7 @@ class Customer(models.Model):
     customer_city = models.CharField(max_length=50, null=True)
     customer_province = models.CharField(max_length=50, null=True)
     customer_phone = models.CharField(max_length=50, null=True)
+    customer_phone2 = models.CharField(max_length=50, null=True)
     customer_email = models.CharField(max_length=50, null=True)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)

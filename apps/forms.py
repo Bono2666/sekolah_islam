@@ -888,8 +888,11 @@ class FormCustomer(ModelForm):
         self.fields['customer_province'].label = 'Propinsi'
         self.fields['customer_province'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
-        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].label = 'Telepon 1'
         self.fields['customer_phone'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_phone2'].label = 'Telepon 2'
+        self.fields['customer_phone2'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
@@ -919,8 +922,11 @@ class FormCustomerUpdate(ModelForm):
         self.fields['customer_province'].label = 'Propinsi'
         self.fields['customer_province'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
-        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].label = 'Telepon 1'
         self.fields['customer_phone'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['customer_phone2'].label = 'Telepon 2'
+        self.fields['customer_phone2'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
@@ -950,8 +956,11 @@ class FormCustomerView(ModelForm):
         self.fields['customer_province'].label = 'Propinsi'
         self.fields['customer_province'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
-        self.fields['customer_phone'].label = 'Telepon'
+        self.fields['customer_phone'].label = 'Telepon 1'
         self.fields['customer_phone'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['customer_phone2'].label = 'Telepon 2'
+        self.fields['customer_phone2'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
@@ -1007,10 +1016,10 @@ class FormOrder(ModelForm):
             attrs={'class': 'form-control-sm'})
         self.fields['customer_phone'].label = 'Telepon 1'
         self.fields['customer_phone'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm'})
+            attrs={'class': 'form-control-sm', 'placeholder': '08xxxxxxxxxx'})
         self.fields['customer_phone2'].label = 'Telepon 2'
         self.fields['customer_phone2'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm'})
+            attrs={'class': 'form-control-sm', 'placeholder': '08xxxxxxxxxx'})
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
             attrs={'class': 'form-control-sm'})
@@ -1049,10 +1058,10 @@ class FormOrderUpdate(ModelForm):
             attrs={'class': 'form-control-sm'})
         self.fields['customer_phone'].label = 'Telepon 1'
         self.fields['customer_phone'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm'})
+            attrs={'class': 'form-control-sm', 'placeholder': '08xxxxxxxxxx'})
         self.fields['customer_phone2'].label = 'Telepon 2'
         self.fields['customer_phone2'].widget = forms.TextInput(
-            attrs={'class': 'form-control-sm'})
+            attrs={'class': 'form-control-sm', 'placeholder': '08xxxxxxxxxx'})
         self.fields['customer_email'].label = 'Email'
         self.fields['customer_email'].widget = forms.EmailInput(
             attrs={'class': 'form-control-sm'})

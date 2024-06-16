@@ -61,11 +61,19 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-3">
                                             <div class="shadow-none">
                                                 {{ form.customer_phone.label_tag }}{{ form.customer_phone }}
                                                 <div class="text-sm text-danger">
                                                     {{ form.customer_phone.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="shadow-none">
+                                                {{ form.customer_phone2.label_tag }}{{ form.customer_phone2 }}
+                                                <div class="text-sm text-danger">
+                                                    {{ form.customer_phone2.errors }}
                                                 </div>
                                             </div>
                                         </div>
@@ -356,6 +364,17 @@
         $('#tabTable').DataTable({
             'pageLength': 5,
             'lengthMenu': [[5, 10, -1], [5, 10, 'All']],
+            'language': {
+                'search': 'Cari: ',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'next': 'Selanjutnya',
+                    'previous': 'Sebelumnya'
+                }
+            }
         });
 
         let btn = document.getElementsByClassName('paginate_button');

@@ -5154,18 +5154,20 @@ def cashin_index(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='CASH-IN')
-def cashin_add(request, _msg):
+def cashin_add(request, _id, _msg):
     orders = Order.objects.filter(order_status__in=['DP', 'CONFIRMED'], regional_id__in=AreaUser.objects.filter(
         user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id')
+    order = Order.objects.get(order_id=_id) if Order.objects.filter(
+        order_id=_id) else None
 
     if request.POST:
         form = FormCashIn(request.POST, request.FILES)
         if form.is_valid():
             cash_in = form.save(commit=False)
-            cash_in.order_id = request.POST.get('order')
+            cash_in.order_id = _id
             cash_in.cashin_type = request.POST.get('cashin_type')
             if cash_in.cashin_amount > Order.objects.get(order_id=request.POST.get('order')).pending_payment:
-                return HttpResponseRedirect(reverse('cashin-add', args=['1']))
+                return HttpResponseRedirect(reverse('cashin-add', args=[_id, '1']))
             cash_in.save()
 
             if not settings.DEBUG:
@@ -5194,6 +5196,8 @@ def cashin_add(request, _msg):
     context = {
         'form': form,
         'orders': orders,
+        'order': order,
+        'order_id': _id,
         'msg': _msg,
         'segment': 'cash-in',
         'group_segment': 'accounting',
@@ -5481,13 +5485,16 @@ def order_invoice(request, _id):
             if cuisine:
                 row.append(cuisine)
 
+        cuisines = [package[i - 1].side_cuisine2, package[i - 1].side_cuisine3,
+                    package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
+
         for j in range(0, len(row)):
-            str_cuisine += row[j] + ' - '
+            str_cuisine += row[j]
+            if j < len(row) - 1 and len(cuisines) > 0:
+                str_cuisine += ' - '
 
         pdf_file.drawString(200, y + 5, str_cuisine)
 
-        cuisines = [package[i - 1].side_cuisine2, package[i - 1].side_cuisine3,
-                    package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
         row = []
         str_cuisine = ''
         str_box = ''

@@ -46,9 +46,9 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="shadow-none">
-                                                {{ form.customer_email.label_tag }}{{ form.customer_email }}
+                                                {{ form.customer_phone2.label_tag }}{{ form.customer_phone2 }}
                                                 <div class="text-sm text-danger">
-                                                    {{ form.customer_email.errors }}
+                                                    {{ form.customer_phone2.errors }}
                                                 </div>
                                             </div>
                                         </div>
@@ -64,7 +64,15 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <div class="shadow-none">
+                                        {{ form.customer_email.label_tag }}{{ form.customer_email }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.customer_email.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
                                     <div class="shadow-none">
                                         {{ form.customer_district.label_tag }}{{ form.customer_district }}
                                         <div class="text-sm text-danger">
@@ -72,7 +80,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="shadow-none">
                                         {{ form.customer_city.label_tag }}{{ form.customer_city }}
                                         <div class="text-sm text-danger">
@@ -80,7 +88,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="shadow-none">
                                         {{ form.customer_province.label_tag }}{{ form.customer_province }}
                                         <div class="text-sm text-danger">

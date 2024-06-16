@@ -39,7 +39,15 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-4">
+                                            <div class="shadow-none">
+                                                {{ form.customer_phone.label_tag }}{{ form.customer_phone }}
+                                                <div class="text-sm text-danger">
+                                                    {{ form.customer_phone.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
                                             <div class="shadow-none">
                                                 {{ form.customer_name.label_tag }}{{ form.customer_name }}
                                                 <div class="text-sm text-danger">
@@ -51,21 +59,13 @@
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="shadow-none">
-                                                {{ form.customer_phone.label_tag }}{{ form.customer_phone }}
-                                                <div class="text-sm text-danger">
-                                                    {{ form.customer_phone.errors }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="shadow-none">
                                                 {{ form.customer_phone2.label_tag }}{{ form.customer_phone2 }}
                                                 <div class="text-sm text-danger">
                                                     {{ form.customer_phone2.errors }}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-8">
                                             <div class="shadow-none">
                                                 {{ form.customer_email.label_tag }}{{ form.customer_email }}
                                                 <div class="text-sm text-danger">

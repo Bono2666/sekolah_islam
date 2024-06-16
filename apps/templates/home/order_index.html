@@ -100,17 +100,39 @@
     $(document).ready( function () {
         if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             $('#myTable').DataTable({
-                scrollX: true,
-                pageLength: 25, 
-                order: [[1, 'desc']],
-                lengthChange: false,
+                'scrollX': true,
+                'pageLength': 25, 
+                'order': [[1, 'desc']],
+                'lengthChange': false,
+                'language': {
+                    'search': 'Cari: ',
+                    'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                    'lengthMenu': 'Tampilkan _MENU_ data',
+                    'infoEmpty': '',
+                    'zeroRecords': 'Tidak ada data',
+                    'paginate': {
+                        'next': 'Selanjutnya',
+                        'previous': 'Sebelumnya'
+                    }
+                }
             });
         } else {
             new DataTable('#myTable', {
-                scrollX: true,
-                pageLength: 25,
-                lengthMenu: [25, 50, 100, 250, 500],
-                order: [[1, 'desc']],
+                'scrollX': true,
+                'pageLength': 25,
+                'lengthMenu': [25, 50, 100, 250, 500],
+                'order': [[1, 'desc']],
+                'language': {
+                    'search': 'Cari: ',
+                    'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                    'lengthMenu': 'Tampilkan _MENU_ data',
+                    'infoEmpty': '',
+                    'zeroRecords': 'Tidak ada data',
+                    'paginate': {
+                        'next': 'Selanjutnya',
+                        'previous': 'Sebelumnya'
+                    }
+                }
             });
         }
 

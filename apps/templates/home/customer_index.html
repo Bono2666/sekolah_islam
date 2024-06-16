@@ -29,7 +29,9 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                         Email</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                        Phone</th>
+                                        Phone 1</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                        Phone 2</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -51,6 +53,9 @@
                                     <td>
                                         <h6 class="mb-0 text-sm">{{ item.customer_phone }}</h6>
                                     </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ item.customer_phone2 }}</h6>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -69,7 +74,19 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready( function () {
-        $('#myTable').DataTable();
+        $('#myTable').DataTable({
+            'language': {
+                'search': 'Cari: ',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'next': 'Selanjutnya',
+                    'previous': 'Sebelumnya'
+                }
+            }
+        });
 
         $(document).on('click', 'tbody tr', function() {
             var href = $(this).data('href');

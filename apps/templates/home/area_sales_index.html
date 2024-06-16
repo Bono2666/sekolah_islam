@@ -63,7 +63,19 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready( function () {
-      $('#myTable').DataTable();
+      $('#myTable').DataTable({
+        'language': {
+            'search': 'Cari: ',
+            'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+            'lengthMenu': 'Tampilkan _MENU_ data',
+            'infoEmpty': '',
+            'zeroRecords': 'Tidak ada data',
+            'paginate': {
+                'next': 'Selanjutnya',
+                'previous': 'Sebelumnya'
+            }
+        }
+      });
       
       btn = document.getElementsByClassName('paginate_button');
       for (var i = 0; i < btn.length; i++) {
