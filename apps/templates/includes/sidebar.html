@@ -62,14 +62,14 @@
             </svg>
             {% endif %}
           </div>
-          <span class="nav-link-text ms-1">Transaction</span>
+          <span class="nav-link-text ms-1">Transaksi</span>
         </a>
 
         <div class="multi-level ms-5 collapse {% if 'transaction' in group_segment %}show{% endif %}" role="list" id="claim-menu" aria-expanded="{% if 'claim' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
             <li class="nav-item {% if segment == 'order' %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'order-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}">Sales Order</span>
+                <span class="nav-link-text ms-1 {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}">Order Pemesanan</span>
               </a>
             </li>
             <!-- <li class="nav-item {% if segment == 'claim_release' %}active{% endif %} list-unstyled">
@@ -104,7 +104,7 @@
             </svg>
             {% endif %}
           </div>
-          <span class="nav-link-text ms-1">Accounting</span>
+          <span class="nav-link-text ms-1">Keuangan</span>
         </a>
 
         <div class="multi-level ms-5 collapse {% if 'accounting' in group_segment %}show{% endif %}" role="list" id="accounting-menu" aria-expanded="{% if 'accounting' in group_segment %}true{% else %}false{% endif %}">
@@ -140,19 +140,19 @@
             </svg>
             {% endif %}
           </div>
-          <span class="nav-link-text ms-1">Master Data</span>
+          <span class="nav-link-text ms-1">Data Master</span>
         </a>
 
         <div class="multi-level ms-5 collapse {% if 'master' in group_segment %}show{% endif %}" role="list" id="user-menu" aria-expanded="{% if 'master' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
             <li class="nav-item {% if 'user' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'USER' not in role and not request.user.is_superuser %}d-none{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'user-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'USER' not in role and not request.user.is_superuser %}d-none{% endif %}">User</span>
+                <span class="nav-link-text ms-1 {% if 'USER' not in role and not request.user.is_superuser %}d-none{% endif %}">Pengguna</span>
               </a>
             </li>
             <li class="nav-item {% if 'customer' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'customer-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}">Customer</span>
+                <span class="nav-link-text ms-1 {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}">Pelanggan</span>
               </a>
             </li>
             <li class="nav-item {% if 'area_sales' in segment %}active{% endif %} list-unstyled">
