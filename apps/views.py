@@ -4441,29 +4441,36 @@ def customer_detail_delete(request, _id):
 
 
 def order_add(request, _reg):
-    try:
-        _no = Order.objects.filter(
-            order_date__year=datetime.datetime.now().year).latest('seq_number').seq_number
-    except Order.DoesNotExist:
-        _no = None
-    if _no is None:
-        format_no = '{:05d}'.format(1)
-    else:
-        format_no = '{:05d}'.format(_no + 1)
+    num = _reg.split('/')[1] if '/' in _reg else '0'
 
-    _id = 'INV-1' + format_no + '/' + _reg.upper() + '/SA/' + str(datetime.datetime.now().strftime('%m')) + \
-        '/' + str(datetime.datetime.now().year)
+    if num == '0':
+        try:
+            _no = Order.objects.filter(
+                order_date__year=datetime.datetime.now().year).latest('seq_number')
+        except Order.DoesNotExist:
+            _no = None
+
+        if _no is None:
+            format_no = '{:05d}'.format(1)
+            num = 1
+        else:
+            format_no = '{:05d}'.format(_no.seq_number + 1)
+            _no.seq_number += 1
+            _no.save()
+            num = _no.seq_number
+
+        _id = 'INV-1' + format_no + '/' + _reg.upper() + '/SA/' + str(datetime.datetime.now().strftime('%m')) + \
+            '/' + str(datetime.datetime.now().year)
 
     if request.POST:
         form = FormOrder(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
-            order.order_id = _id
-            order.regional_id = _reg
-            order.seq_number = _no + 1 if _no else 1
+            order.regional_id = _reg.split('/')[0]
+            order.seq_number = num
             order.save()
 
-            return HttpResponseRedirect(reverse('order-child-add', args=[_id, 0]))
+            return HttpResponseRedirect(reverse('order-child-add', args=[order.order_id, 0]))
     else:
         form = FormOrder(initial={'order_id': _id})
 
@@ -4471,7 +4478,7 @@ def order_add(request, _reg):
     context = {
         'form': form,
         'crud': 'add',
-        'reg': _reg,
+        'reg': _reg+'/'+str(num),
         'msg': msg,
     }
     return render(request, 'home/order_add.html', context)

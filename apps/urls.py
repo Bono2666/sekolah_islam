@@ -222,7 +222,7 @@ urlpatterns = [
          views.customer_detail_update, name='customer-detail-update'),
     path('master/customer-detail/delete/<str:_id>/',
          views.customer_detail_delete, name='customer-detail-delete'),
-    path('order/new/<str:_reg>/', views.order_add, name='order-add'),
+    path('order/new/<path:_reg>/', views.order_add, name='order-add'),
     path('order/update/<path:_id>/', views.order_update, name='order-update'),
     path('order/child/add/<path:_id>/<int:_add>/',
          views.order_child_add, name='order-child-add'),
