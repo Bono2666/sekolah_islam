@@ -17,7 +17,7 @@
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'order-child-add' order_id 0 %}" id="form-add" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card mb-4">
+                <div class="card mb-4 z-index-3">
                     <div class="card-header">
                         <div class="row">
                             <div class="col-8 d-flex align-items-center">

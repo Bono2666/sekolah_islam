@@ -15,7 +15,7 @@
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'order-confirm' data.order_id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card">
+                <div class="card z-index-3">
                     <div class="card-header">
                         <div class="row">
                             <div class="col-12 d-flex align-items-center">
@@ -106,7 +106,7 @@
 <div class="container-fluid py-2">
     <div class="row">
         <div class="col-12">
-            <div class="card mb-0 p-4">
+            <div class="card mb-0 p-4 z-index-3">
                 <div class="row mb-3">
                     <div class="col-12 d-flex align-items-center">
                         <h5 class="mb-0">Informasi Anak</h5>
@@ -164,7 +164,7 @@
 <div class="container-fluid py-2">
     <div class="row">
         <div class="col-12">
-            <div class="card mb-0 p-4">
+            <div class="card mb-0 p-4 z-index-3">
                 <div class="row mb-3">
                     <div class="col-6 d-flex align-items-center">
                         <h5 class="mb-0">Paket Aqiqah</h5>
@@ -237,7 +237,7 @@
 <div class="container-fluid pt-2 pb-4">
     <div class="row">
         <div class="col-12">
-            <div class="card mb-4 p-4">
+            <div class="card mb-4 p-4 z-index-3">
                 <div class="row mb-3">
                     <div class="col-6 d-flex align-items-center">
                         <h5 class="mb-0">Konfirmasi</h5>
@@ -305,10 +305,10 @@
                         </div>
                         <div class="row mt-4">
                             <div class="col-5">
-                                <a href="{% url 'order-confirm-update' data.order_id %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
+                                <a href="{% url 'order-confirm-update' data.order_id %}" class="btn btn-sm bg-gradient-dark mb-0 px-3"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
                             </div>
                             <div class="col-7 text-end">
-                                <a href="{% url 'order-submit' data.order_id %}" type="button" class="btn btn-sm bg-gradient-warning mb-0 px-4">Kirim Pesanan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></a>
+                                <a href="{% url 'order-submit' data.order_id %}" type="button" class="btn btn-sm bg-gradient-warning mb-0 px-3">Kirim Pesanan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></a>
                             </div>
                         </div>
                     </div>

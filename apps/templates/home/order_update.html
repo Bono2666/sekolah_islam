@@ -15,7 +15,7 @@
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'order-update' data.order_id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card">
+                <div class="card z-index-3">
                     <div class="card-header">
                         <div class="row">
                             <div class="col-12 d-flex align-items-center">

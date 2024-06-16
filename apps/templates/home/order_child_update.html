@@ -17,13 +17,13 @@
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'order-child-update' data.order_id data.id 0 %}" id="form-add" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card mb-4">
+                <div class="card mb-4 z-index-3">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-8 d-flex align-items-center">
+                            <div class="{% if request|is_mobile %}col-11{% else %}col-8{% endif %} d-flex align-items-center">
                                 <h5 class="mb-4">Data Anak ({{ n_child }} dari {{ children.count }})</h5>
                             </div>
-                            <div class="col-4 text-end">
+                            <div class="{% if request|is_mobile %}col-1{% else %}col-4{% endif %} text-end">
                                 {% if request|is_mobile %}
                                     <div class="dropdown float-lg-end pe-2">
                                         <a class="cursor-pointer text-body" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
