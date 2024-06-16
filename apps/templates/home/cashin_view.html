@@ -75,7 +75,7 @@
                                         <select name="order" class="form-control form-select-sm" disabled>
                                             <option value="">-- Pilih Order --</option>
                                             {% for item in orders %}
-                                            <option value="{{ item.order_id }}" {% if item.order_id == data.order_id %}selected{% endif %}>{{ item.order_id }} - {{ item.customer_name }} - Rp. {{ item.pending_payment|intcomma }}</option>
+                                            <option value="{{ item.order_id }}" {% if item.order_id == data.order_id %}selected{% endif %}>{{ item.order_id }} - {% if request|is_mobile %}{{ item.customer_name|truncatechars:8 }}{% else %}{{ item.customer_name }}{% endif %}{% if not request|is_mobile %} - Rp. {{ item.pending_payment|intcomma }}{% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>

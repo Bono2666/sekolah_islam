@@ -1295,7 +1295,6 @@ class FormCashIn(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormCashIn, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['order'].label = 'Order Pemesanan'
         self.fields['cashin_type'].label = 'Cara Pembayaran'
         self.fields['cashin_date'].label = 'Tanggal Pembayaran'
         self.fields['cashin_amount'].label = 'Jumlah Uang Masuk'
@@ -1311,7 +1310,8 @@ class FormCashIn(ModelForm):
 
     class Meta:
         model = CashIn
-        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+        exclude = ['order', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
 
         widgets = {
             'cashin_date': DateInput(attrs={'class': 'form-control form-control-sm', 'data-provide': 'datepicker', 'data-date-format': 'dd/mm/yyyy'}),
@@ -1324,7 +1324,6 @@ class FormCashInView(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormCashInView, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['order'].label = 'Order Pemesanan'
         self.fields['cashin_type'].label = 'Cara Pembayaran'
         self.fields['cashin_date'].label = 'Tanggal Pembayaran'
         self.fields['cashin_amount'].label = 'Jumlah Uang Masuk'
@@ -1340,7 +1339,7 @@ class FormCashInView(ModelForm):
 
     class Meta:
         model = CashIn
-        exclude = ['cashin_id', 'entry_date',
+        exclude = ['order', 'cashin_id', 'entry_date',
                    'entry_by', 'update_date', 'update_by']
 
         widgets = {
@@ -1368,7 +1367,7 @@ class FormCashInUpdate(ModelForm):
 
     class Meta:
         model = CashIn
-        exclude = ['entry_date', 'entry_by',
+        exclude = ['order', 'entry_date', 'entry_by',
                    'update_date', 'update_by', 'order']
 
         widgets = {

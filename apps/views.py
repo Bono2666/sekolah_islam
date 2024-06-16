@@ -5166,7 +5166,7 @@ def cashin_add(request, _id, _msg):
             cash_in = form.save(commit=False)
             cash_in.order_id = _id
             cash_in.cashin_type = request.POST.get('cashin_type')
-            if cash_in.cashin_amount > Order.objects.get(order_id=request.POST.get('order')).pending_payment:
+            if cash_in.cashin_amount > Order.objects.get(order_id=_id).pending_payment:
                 return HttpResponseRedirect(reverse('cashin-add', args=[_id, '1']))
             cash_in.save()
 
@@ -5178,8 +5178,7 @@ def cashin_add(request, _id, _msg):
                     for chunk in my_file.chunks():
                         temp_file.write(chunk)
 
-            selected_order = Order.objects.get(
-                order_id=request.POST.get('order'))
+            selected_order = Order.objects.get(order_id=_id)
             if cash_in.cashin_amount == selected_order.pending_payment:
                 selected_order.order_status = 'LUNAS'
             else:
@@ -5199,6 +5198,7 @@ def cashin_add(request, _id, _msg):
         'order': order,
         'order_id': _id,
         'msg': _msg,
+        # 'error': msg,
         'segment': 'cash-in',
         'group_segment': 'accounting',
         'crud': 'add',

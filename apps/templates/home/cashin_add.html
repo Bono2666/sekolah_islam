@@ -46,29 +46,27 @@
                                 <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-times"></i></button>
                             </div>
                             {% endif %}
+                            {% if error %}
+                            <div class="alert alert-danger alert-dismissible fade show py-2 text-sm" role="alert">
+                                <span class="alert-icon text-white"><i class="fas fa-exclamation-triangle"></i></span>
+                                <span class="alert-text text-white">&nbsp;&nbsp;{{ error }}</span>
+                                <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-times"></i></button>
+                            </div>
+                            {% endif %}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="shadow-none">
-                                        {{ form.order.label_tag }}
+                                        <label class="form-control-label" for="order_id">Order Pemesanan</label>
                                         <div class="input-group">
                                             <div class="input-group input-group-alternative">
                                                 {% if order_id == '0' %}
                                                 <a class="form-control form-control-sm border cursor-pointer" data-bs-toggle="modal" data-bs-target="#orders">-- Pilih Order --</a>
                                                 {% else %}
-                                                <a class="form-control form-control-sm border cursor-pointer" data-bs-toggle="modal" data-bs-target="#orders">{{ order_id }} - {% if request|is_mobile %}{{ order.customer_name|truncatechars:12 }}{% else %}{{ order.customer_name }}{% endif %}{% if not request|is_mobile %} - Rp. {{ order.pending_payment|intcomma }}{% endif %}</a>
+                                                <a class="form-control form-control-sm border cursor-pointer" data-bs-toggle="modal" data-bs-target="#orders">{{ order_id }} - {% if request|is_mobile %}{{ order.customer_name|truncatechars:8 }}{% else %}{{ order.customer_name }}{% endif %}{% if not request|is_mobile %} - Rp. {{ order.pending_payment|intcomma }}{% endif %}</a>
                                                 {% endif %}
                                                 <span class="input-group-text bg-transparent end-0 pe-3 py-2 cursor-pointer text-body z-index-0" data-bs-toggle="modal" data-bs-target="#orders"><i class="fas fa-angle-down"></i></span>
                                             </div>
                                         </div>
-                                        <!-- <select name="order" class="form-control form-select-sm" required>
-                                            <option value="">-- Pilih Order --</option>
-                                            {% for item in orders %}
-                                            <option value="{{ item.order_id }}">{{ item.order_id }} - {{ item.customer_name }} - Rp. {{ item.pending_payment|intcomma }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <div class="text-sm text-danger">
-                                            {{ form.order.errors }}
-                                        </div> -->
                                     </div>
                                 </div>
                                 <div class="col-md-3">
