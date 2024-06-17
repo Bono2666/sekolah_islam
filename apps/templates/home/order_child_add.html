@@ -123,6 +123,7 @@
     let add = document.getElementById('add');
     let form = document.getElementById('form-add');
     let btn_menu = document.getElementById('dropdownTable');
+    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
 
     add.addEventListener('click', function() {
         form.action = "{% url 'order-child-add' order_id 1 %}";
