@@ -70,7 +70,7 @@
                                         <h6 class="mb-0 text-sm text-end">{{ item.pending_payment|intcomma }}</h6>
                                     </td>
                                     <td>
-                                        <button class="text-xs text-white border-0 rounded-3 px-3 py-1 bg-gradient-primary">{{ item.order_status }}</button>
+                                        <span class="badge rounded-pill badge-notification bg-gradient-primary text-white px-3 py-1">{{ item.order_status }}</span>
                                     </td>
                                     <td>
                                         <h6 class="mb-0 text-sm">{{ item.entry_date|date:'d M Y' }}</h6>

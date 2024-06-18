@@ -4,6 +4,8 @@
 
 {% block content %}
 
+{% load user_agents %}
+
 <div class="container-fluid mt-0">
     <div class="row">
         <div class="col-xl-12 order-xl-1">
@@ -12,14 +14,28 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-4 d-flex align-items-center">
+                            <div class="{% if request|is_mobile %}col-11{% else %}col-4{% endif %} d-flex align-items-center">
                                 <h4 class="mb-2">ID Customer: {{ data.customer_id }}</h4>
                             </div>
-                            <div class="col-8 text-end">
+                            <div class="{% if request|is_mobile %}col-1{% else %}col-8{% endif %} text-end">
+                                {% if request|is_mobile %}
+                                <div class="dropdown float-lg-end pe-2 mt-2" {% if not btn.edit and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}>
+                                    <a class="cursor-pointer text-body" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </a>
+                                    <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownTable">
+                                        <li><a href="{% if crud == 'view' %}{% url 'customer-index' %}{% else %}{% url 'customer-view' data.customer_id '0' %}{% endif %}" class="dropdown-item border-radius-md">{% if crud == 'view' %}Back{% else %}Batal{% endif %}</a></li>
+                                        <li><a href="{% url 'customer-update' data.customer_id %}" class="dropdown-item border-radius-md" {% if not btn.edit and not request.user.is_superuser %}hidden{% endif %} {% if crud == 'update' %}hidden{% endif %}>Edit</a></li>
+                                        <li><button type="submit" class="dropdown-item border-radius-md text-body" {% if crud == 'view' %}hidden{% endif %}>Simpan</button></li>
+                                        <li><a type="button" class="dropdown-item border-radius-md text-primary" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.customer_id }}" {% if not btn.delete and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}>Hapus</a></li>
+                                    </ul>
+                                </div>
+                                {% else %}
                                 <a href="{% if crud == 'view' %}{% url 'customer-index' %}{% else %}{% url 'customer-view' data.customer_id '0' %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Back{% else %}Batal{% endif %}</a>
                                 <a href="{% url 'customer-update' data.customer_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</a>
                                 <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
                                 <button type="button" class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.customer_id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -132,13 +148,24 @@
 <div class="container-fluid py-2">
     <div class="row">
         <div class="col-12">
-            <div class="card mb-4 px-4 py-2">
+            <div class="card {% if request|is_mobile %}mb-6{% else %}mb-4{% endif %} px-4 py-2">
                 <div class="row">
-                    <div class="col-6 d-flex align-items-center">
+                    <div class="{% if request|is_mobile %}col-11{% else %}col-6{% endif %} d-flex align-items-center">
                         <h5 class="mb-0"></h5>
                     </div>
-                    <div class="col-6 text-end">
+                    <div class="{% if request|is_mobile %}col-1{% else %}col-6{% endif %} text-end">
+                        {% if request|is_mobile %}
+                        <div class="dropdown float-lg-end pe-2 mt-2" {% if not btn.edit and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}>
+                            <a class="cursor-pointer text-body" id="dropdownChild" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownChild">
+                                <li><a class="dropdown-item border-radius-md" data-bs-toggle="modal" data-bs-target="#dialog-popup">Tambah Anak</a></li>
+                            </ul>
+                        </div>
+                        {% else %}
                         <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Anak</button>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="modal modal-lg fade" id="dialog-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -213,7 +240,7 @@
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-0">
-                        <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabTable">
+                        <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="{% if request|is_mobile%}childTable{% else %}tabTable{% endif %}">
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
@@ -361,21 +388,43 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready( function () {
-        $('#tabTable').DataTable({
-            'pageLength': 5,
-            'lengthMenu': [[5, 10, -1], [5, 10, 'All']],
-            'language': {
-                'search': 'Cari: ',
-                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
-                'lengthMenu': 'Tampilkan _MENU_ data',
-                'infoEmpty': '',
-                'zeroRecords': 'Tidak ada data',
-                'paginate': {
-                    'next': 'Selanjutnya',
-                    'previous': 'Sebelumnya'
+        if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            $('#childTable').DataTable({
+                'pageLength': 5,
+                'lengthMenu': [[5, 10, -1], [5, 10, 'All']],
+                'order': [[1, 'asc']],
+                'language': {
+                    'search': 'Cari: ',
+                    'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                    'lengthMenu': 'Tampilkan _MENU_ data',
+                    'infoEmpty': '',
+                    'zeroRecords': 'Tidak ada data',
+                    'paginate': {
+                        'next': 'Selanjutnya',
+                        'previous': 'Sebelumnya'
+                    }
+                },
+                'scrollX': true,
+                'lengthChange': false,
+            });
+        } else {
+            $('#tabTable').DataTable({
+                'pageLength': 5,
+                'lengthMenu': [[5, 10, -1], [5, 10, 'All']],
+                'order': [[1, 'asc']],
+                'language': {
+                    'search': 'Cari: ',
+                    'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                    'lengthMenu': 'Tampilkan _MENU_ data',
+                    'infoEmpty': '',
+                    'zeroRecords': 'Tidak ada data',
+                    'paginate': {
+                        'next': 'Selanjutnya',
+                        'previous': 'Sebelumnya'
+                    }
                 }
-            }
-        });
+            });
+        }
 
         let btn = document.getElementsByClassName('paginate_button');
         for (const button of btn) {
@@ -388,6 +437,19 @@
                 $(this).css('background-color', 'transparent');
             });
         }
-    } );
+    });
+
+    let btn_menu = document.getElementById('dropdownTable');
+    let btn_child = document.getElementById('dropdownChild');
+    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
+    
+    // open dropdown menu
+    btn_menu.addEventListener('click', function() {
+        dropdown_menu[0].classList.toggle('show');
+    });
+
+    btn_child.addEventListener('click', function() {
+        dropdown_menu[1].classList.toggle('show');
+    });
 </script>
 {% endblock javascripts %}

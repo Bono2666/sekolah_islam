@@ -969,7 +969,7 @@ class FormCustomerView(ModelForm):
     class Meta:
         model = Customer
         fields = ['customer_id', 'customer_name', 'customer_address',
-                  'customer_district', 'customer_city', 'customer_province', 'customer_phone', 'customer_email']
+                  'customer_district', 'customer_city', 'customer_province', 'customer_phone', 'customer_phone2', 'customer_email']
 
 
 class FormCustomerDetail(ModelForm):

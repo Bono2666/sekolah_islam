@@ -32,9 +32,9 @@
                                     <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownTable">
                                         <li><a class="dropdown-item border-radius-md" href="{% if crud == 'view' %}{% url 'order-index' %}{% else %}{% url 'order-view' data.order_id '0' '0' '0' '0' %}{% endif %}">{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a></li>
                                         <li><a class="dropdown-item border-radius-md" {% if not btn.edit and not request.user.is_superuser %}hidden{% endif %}{% if status == 'BATAL' %}hidden{% endif %} {% if crud == 'update' %}hidden{% endif %} href="{% url 'order-cs-update' data.order_id '0' '0' '0' %}">Ubah</a></li>
-                                        <li><a class="dropdown-item border-radius-md" id="save-btn" type="submit" {% if crud == 'view' %}hidden{% endif %}>Simpan</a></li>
+                                        <li><button class="dropdown-item border-radius-md text-body" id="save-btn" type="submit" {% if crud == 'view' %}hidden{% endif %}>Simpan</button></li>
                                         <li><a class="dropdown-item border-radius-md" {% if status != 'DRAFT' %}hidden{% else %}{% if not btn.edit and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}{% endif %} data-bs-toggle="modal" data-bs-target="#confirm-{{ data.order_id }}">Confirmed</a></li>
-                                        <li><a class="dropdown-item border-radius-md" {% if status == 'SELESAI' or status == 'BATAL' %}hidden{% else %}{% if not btn.delete and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}{% endif %} data-bs-toggle="modal" data-bs-target="#cancel">Batal</a></li>
+                                        <li><a class="dropdown-item border-radius-md text-primary" {% if status == 'SELESAI' or status == 'BATAL' %}hidden{% else %}{% if not btn.delete and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}{% endif %} data-bs-toggle="modal" data-bs-target="#cancel">Batal</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -44,7 +44,7 @@
                                 <a href="{% url 'order-cs-update' data.order_id '0' '0' '0' %}" class="btn btn-sm bg-gradient-dark mb-0 px-4 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}{% if status == 'BATAL' %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah</a>
                                 <button type="submit" id="save-btn" class="btn btn-sm bg-gradient-dark mb-0 px-4" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
                                 <button type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4 {% if status != 'DRAFT' %}disabled{% else %}{% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.order_id }}"><i class="fas fa-check"></i>&nbsp;&nbsp;Confirmed</button>
-                                <button type="button" class="btn btn-sm bg-gradient-warning mb-0 px-4 {% if status == 'SELESAI' or status == 'BATAL' %}disabled{% else %}{% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#cancel"><i class="fas fa-times-circle"></i>&nbsp;&nbsp;Batal</button>
+                                <button type="button" class="btn btn-sm bg-gradient-primary mb-0 px-4 {% if status == 'SELESAI' or status == 'BATAL' %}disabled{% else %}{% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#cancel"><i class="fas fa-times-circle"></i>&nbsp;&nbsp;Batal</button>
                             </div>
                             {% endif %}
                         </div>
@@ -179,7 +179,7 @@
                             <h5 class="mb-4 mt-3">Konfirmasi</h5>
                         </div>
                         <div class="col-8 text-end shadow-none pt-1">
-                            <label class="text-xs text-white border-0 rounded-3 px-3 py-1 bg-gradient-primary mt-3">{{ data.order_status }}</button>
+                            <span class="badge rounded-pill badge-notification bg-gradient-primary mt-3 text-white px-3 py-1">{{ data.order_status }}</span>
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-1">
@@ -1040,6 +1040,7 @@
             'paging': false,
             'info': false,
             'cell-border': true,
+            'order': [[1, 'asc']],
         });
         $('#packTable').DataTable({
             'searching': false,

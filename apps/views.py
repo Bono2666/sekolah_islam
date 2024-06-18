@@ -4550,15 +4550,58 @@ def order_child_add(request, _id, _add):
 
 def order_cs_child_add(request, _id):
     if request.POST:
-        child = OrderChild(
-            order_id=_id,
-            child_name=request.POST.get('child_name'),
-            child_birth=request.POST.get('child_birth'),
-            child_sex=request.POST.get('child_sex'),
-            child_father=request.POST.get('child_father'),
-            child_mother=request.POST.get('child_mother'),
-        )
-        child.save()
+        _child = OrderChild.objects.get(order_id=_id, child_name=request.POST.get('child_name')) if OrderChild.objects.filter(
+            order_id=_id, child_name=request.POST.get('child_name')) else None
+        if not _child:
+            child = OrderChild(
+                order_id=_id,
+                child_name=request.POST.get('child_name'),
+                child_birth=request.POST.get('child_birth'),
+                child_sex=request.POST.get('child_sex'),
+                child_father=request.POST.get('child_father'),
+                child_mother=request.POST.get('child_mother'),
+            )
+            child.save()
+
+            customer = Customer.objects.get(customer_phone=child.order.customer_phone) if Customer.objects.filter(
+                customer_phone=child.order.customer_phone) else None
+            if not customer:
+                new_customer = Customer(
+                    customer_phone=child.order.customer_phone,
+                    customer_name=child.order.customer_name,
+                    customer_phone2=child.order.customer_phone2,
+                    customer_address=child.order.customer_address,
+                    customer_email=child.order.customer_email,
+                    customer_district=child.order.customer_district,
+                    customer_city=child.order.customer_city,
+                    customer_province=child.order.customer_province,
+                )
+                new_customer.save()
+
+                children = OrderChild.objects.filter(order_id=_id)
+                for i in children:
+                    new_child = CustomerDetail(
+                        customer_id=new_customer.customer_id,
+                        child_name=i.child_name,
+                        child_birth=i.child_birth,
+                        child_sex=i.child_sex,
+                        child_father=i.child_father,
+                        child_mother=i.child_mother,
+                    )
+                    new_child.save()
+            else:
+                _child = CustomerDetail.objects.get(customer_id=customer.customer_id, child_name=child.child_name) if CustomerDetail.objects.filter(
+                    customer_id=customer.customer_id, child_name=child.child_name) else None
+                if not _child:
+                    new_child = CustomerDetail(
+                        customer_id=customer.customer_id,
+                        child_name=request.POST.get('child_name'),
+                        child_birth=request.POST.get('child_birth'),
+                        child_sex=request.POST.get('child_sex'),
+                        child_father=request.POST.get('child_father'),
+                        child_mother=request.POST.get('child_mother'),
+                    )
+                    new_child.save()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
 
@@ -4630,6 +4673,19 @@ def order_child_cs_update(request, _id, _child):
         child.child_mother = request.POST.get('child_mother')
         child.save()
 
+        customer = Customer.objects.get(
+            customer_phone=child.order.customer_phone) if Customer.objects.filter(customer_phone=child.order.customer_phone) else None
+        if customer:
+            detail = CustomerDetail.objects.get(customer_id=customer.customer_id, child_name=child.child_name) if CustomerDetail.objects.filter(
+                customer_id=customer.customer_id, child_name=child.child_name) else None
+            if detail:
+                detail.child_birth = request.POST.get('child_birth')
+                detail.child_name = request.POST.get('child_name')
+                detail.child_sex = request.POST.get('child_sex')
+                detail.child_father = request.POST.get('child_father')
+                detail.child_mother = request.POST.get('child_mother')
+                detail.save()
+
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
 
 
@@ -4645,6 +4701,14 @@ def order_child_delete(request, _id, _child):
 def order_child_cs_delete(request, _id, _child):
     child = OrderChild.objects.get(order_id=_id, id=_child)
     child.delete()
+
+    customer = Customer.objects.get(customer_phone=child.order.customer_phone) if Customer.objects.filter(
+        customer_phone=child.order.customer_phone) else None
+    if customer:
+        detail = CustomerDetail.objects.get(customer_id=customer.customer_id, child_name=child.child_name) if CustomerDetail.objects.filter(
+            customer_id=customer.customer_id, child_name=child.child_name) else None
+        if detail:
+            detail.delete()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
 
@@ -4987,6 +5051,58 @@ def order_confirmed(request, _id):
     order.cs = get_current_user().username
     order.save()
 
+    children = OrderChild.objects.filter(order_id=_id)
+
+    _customer = Customer.objects.get(customer_phone=order.customer_phone) if Customer.objects.filter(
+        customer_phone=order.customer_phone) else None
+    if not _customer:
+        new_customer = Customer(
+            customer_name=order.customer_name,
+            customer_phone=order.customer_phone,
+            customer_phone2=order.customer_phone2,
+            customer_address=order.customer_address,
+            customer_email=order.customer_email,
+            customer_district=order.customer_district,
+            customer_city=order.customer_city,
+            customer_province=order.customer_province,
+        )
+        new_customer.save()
+
+        for child in children:
+            new_detail = CustomerDetail(
+                customer_id=new_customer.customer_id,
+                child_name=child.child_name,
+                child_birth=child.child_birth,
+                child_sex=child.child_sex,
+                child_father=child.child_father,
+                child_mother=child.child_mother,
+            )
+            new_detail.save()
+    else:
+        _customer.customer_name = order.customer_name
+        _customer.customer_phone = order.customer_phone
+        _customer.customer_phone2 = order.customer_phone2
+        _customer.customer_address = order.customer_address
+        _customer.customer_email = order.customer_email
+        _customer.customer_district = order.customer_district
+        _customer.customer_city = order.customer_city
+        _customer.customer_province = order.customer_province
+        _customer.save()
+
+        for child in children:
+            _child = CustomerDetail.objects.get(customer_id=_customer.customer_id, child_name=child.child_name) if CustomerDetail.objects.filter(
+                customer_id=_customer.customer_id, child_name=child.child_name) else None
+            if not _child:
+                new_detail = CustomerDetail(
+                    customer_id=_customer.customer_id,
+                    child_name=child.child_name,
+                    child_birth=child.child_birth,
+                    child_sex=child.child_sex,
+                    child_father=child.child_father,
+                    child_mother=child.child_mother,
+                )
+                new_detail.save()
+
     return HttpResponseRedirect(reverse('order-index'))
 
 
@@ -5114,6 +5230,59 @@ def order_cs_update(request, _id, _cat, _pack, _type):
             order.order_note = request.POST.get('order_note')
             order.discount = int(request.POST.get('discount'))
             order.save()
+
+            if order.order_status != 'DRAFT':
+                customer = Customer.objects.get(customer_phone=order.customer_phone) if Customer.objects.filter(
+                    customer_phone=order.customer_phone) else None
+
+                if customer:
+                    customer.customer_name = order.customer_name
+                    customer.customer_phone = order.customer_phone
+                    customer.customer_phone2 = order.customer_phone2
+                    customer.customer_address = order.customer_address
+                    customer.customer_email = order.customer_email
+                    customer.customer_district = order.customer_district
+                    customer.customer_city = order.customer_city
+                    customer.customer_province = order.customer_province
+                    customer.save()
+
+                    for i in OrderChild.objects.filter(order_id=_id):
+                        detail = CustomerDetail.objects.get(
+                            customer_id=customer.customer_id, child_name=i.child_name) if CustomerDetail.objects.filter(customer_id=customer.customer_id, child_name=i.child_name) else None
+                        if not detail:
+                            new_detail = CustomerDetail(
+                                customer_id=customer.customer_id,
+                                child_name=i.child_name,
+                                child_birth=i.child_birth,
+                                child_sex=i.child_sex,
+                                child_father=i.child_father,
+                                child_mother=i.child_mother,
+                            )
+                            new_detail.save()
+                else:
+                    new_customer = Customer(
+                        customer_name=order.customer_name,
+                        customer_phone=order.customer_phone,
+                        customer_phone2=order.customer_phone2,
+                        customer_address=order.customer_address,
+                        customer_email=order.customer_email,
+                        customer_district=order.customer_district,
+                        customer_city=order.customer_city,
+                        customer_province=order.customer_province,
+                    )
+                    new_customer.save()
+
+                    new_children = OrderChild.objects.filter(order_id=_id)
+                    for i in new_children:
+                        new_detail = CustomerDetail(
+                            customer_id=new_customer.customer_id,
+                            child_name=i.child_name,
+                            child_birth=i.child_birth,
+                            child_sex=i.child_sex,
+                            child_father=i.child_father,
+                            child_mother=i.child_mother,
+                        )
+                        new_detail.save()
 
         return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
     else:
