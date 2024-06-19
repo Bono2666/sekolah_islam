@@ -13,7 +13,7 @@
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'cashin-add' order_id '0' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card">
+                <div class="card {% if request|is_mobile %}z-index-0{% endif %}">
                     <div class="card-header">
                         <div class="row">
                             <div class="{% if request|is_mobile %}col-11{% else %}col-6{% endif %} d-flex align-items-center">
@@ -224,14 +224,6 @@
         }
     });
     
-    let btn_menu = document.getElementById('dropdownTable');
-    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
-    
-    // open dropdown menu
-    btn_menu.addEventListener('click', function() {
-        dropdown_menu[0].classList.toggle('show');
-    });
-    
     $(document).ready(function() {
         if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             $('#orderTable').DataTable({
@@ -254,7 +246,7 @@
                 }
             });
         } else {
-            new DataTable('#orderTable', {
+            $('#orderTable').DataTable({
                 "info": false,
                 "lengthChange": false,
                 "pageLength": -1,
@@ -273,6 +265,14 @@
                 }
             });
         }
+    });
+
+    let btn_menu = document.getElementById('dropdownTable');
+    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
+    
+    // open dropdown menu
+    btn_menu.addEventListener('click', function() {
+        dropdown_menu[0].classList.toggle('show');
     });
 </script>
 {% endblock javascripts %}

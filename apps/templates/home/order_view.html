@@ -17,7 +17,7 @@
         <div class="row">
             <div class="col-xl-12 order-xl-1">
                 {% csrf_token %}
-                <div class="card">
+                <div class="card {% if request|is_mobile %}z-index-0{% endif %}">
                     <div class="card-header">
                         <div class="row">
                             <div class="{% if request|is_mobile %}col-10{% else %}col-6{% endif %} d-flex align-items-center">
@@ -270,7 +270,7 @@
 <div class="container-fluid pt-3 pb-2">
     <div class="row">
         <div class="col-12">
-            <div class="card mb-0 p-4">
+            <div class="card mb-0 p-4 {% if request|is_mobile %}z-index-0{% endif %}">
                 <div class="row mb-3">
                     <div class="col-8 d-flex align-items-center">
                         <h5 class="mb-2">Informasi Anak</h5>
@@ -531,7 +531,7 @@
         </div>
         {% endif %}
         <div class="col-12">
-            <div class="card mb-5 p-4">
+            <div class="card mb-5 p-4 {% if request|is_mobile %}z-index-0{% endif %}">
                 <div class="row mb-3">
                     <div class="col-6 d-flex align-items-center">
                         <h5 class="mb-2">Paket Aqiqah</h5>
@@ -1099,6 +1099,21 @@
         let totalPrice = document.getElementById('id-total-price');
 
         totalPrice.value = quantity * unitPrice;
+    });
+
+    $(document).ready(function() {
+        let modal = document.getElementsByClassName('modal');
+        
+        for (const item of modal) {
+            item.addEventListener('show.bs.modal', function() {
+                // remove z-index-0 from nearest parent card class
+                item.closest('.card').classList.remove('z-index-0');
+            });
+            item.addEventListener('hidden.bs.modal', function() {
+                // add z-index-0 from nearest card class
+                item.closest('.card').classList.add('z-index-0');
+            });
+        }
     });
     
     let btn_menu = document.getElementById('dropdownTable');

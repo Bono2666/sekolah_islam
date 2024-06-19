@@ -11,7 +11,7 @@
         <div class="col-xl-12 order-xl-1">
             <form action="{% url 'customer-update' data.customer_id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card">
+                <div class="card {% if request|is_mobile %}z-index-0{% endif %}">
                     <div class="card-header">
                         <div class="row">
                             <div class="{% if request|is_mobile %}col-11{% else %}col-4{% endif %} d-flex align-items-center">
@@ -148,7 +148,7 @@
 <div class="container-fluid py-2">
     <div class="row">
         <div class="col-12">
-            <div class="card {% if request|is_mobile %}mb-6{% else %}mb-4{% endif %} px-4 py-2">
+            <div class="card {% if request|is_mobile %}mb-6 z-index-0{% else %}mb-4{% endif %} px-4 py-2">
                 <div class="row">
                     <div class="{% if request|is_mobile %}col-11{% else %}col-6{% endif %} d-flex align-items-center">
                         <h5 class="mb-0"></h5>
@@ -435,6 +435,21 @@
         for (const button of btn2) {
             button.hover(function() {
                 $(this).css('background-color', 'transparent');
+            });
+        }
+    });
+
+    $(document).ready(function() {
+        let modal = document.getElementsByClassName('modal');
+        
+        for (const item of modal) {
+            item.addEventListener('show.bs.modal', function() {
+                // remove z-index-0 from nearest parent card class
+                item.closest('.card').classList.remove('z-index-0');
+            });
+            item.addEventListener('hidden.bs.modal', function() {
+                // add z-index-0 from nearest card class
+                item.closest('.card').classList.add('z-index-0');
             });
         }
     });
