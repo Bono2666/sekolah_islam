@@ -551,201 +551,6 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="modal modal-lg fade" id="addPaket" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="ModalLabel">Tambah Paket</h5>
-                            </div>
-                            <form id="packForm" method="post" action="{% url 'order-cs-package-add' data.order_id cat pack type %}" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <div class="modal-body border-bottom-0">
-                                    <div class="pl-lg-0">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-category">Kategori Paket</label>
-                                                    <select class="form-control form-select-sm" name="category" id="id-category" onchange="window.location.href=this.value" required>
-                                                        <option value="">Pilih Kategori</option>
-                                                        {% for item in category %}
-                                                        <option value="{% url 'order-view' data.order_id item.category_id '0' '0' 'add' %}" {% if item.category_id == cat %}selected{% endif %}>{{ item.category_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="{% if selected_package.quantity > 0 %}col-md-4{% else %}col-md-8{% endif %}">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-package">Paket</label>
-                                                    <select class="form-control form-select-sm" name="package" id="id-package" onchange="window.location.href=this.value" required>
-                                                        <option value="">Pilih Paket</option>
-                                                        {% for item in packages %}
-                                                        <option value="{% url 'order-view' data.order_id cat item.package_id item.type 'add' %}" {% if item.package_id == pack %}selected{% endif %}>{{ item.package_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% if selected_package.quantity > 0 %}
-                                            <div class="col-md-4">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-type">Jenis Kambing</label>
-                                                    <select class="form-control form-select-sm" name="type" id="id-type" onchange="window.location.href=this.value" required>
-                                                        {% if selected_package.male_price > 0 %}
-                                                        <option value="{% url 'order-view' data.order_id cat pack 'Jantan' 'add' %}" {% if type == 'Jantan' %}selected{% endif %}>Jantan</option>
-                                                        {% endif %}
-                                                        {% if selected_package.female_price > 0 %}
-                                                        <option value="{% url 'order-view' data.order_id cat pack 'Betina' 'add' %}" {% if type == 'Betina' %}selected{% endif %}>Betina</option>
-                                                        {% endif %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-quantity">Jumlah Paket</label>
-                                                    <input type="number" name="quantity" id="id-quantity" class="form-control form-control-sm" value="1" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-box-type">Jenis Box</label>
-                                                    <select class="form-control form-select-sm" name="box_type" id="id-box-type" required>
-                                                        {% if selected_package.box > 0 %}
-                                                        <option value="">Pilih Box</option>
-                                                        {% endif %}
-                                                        {% for item in box %}
-                                                        <option value="{{ item.box_type_id }}">{{ item.box_type_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% if main_cuisines %}
-                                            <div class="col-md-4">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-main-cuisine">Menu Daging</label>
-                                                    <select class="form-control form-select-sm" name="main_cuisine" id="id-main-cuisine" required>
-                                                        <option value="">Pilih Menu Daging</option>
-                                                        {% for item in main_cuisines %}
-                                                        <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="row">
-                                            {% if sub_cuisines %}
-                                            <div class="col-md-6">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-sub-cuisine">Menu Olahan</label>
-                                                    <select class="form-control form-select-sm" name="sub_cuisine" id="id-sub-cuisine" required>
-                                                        <option value="">Pilih Menu Olahan</option>
-                                                        {% for item in sub_cuisines %}
-                                                        <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                            {% if side_cuisines1 %}
-                                            <div class="col-md-6">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-side-cuisine1">Menu Pendamping 1</label>
-                                                    <select class="form-control form-select-sm" name="side_cuisine1" id="id-side-cuisine1" required>
-                                                        <option value="">Pilih Menu Pendamping 1</option>
-                                                        {% for item in side_cuisines1 %}
-                                                        <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="row">
-                                            {% if side_cuisines2 %}
-                                            <div class="col-md-6">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-side-cuisine2">Menu Pendamping 2</label>
-                                                    <select class="form-control form-select-sm" name="side_cuisine2" id="id-side-cuisine2" required>
-                                                        <option value="">Pilih Menu Pendamping 2</option>
-                                                        {% for item in side_cuisines2 %}
-                                                        <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                            {% if side_cuisines3 %}
-                                            <div class="col-md-6">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-side-cuisine3">Menu Pendamping 3</label>
-                                                    <select class="form-control form-select-sm" name="side_cuisine3" id="id-side-cuisine3" required>
-                                                        <option value="">Pilih Menu Pendamping 3</option>
-                                                        {% for item in side_cuisines3 %}
-                                                        <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="row">
-                                            {% if side_cuisines4 %}
-                                            <div class="col-md-6">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-side-cuisine4">Menu Pendamping 4</label>
-                                                    <select class="form-control form-select-sm" name="side_cuisine4" id="id-side-cuisine4" required>
-                                                        <option value="">Pilih Menu Pendamping 4</option>
-                                                        {% for item in side_cuisines4 %}
-                                                        <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                            {% if side_cuisines5 %}
-                                            <div class="col-md-6">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-side-cuisine5">Menu Pendamping 5</label>
-                                                    <select class="form-control form-select-sm" name="side_cuisine5" id="id-side-cuisine5" required>
-                                                        <option value="">Pilih Menu Pendamping 5</option>
-                                                        {% for item in side_cuisines5 %}
-                                                        <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="row">
-                                            {% if type != '0' %}
-                                            <div class="col-md-offset-12">
-                                                <div class="shadow-none">
-                                                    <label class="form-control-label" for="id-unit-price">Harga Per Paket</label>
-                                                    <input type="text" name="male_price" id="id-male-price" class="form-control form-control-sm {% if type != 'Jantan' %}d-none{% endif %}" value="{{ selected_package.male_price|intcomma }}" readonly>
-                                                    <input type="text" name="female_price" id="id-female-price" class="form-control form-control-sm {% if type != 'Betina' %}d-none{% endif %}" value="{{ selected_package.female_price|intcomma }}" readonly>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                            <div class="col-md-12">
-                                                <div class="shadow-none d-none">
-                                                    <label class="form-control-label" for="id-total-price">Total Harga</label>
-                                                    <input type="number" name="total_price" id="id-total-price" class="form-control form-control-sm" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer border-0">
-                                    <a href="{% url 'order-view' data.order_id '0' '0' '0' '0' %}" role="button" class="btn btn-sm bg-gradient-dark">Batal</a>
-                                    <button type="button" id="btn-save-paket"
-                                        class="btn btn-sm bg-gradient-warning text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
                 <div class="card-body px-0 pt-0 pb-1">
                     <div class="table-responsive p-0">
                         <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="packTable">
@@ -1023,6 +828,203 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="modal modal-lg fade" id="addPaket" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Tambah Paket</h5>
+                </div>
+                <form id="packForm" method="post" action="{% url 'order-cs-package-add' data.order_id cat pack type %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body border-bottom-0">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-category">Kategori Paket</label>
+                                        <select class="form-control form-select-sm" name="category" id="id-category" onchange="window.location.href=this.value" required>
+                                            <option value="">Pilih Kategori</option>
+                                            {% for item in category %}
+                                            <option value="{% url 'order-view' data.order_id item.category_id '0' '0' 'add' %}" {% if item.category_id == cat %}selected{% endif %}>{{ item.category_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="{% if selected_package.quantity > 0 %}col-md-4{% else %}col-md-8{% endif %}">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-package">Paket</label>
+                                        <select class="form-control form-select-sm" name="package" id="id-package" onchange="window.location.href=this.value" required>
+                                            <option value="">Pilih Paket</option>
+                                            {% for item in packages %}
+                                            <option value="{% url 'order-view' data.order_id cat item.package_id item.type 'add' %}" {% if item.package_id == pack %}selected{% endif %}>{{ item.package_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% if selected_package.quantity > 0 %}
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-type">Jenis Kambing</label>
+                                        <select class="form-control form-select-sm" name="type" id="id-type" onchange="window.location.href=this.value" required>
+                                            {% if selected_package.male_price > 0 %}
+                                            <option value="{% url 'order-view' data.order_id cat pack 'Jantan' 'add' %}" {% if type == 'Jantan' %}selected{% endif %}>Jantan</option>
+                                            {% endif %}
+                                            {% if selected_package.female_price > 0 %}
+                                            <option value="{% url 'order-view' data.order_id cat pack 'Betina' 'add' %}" {% if type == 'Betina' %}selected{% endif %}>Betina</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-quantity">Jumlah Paket</label>
+                                        <input type="number" name="quantity" id="id-quantity" class="form-control form-control-sm" value="1" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-box-type">Jenis Box</label>
+                                        <select class="form-control form-select-sm" name="box_type" id="id-box-type" required>
+                                            {% if selected_package.box > 0 %}
+                                            <option value="">Pilih Box</option>
+                                            {% endif %}
+                                            {% for item in box %}
+                                            <option value="{{ item.box_type_id }}">{{ item.box_type_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% if main_cuisines %}
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-main-cuisine">Menu Daging</label>
+                                        <select class="form-control form-select-sm" name="main_cuisine" id="id-main-cuisine" required>
+                                            <option value="">Pilih Menu Daging</option>
+                                            {% for item in main_cuisines %}
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                {% if sub_cuisines %}
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-sub-cuisine">Menu Olahan</label>
+                                        <select class="form-control form-select-sm" name="sub_cuisine" id="id-sub-cuisine" required>
+                                            <option value="">Pilih Menu Olahan</option>
+                                            {% for item in sub_cuisines %}
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if side_cuisines1 %}
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-side-cuisine1">Menu Pendamping 1</label>
+                                        <select class="form-control form-select-sm" name="side_cuisine1" id="id-side-cuisine1" required>
+                                            <option value="">Pilih Menu Pendamping 1</option>
+                                            {% for item in side_cuisines1 %}
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                {% if side_cuisines2 %}
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-side-cuisine2">Menu Pendamping 2</label>
+                                        <select class="form-control form-select-sm" name="side_cuisine2" id="id-side-cuisine2" required>
+                                            <option value="">Pilih Menu Pendamping 2</option>
+                                            {% for item in side_cuisines2 %}
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if side_cuisines3 %}
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-side-cuisine3">Menu Pendamping 3</label>
+                                        <select class="form-control form-select-sm" name="side_cuisine3" id="id-side-cuisine3" required>
+                                            <option value="">Pilih Menu Pendamping 3</option>
+                                            {% for item in side_cuisines3 %}
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                {% if side_cuisines4 %}
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-side-cuisine4">Menu Pendamping 4</label>
+                                        <select class="form-control form-select-sm" name="side_cuisine4" id="id-side-cuisine4" required>
+                                            <option value="">Pilih Menu Pendamping 4</option>
+                                            {% for item in side_cuisines4 %}
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if side_cuisines5 %}
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-side-cuisine5">Menu Pendamping 5</label>
+                                        <select class="form-control form-select-sm" name="side_cuisine5" id="id-side-cuisine5" required>
+                                            <option value="">Pilih Menu Pendamping 5</option>
+                                            {% for item in side_cuisines5 %}
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                {% if type != '0' %}
+                                <div class="col-md-offset-12">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-unit-price">Harga Per Paket</label>
+                                        <input type="text" name="male_price" id="id-male-price" class="form-control form-control-sm {% if type != 'Jantan' %}d-none{% endif %}" value="{{ selected_package.male_price|intcomma }}" readonly>
+                                        <input type="text" name="female_price" id="id-female-price" class="form-control form-control-sm {% if type != 'Betina' %}d-none{% endif %}" value="{{ selected_package.female_price|intcomma }}" readonly>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="col-md-12">
+                                    <div class="shadow-none d-none">
+                                        <label class="form-control-label" for="id-total-price">Total Harga</label>
+                                        <input type="number" name="total_price" id="id-total-price" class="form-control form-control-sm" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <a href="{% url 'order-view' data.order_id '0' '0' '0' '0' %}" role="button" class="btn btn-sm bg-gradient-dark">Batal</a>
+                        <button type="button" id="btn-save-paket"
+                            class="btn btn-sm bg-gradient-warning text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
