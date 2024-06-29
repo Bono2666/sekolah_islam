@@ -4798,6 +4798,7 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
             category_id=_cat,
             package_id=_pack,
             type=_type,
+            quantity=int(request.POST.get('quantity')),
             box_type_id=request.POST.get('box_type'),
             main_cuisine=request.POST.get('main_cuisine'),
             sub_cuisine=request.POST.get('sub_cuisine'),
