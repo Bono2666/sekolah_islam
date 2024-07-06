@@ -169,10 +169,18 @@ class FormAreaSales(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormAreaSales, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['area_id'].label = 'ID Regional'
-        self.fields['area_name'].label = 'Nama Regional'
+        self.fields['area_id'].label = 'ID Cabang'
+        self.fields['area_name'].label = 'Nama Cabang'
         self.fields['manager'].label = 'Manager'
         self.fields['bank_account'].label = 'Bank Account'
+        self.fields['address'].label = 'Alamat'
+        self.fields['district'].label = 'Kel/Kecamatan'
+        self.fields['city'].label = 'Kota/Kabupaten'
+        self.fields['postal_code'].label = 'Kode Pos'
+        self.fields['address'].required = False
+        self.fields['district'].required = False
+        self.fields['city'].required = False
+        self.fields['postal_code'].required = False
         self.fields['area_id'].widget = forms.TextInput(
             {'class': 'form-control-sm text-uppercase'})
         self.fields['area_name'].widget = forms.TextInput(
@@ -181,6 +189,14 @@ class FormAreaSales(ModelForm):
             {'class': 'form-control-sm'})
         self.fields['bank_account'].widget = forms.Textarea(
             {'class': 'form-control-sm', 'rows': 7})
+        self.fields['address'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 4})
+        self.fields['district'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['city'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['postal_code'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
 
     class Meta:
         model = AreaSales
@@ -192,34 +208,63 @@ class FormAreaSalesView(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormAreaSalesView, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['area_name'].label = 'Nama Regional'
+        self.fields['area_name'].label = 'Nama Cabang'
         self.fields['manager'].label = 'Manager'
         self.fields['bank_account'].label = 'Bank Account'
+        self.fields['address'].label = 'Alamat'
+        self.fields['district'].label = 'Kel/Kecamatan'
+        self.fields['city'].label = 'Kota/Kabupaten'
+        self.fields['postal_code'].label = 'Kode Pos'
         self.fields['area_name'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['manager'].widget = forms.TextInput(
             {'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['bank_account'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 7, 'readonly': 'readonly'})
+        self.fields['address'].widget = forms.Textarea(
             {'class': 'form-control-sm', 'rows': 4, 'readonly': 'readonly'})
+        self.fields['district'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['city'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['postal_code'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
 
     class Meta:
         model = AreaSales
-        fields = ['area_id', 'area_name', 'manager', 'bank_account']
+        fields = ['area_id', 'area_name', 'manager', 'bank_account',
+                  'address', 'district', 'city', 'postal_code']
 
 
 class FormAreaSalesUpdate(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormAreaSalesUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['area_name'].label = 'Nama Regional'
+        self.fields['area_name'].label = 'Nama Cabang'
         self.fields['manager'].label = 'Manager'
         self.fields['bank_account'].label = 'Bank Account'
+        self.fields['address'].label = 'Alamat'
+        self.fields['district'].label = 'Kel/Kecamatan'
+        self.fields['city'].label = 'Kota/Kabupaten'
+        self.fields['postal_code'].label = 'Kode Pos'
+        self.fields['address'].required = False
+        self.fields['district'].required = False
+        self.fields['city'].required = False
+        self.fields['postal_code'].required = False
         self.fields['area_name'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['manager'].widget = forms.TextInput(
             {'class': 'form-control-sm'})
         self.fields['bank_account'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 7})
+        self.fields['address'].widget = forms.Textarea(
             {'class': 'form-control-sm', 'rows': 4})
+        self.fields['district'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['city'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['postal_code'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
 
     class Meta:
         model = AreaSales

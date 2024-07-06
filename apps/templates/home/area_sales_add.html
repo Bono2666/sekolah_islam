@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} Buat Regional Baru {% endblock title %}
+{% block title %} Buat Cabang Baru {% endblock title %}
 
 {% block content %}
 
@@ -13,7 +13,7 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-6 d-flex align-items-center">
-                                <h4  class="mb-2">Buat Regional Baru</h4>
+                                <h4  class="mb-2">Buat Cabang Baru</h4>
                             </div>
                             <div class="col-6 text-end">
                                 <button type="submit" class="btn btn-sm bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
@@ -29,45 +29,81 @@
                             </div>
                             {% endif %} -->
                             <div class="row">
-                                <div class="col-6">
+                                <div class="col-8">
                                     <div class="row">
-                                        <div class="shadow-none">
-                                            {{ form.area_id.label_tag }}{{ form.area_id }}
-                                            <div class="text-sm text-danger">
-                                                {{ form.area_id.errors }}
+                                        <div class="col-4">
+                                            <div class="shadow-none">
+                                                {{ form.area_id.label_tag }}{{ form.area_id }}
+                                                <div class="text-sm text-danger">
+                                                    {{ form.area_id.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="shadow-none">
+                                                {{ form.area_name.label_tag }}{{ form.area_name }}
+                                                <div class="text-sm text-danger">
+                                                    {{ form.area_name.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="shadow-none">
+                                                {{ form.manager.label_tag }}
+                                                <select name="manager" class="form-control form-select-sm">
+                                                    <option value="">-- Pilih Manager --</option>
+                                                    {% for item in manager %}
+                                                    <option value="{{ item.user_id }}">{{ item.username }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="text-sm text-danger">
+                                                    {{ form.manager.errors }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="shadow-none">
-                                            {{ form.area_name.label_tag }}{{ form.area_name }}
+                                            {{ form.address.label_tag }}{{ form.address }}
                                             <div class="text-sm text-danger">
-                                                {{ form.area_name.errors }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="shadow-none">
-                                            {{ form.manager.label_tag }}
-                                            <select name="manager" class="form-control form-select-sm">
-                                                <option value="">-- Pilih Manager --</option>
-                                                {% for item in manager %}
-                                                <option value="{{ item.user_id }}">{{ item.username }}</option>
-                                                {% endfor %}
-                                            </select>
-                                            <div class="text-sm text-danger">
-                                                {{ form.manager.errors }}
+                                                {{ form.address.errors }}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-4">
                                     <div class="row">
                                         <div class="shadow-none">
                                             {{ form.bank_account.label_tag }}{{ form.bank_account }}
                                             <div class="text-sm text-danger">
                                                 {{ form.bank_account.errors }}
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="shadow-none">
+                                        {{ form.district.label_tag }}{{ form.district }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.district.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="shadow-none">
+                                        {{ form.city.label_tag }}{{ form.city }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.city.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="shadow-none">
+                                        {{ form.postal_code.label_tag }}{{ form.postal_code }}
+                                        <div class="text-sm text-danger">
+                                            {{ form.postal_code.errors }}
                                         </div>
                                     </div>
                                 </div>

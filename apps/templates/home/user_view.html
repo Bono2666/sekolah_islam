@@ -131,7 +131,7 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-sm text-body {% if tab == 'area' %}active{% endif %}" id="area-tab" data-bs-toggle="tab" data-bs-target="#area-tab-pane" type="button"
-                            role="tab" aria-controls="area-tab-pane" aria-selected="false">Regional</button>
+                            role="tab" aria-controls="area-tab-pane" aria-selected="false">Cabang</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -302,7 +302,7 @@
                                 <h5 class="mb-0"></h5>
                             </div>
                             <div class="col-6 text-end">
-                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup2" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Regional</button>
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#dialog-popup2" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Cabang</button>
                             </div>
                         </div>
                         <div class="modal fade" id="dialog-popup2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -310,7 +310,7 @@
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="ModalLabel">Pilih Regional</h5>
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Cabang</h5>
                                     </div>
                                     <form method="post" action="{% url 'user-area-view' data.user_id %}" enctype="multipart/form-data">
                                         {% csrf_token %}
@@ -320,7 +320,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                                Regional</th>
+                                                                Cabang</th>
                                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                                         </tr>
                                                     </thead>
@@ -358,7 +358,7 @@
                                     <thead>
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                                Regional</th>
+                                                Cabang</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
@@ -383,7 +383,7 @@
                                                             <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
                                                         </div>
                                                         <div class="modal-body border-bottom-0">
-                                                            Anda yakin akan menghapus regional <strong>{{ item.area }}</strong>?
+                                                            Anda yakin akan menghapus cabang <strong>{{ item.area }}</strong>?
                                                         </div>
                                                         <div class="modal-footer border-0">
                                                             <a role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</a>

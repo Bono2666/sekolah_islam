@@ -592,120 +592,6 @@ def area_sales_delete(request, _id):
 
 
 @login_required(login_url='/login/')
-@role_required(allowed_roles='AREA-CHANNEL')
-def area_channel_index(request):
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT apps_areachannel.area_id, apps_areasales.area_name, apps_user.username FROM apps_areachannel INNER JOIN apps_areasales ON apps_areachannel.area_id = apps_areasales.area_id INNER JOIN apps_user ON apps_areasales.manager = apps_user.user_id")
-        area_channels = cursor.fetchall()
-
-    context = {
-        'data': area_channels,
-        'segment': 'area_channel',
-        'group_segment': 'master',
-        'crud': 'index',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'btn': Auth.objects.get(
-            user_id=request.user.user_id, menu_id='AREA-CHANNEL') if not request.user.is_superuser else Auth.objects.all(),
-    }
-
-    return render(request, 'home/area_channel_index.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='AREA-CHANNEL')
-def area_channel_add(request):
-    channel = Channel.objects.all()
-    areas = AreaSales.objects.all()
-    if request.POST:
-        form = FormAreaChannel(request.POST, request.FILES)
-        if form.is_valid():
-            parent = form.save(commit=False)
-            parent.save()
-            for i in channel:
-                child = AreaChannelDetail(
-                    area=parent, channel=i, status=0)
-                child.save()
-            return HttpResponseRedirect(reverse('area-channel-view', args=[form.instance.area_id, ]))
-        else:
-            message = form.errors
-            context = {
-                'form': form,
-                'areas': areas,
-                'segment': 'area_channel',
-                'group_segment': 'master',
-                'crud': 'add',
-                'message': message,
-                'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-                'btn': Auth.objects.get(
-                    user_id=request.user.user_id, menu_id='AREA-CHANNEL') if not request.user.is_superuser else Auth.objects.all(),
-            }
-            return render(request, 'home/area_channel_add.html', context)
-    else:
-        form = FormAreaChannel()
-        context = {
-            'form': form,
-            'areas': areas,
-            'segment': 'area_channel',
-            'group_segment': 'master',
-            'crud': 'add',
-            'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-            'btn': Auth.objects.get(
-                user_id=request.user.user_id, menu_id='AREA-CHANNEL') if not request.user.is_superuser else Auth.objects.all(),
-        }
-        return render(request, 'home/area_channel_add.html', context)
-
-
-# View Area Channel
-@login_required(login_url='/login/')
-@role_required(allowed_roles='AREA-CHANNEL')
-def area_channel_view(request, _id):
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT apps_areachannel.area_id, apps_areasales.area_name, apps_user.username FROM apps_areachannel INNER JOIN apps_areasales ON apps_areachannel.area_id = apps_areasales.area_id INNER JOIN apps_user ON apps_areasales.manager = apps_user.user_id WHERE apps_areachannel.area_id = '" + str(_id) + "'")
-        area_channels = cursor.fetchone()
-
-    detail = AreaChannelDetail.objects.filter(area=_id)
-
-    context = {
-        'data': area_channels,
-        'detail': detail,
-        'segment': 'area_channel',
-        'group_segment': 'master',
-        'crud': 'view',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'btn': Auth.objects.get(
-            user_id=request.user.user_id, menu_id='AREA-CHANNEL') if not request.user.is_superuser else Auth.objects.all(),
-    }
-    return render(request, 'home/area_channel_view.html', context)
-
-
-# Delete Area Channel
-@login_required(login_url='/login/')
-@role_required(allowed_roles='AREA-CHANNEL')
-def area_channel_delete(request, _id):
-    area_channels = AreaChannel.objects.get(area_id=_id)
-
-    area_channels.delete()
-    return HttpResponseRedirect(reverse('area-channel-index'))
-
-
-# Update Area Channel Detail
-@login_required(login_url='/login/')
-@role_required(allowed_roles='AREA-CHANNEL')
-def area_channel_detail_update(request, _id, _channel):
-    area_channels = AreaChannelDetail.objects.get(area=_id, channel=_channel)
-
-    if request.POST:
-        area_channels.status = 1 if request.POST.get('status') else 0
-        area_channels.save()
-
-        return HttpResponseRedirect(reverse('area-channel-view', args=[_id, ]))
-
-    return render(request, 'home/area_channel_view.html')
-
-
-@login_required(login_url='/login/')
 @role_required(allowed_roles='POSITION')
 def position_add(request):
     if request.POST:
@@ -5536,20 +5422,45 @@ def order_invoice(request, _id):
 
     # Add address below logo
     pdf_file.setFont("Helvetica", 8)
-    pdf_file.drawString(35, 725, 'Regional :')
+    pdf_file.drawString(35, 725, 'Cabang :')
 
     # Add regional info beside regional title with bold font
     pdf_file.setFont("Helvetica-Bold", 8)
     pdf_file.drawString(74, 725, order.regional.area_name)
     pdf_file.setFont("Helvetica", 8)
-    address = 'Kantor Pusat : Jl. KH. Maulana Hasanudin No.88'
-    pdf_file.drawString(35, 713, address)
-    city = 'Poris, Tangerang, 15122'
-    pdf_file.drawString(35, 701, city)
+    str_address = order.regional.address if order.regional.address else ''
+    address = 'Kantor : ' + str_address
+    y = 708
+    if str_address:
+        split_address = address.split('\n')
+        for i, line in enumerate(split_address):
+            address_width = pdf_file.stringWidth(
+                split_address[i], "Helvetica", 8)
+            rows = int(address_width) // 180
+            for j in range(0, rows):
+                y -= 12
+
+        for line in split_address:
+            address_paragraph = Paragraph(line, normalStyle)
+            address_paragraph.wrapOn(pdf_file, 180, 0)
+            address_paragraph.drawOn(pdf_file, 35, y)
+            y -= 10
+
+    y += 1
+    str_district = order.regional.district if order.regional.district else ''
+    str_city = order.regional.city if order.regional.city else ''
+    str_postal_code = order.regional.postal_code if order.regional.postal_code else ''
+    comma_district = ', ' if str_district and (
+        str_city or str_postal_code) else ''
+    comma_city = ', ' if str_city and str_postal_code else ''
+    city = str_district + comma_district + str_city + comma_city + str_postal_code
+    if city:
+        pdf_file.drawString(35, y, city)
+        y -= 12
     phone = 'Telp/Whatsapp : 0812 9658 9090'
-    pdf_file.drawString(35, 689, phone)
+    pdf_file.drawString(35, y, phone)
     web = 'www.sahabataqiqah.co.id'
-    pdf_file.drawString(35, 677, web)
+    pdf_file.drawString(35, y - 12, web)
 
     # Add title start from the middle of page
     pdf_file.setFont("Helvetica-Bold", 8)
@@ -6234,20 +6145,32 @@ def order_checklist(request, _id):
 
     # Add address below logo
     pdf_file.setFont("Helvetica", 8)
-    pdf_file.drawString(35, 725, 'Regional :')
+    pdf_file.drawString(35, 725, 'Cabang :')
 
     # Add regional info beside regional title with bold font
     pdf_file.setFont("Helvetica-Bold", 8)
     pdf_file.drawString(74, 725, order.regional.area_name)
     pdf_file.setFont("Helvetica", 8)
-    address = 'Kantor Pusat : Jl. KH. Maulana Hasanudin No.88'
-    pdf_file.drawString(35, 713, address)
-    city = 'Poris, Tangerang, 15122'
-    pdf_file.drawString(35, 701, city)
+    str_address = order.regional.address if order.regional.address else ''
+    address = 'Kantor : ' + str_address
+    y = 713
+    if str_address:
+        pdf_file.drawString(35, y, address)
+        y -= 12
+    str_district = order.regional.district if order.regional.district else ''
+    str_city = order.regional.city if order.regional.city else ''
+    str_postal_code = order.regional.postal_code if order.regional.postal_code else ''
+    comma_district = ', ' if str_district and (
+        str_city or str_postal_code) else ''
+    comma_city = ', ' if str_city and str_postal_code else ''
+    city = str_district + comma_district + str_city + comma_city + str_postal_code
+    if city:
+        pdf_file.drawString(35, y, city)
+        y -= 12
     phone = 'Telp/Whatsapp : 0812 9658 9090'
-    pdf_file.drawString(35, 689, phone)
+    pdf_file.drawString(35, y, phone)
     web = 'www.sahabataqiqah.co.id'
-    pdf_file.drawString(35, 677, web)
+    pdf_file.drawString(35, y - 12, web)
 
     y = 745
     # Add title start from the middle of page

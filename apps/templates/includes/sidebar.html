@@ -157,7 +157,7 @@
             </li>
             <li class="nav-item {% if 'area_sales' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'area-sales-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}">Regional</span>
+                <span class="nav-link-text ms-1 {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}">Cabang</span>
               </a>
             </li>
             <li class="nav-item {% if 'position' in segment %}active{% endif %} list-unstyled">
@@ -185,31 +185,6 @@
                 <span class="nav-link-text ms-1 {% if 'PACKAGE' not in role and not request.user.is_superuser %}disabled{% endif %}">Paket</span>
               </a>
             </li>
-            <!-- <li class="nav-item {% if segment == 'channel' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CHANNEL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'channel-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CHANNEL' not in role and not request.user.is_superuser %}disabled{% endif %}">Channel</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'area_channel' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'AREA-CHANNEL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'area-channel-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'AREA-CHANNEL' not in role and not request.user.is_superuser %}disabled{% endif %}">Area Channel</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'closing_period' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CLOSING-PERIOD' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'closing-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CLOSING-PERIOD' not in role and not request.user.is_superuser %}disabled{% endif %}">Closing Period</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'division' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'DIVISION' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'division-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'DIVISION' not in role and not request.user.is_superuser %}disabled{% endif %}">Division</span>
-              </a>
-            </li>
-            <li class="nav-item {% if 'region' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'REGION' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' and crud != 'delete' %}href="{% url 'region-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'REGION' not in role and not request.user.is_superuser %}disabled{% endif %}">Region</span>
-              </a>
-            </li> -->
           </ul>
         </div>
       </li>
