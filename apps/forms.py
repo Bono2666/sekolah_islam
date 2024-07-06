@@ -1035,7 +1035,7 @@ class FormOrder(ModelForm):
         self.fields['customer_province'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
         self.fields['delivery_date'].label = 'Tanggal Pengiriman'
-        self.fields['time_arrival'].label = 'Jam Tiba di Lokasi'
+        self.fields['time_arrival'].label = 'Jam Acara'
 
     class Meta:
         model = Order
@@ -1077,7 +1077,7 @@ class FormOrderUpdate(ModelForm):
         self.fields['customer_province'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
         self.fields['delivery_date'].label = 'Tanggal Pengiriman'
-        self.fields['time_arrival'].label = 'Jam Tiba di Lokasi'
+        self.fields['time_arrival'].label = 'Jam Acara'
 
     class Meta:
         model = Order
@@ -1232,7 +1232,7 @@ class FormOrderView(ModelForm):
         self.fields['customer_province'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm', 'readonly': 'readonly'})
         self.fields['delivery_date'].label = 'Tanggal Pengiriman'
-        self.fields['time_arrival'].label = 'Jam Tiba di Lokasi'
+        self.fields['time_arrival'].label = 'Jam Acara'
         self.fields['order_note'].label = 'Catatan Pemesanan (Jika Ada)'
         self.fields['order_note'].required = False
 
@@ -1275,7 +1275,7 @@ class FormOrderCSUpdate(ModelForm):
         # self.fields['customer_province'].widget = forms.TextInput(
         #     attrs={'class': 'form-control-sm'})
         # self.fields['delivery_date'].label = 'Tanggal Pengiriman'
-        # self.fields['time_arrival'].label = 'Jam Tiba di Lokasi'
+        # self.fields['time_arrival'].label = 'Jam Acara'
         # self.fields['order_note'].label = 'Catatan Pemesanan (Jika Ada)'
         # self.fields['order_note'].required = False
 

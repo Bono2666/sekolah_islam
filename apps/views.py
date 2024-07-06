@@ -5773,13 +5773,13 @@ def order_invoice(request, _id):
     pdf_file.drawString(95, y - 15, ':')
     pdf_file.drawString(
         105, y - 15, hari[int(order.delivery_date.strftime('%w')) - 1] + ', ' + order.delivery_date.strftime('%-d ') + bulan[int(order.delivery_date.strftime('%-m')) - 1] + order.delivery_date.strftime(' %Y'))
-    pdf_file.drawString(35, y - 27, 'Jam Berangkat')
+    pdf_file.drawString(35, y - 27, 'Jam Tiba')
     pdf_file.drawString(95, y - 27, ':')
     time_arrival_minus_one_hour = datetime.datetime.strptime(
         order.time_arrival, '%H:%M') - datetime.timedelta(hours=1)
     pdf_file.drawString(
         105, y - 27, time_arrival_minus_one_hour.strftime('%H:%M'))
-    pdf_file.drawString(35, y - 39, 'Jam Tiba')
+    pdf_file.drawString(35, y - 39, 'Jam Acara')
     pdf_file.drawString(95, y - 39, ':')
     pdf_file.drawString(105, y - 39, order.time_arrival)
     pdf_file.drawString(35, y - 51, 'Catatan')
@@ -5960,7 +5960,7 @@ def order_bap(request, _id):
     pdf_file.drawString(145, y, order.delivery_date.strftime(
         '%-d ') + bulan[order.delivery_date.month - 1] + order.delivery_date.strftime(' %Y'))
     y -= 12
-    pdf_file.drawString(35, y, 'Jam Tiba')
+    pdf_file.drawString(35, y, 'Jam Acara')
     pdf_file.drawString(135, y, ':')
     pdf_file.setFont("Helvetica-Bold", 8)
     pdf_file.drawString(145, y, order.time_arrival)
