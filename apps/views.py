@@ -1700,6 +1700,104 @@ def package_sidecuisine5_view(request, _id):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='PACKAGE')
+def package_maincuisine_update(request, _id, _cuisine):
+    cuisine = MainCuisine.objects.get(package=_id, cuisine=_cuisine)
+
+    if request.POST:
+        cuisine.extra_price = request.POST.get('price')
+        cuisine.save()
+
+        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+    return render(request, 'home/package_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_subcuisine_update(request, _id, _cuisine):
+    cuisine = SubCuisine.objects.get(package=_id, cuisine=_cuisine)
+
+    if request.POST:
+        cuisine.extra_price = request.POST.get('price')
+        cuisine.save()
+
+        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+    return render(request, 'home/package_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine1_update(request, _id, _cuisine):
+    cuisine = SideCuisine1.objects.get(package=_id, cuisine=_cuisine)
+
+    if request.POST:
+        cuisine.extra_price = request.POST.get('price')
+        cuisine.save()
+
+        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+    return render(request, 'home/package_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine2_update(request, _id, _cuisine):
+    cuisine = SideCuisine2.objects.get(package=_id, cuisine=_cuisine)
+
+    if request.POST:
+        cuisine.extra_price = request.POST.get('price')
+        cuisine.save()
+
+        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+    return render(request, 'home/package_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine3_update(request, _id, _cuisine):
+    cuisine = SideCuisine3.objects.get(package=_id, cuisine=_cuisine)
+
+    if request.POST:
+        cuisine.extra_price = request.POST.get('price')
+        cuisine.save()
+
+        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+    return render(request, 'home/package_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine4_update(request, _id, _cuisine):
+    cuisine = SideCuisine4.objects.get(package=_id, cuisine=_cuisine)
+
+    if request.POST:
+        cuisine.extra_price = request.POST.get('price')
+        cuisine.save()
+
+        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+    return render(request, 'home/package_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_sidecuisine5_update(request, _id, _cuisine):
+    cuisine = SideCuisine5.objects.get(package=_id, cuisine=_cuisine)
+
+    if request.POST:
+        cuisine.extra_price = request.POST.get('price')
+        cuisine.save()
+
+        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+
+    return render(request, 'home/package_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
 def package_maincuisine_delete(request, _id, _cuisine):
     MainCuisine.objects.filter(
         package_id=_id, cuisine_id=_cuisine).delete()
@@ -3266,783 +3364,6 @@ def claim_matrix_delete(request, _id, _channel, _arg):
 
 
 @login_required(login_url='/login/')
-@role_required(allowed_roles='CL')
-def cl_index(request, _tab):
-    cl = CL.objects.all()
-    drafts = CL.objects.filter(status='DRAFT', area__in=AreaUser.objects.filter(
-        user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-cl_id').all
-    draft_count = CL.objects.filter(status='DRAFT', area__in=AreaUser.objects.filter(
-        user_id=request.user.user_id).values_list('area_id', flat=True)).count
-    pendings = CL.objects.filter(status='PENDING', area__in=AreaUser.objects.filter(
-        user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-cl_id').all
-    pending_count = CL.objects.filter(status='PENDING', area__in=AreaUser.objects.filter(
-        user_id=request.user.user_id).values_list('area_id', flat=True)).count
-    inapprovals = CL.objects.filter(status='IN APPROVAL', area__in=AreaUser.objects.filter(
-        user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-cl_id').all
-    inapproval_count = CL.objects.filter(status='IN APPROVAL', area__in=AreaUser.objects.filter(
-        user_id=request.user.user_id).values_list('area_id', flat=True)).count
-    opens = CL.objects.filter(status='OPEN', area__in=AreaUser.objects.filter(
-        user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-cl_id').all
-    open_count = CL.objects.filter(status='OPEN', area__in=AreaUser.objects.filter(
-        user_id=request.user.user_id).values_list('area_id', flat=True)).count
-
-    context = {
-        'data': cl,
-        'drafts': drafts,
-        'draft_count': draft_count,
-        'pendings': pendings,
-        'pending_count': pending_count,
-        'inapprovals': inapprovals,
-        'inapproval_count': inapproval_count,
-        'opens': opens,
-        'open_count': open_count,
-        'tab': _tab,
-        'segment': 'cl',
-        'group_segment': 'cl',
-        'crud': 'index',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CL') if not request.user.is_superuser else Auth.objects.all(),
-    }
-    return render(request, 'home/cl_index.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL')
-def cl_add(request, _area, _distributor):
-    selected_area = _area
-    selected_distributor = _distributor
-    area = AreaUser.objects.filter(user_id=request.user.user_id).values_list(
-        'area_id', 'area__area_name')
-    distributors = Claim.objects.filter(status='OPEN', area=selected_area).values_list(
-        'proposal__budget__budget_distributor', 'proposal__budget__budget_distributor__distributor_name').distinct() if selected_area != '0' else None
-
-    no_save = False
-    message = ''
-
-    if selected_area != '0' and selected_distributor != '0':
-        approvers = CLMatrix.objects.filter(
-            area_id=selected_area).order_by('sequence')
-        if approvers.count() == 0:
-            no_save = True
-            message = "No communication letter's approver found for this area."
-
-    try:
-        _no = CL.objects.all().order_by('seq_number').last()
-    except CL.DoesNotExist:
-        _no = None
-    if _no is None:
-        format_no = '{:04d}'.format(1)
-    else:
-        format_no = '{:04d}'.format(_no.seq_number + 1)
-
-    _id = 'LBS-5' + format_no + '/' + selected_area + \
-        '/' + selected_distributor + '/' + datetime.datetime.now().strftime('%m/%Y')
-
-    if selected_area != '0' and selected_distributor != '0' and not no_save:
-        parent = CL(cl_id=_id, cl_date=datetime.datetime.now(), area_id=selected_area,
-                    distributor_id=selected_distributor, entry_pos=request.user.position.position_id, seq_number=_no.seq_number + 1 if _no else 1)
-        parent.save()
-
-        for i in approvers:
-            _cl = CL.objects.get(cl_id=_id)
-            release = CLRelease(
-                cl_id=_cl,
-                cl_approval_id=i.approver_id,
-                cl_approval_name=i.approver.username,
-                cl_approval_email=i.approver.email,
-                cl_approval_position=i.approver.position.position_id,
-                sequence=i.sequence,
-                limit=i.limit,
-                return_to=i.return_to,
-                approve=i.approve,
-                revise=i.revise,
-                returned=i.returned,
-                reject=i.reject,
-                notif=i.notif,
-                printed=i.printed,
-                as_approved=i.as_approved)
-            release.save()
-
-        return HttpResponseRedirect(reverse('cl-view', args=['draft', _id]))
-
-    context = {
-        'selected_area': selected_area,
-        'selected_distributor': selected_distributor,
-        'area': area,
-        'distributors': distributors,
-        'no_save': no_save,
-        'message': message,
-        'segment': 'cl',
-        'group_segment': 'cl',
-        'crud': 'add',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CL') if not request.user.is_superuser else Auth.objects.all(),
-    }
-    return render(request, 'home/cl_add.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL')
-def cl_view(request, _tab, _id):
-    cl = CL.objects.get(cl_id=_id)
-    cl_detail = CLDetail.objects.filter(cl_id=_id)
-    claim = Claim.objects.filter(status='OPEN', area_id=cl.area_id, proposal__budget__budget_distributor=cl.distributor_id).exclude(
-        cldetail__claim_id__in=CLDetail.objects.all().values_list('claim_id', flat=True)).values_list('claim_id', 'remarks', 'cldetail__claim_id')
-
-    highest_approval = CLRelease.objects.filter(
-        cl_id=_id).aggregate(Max('sequence'))
-    highest_sequence = highest_approval.get('sequence__min') if highest_approval.get(
-        'sequence__min') else highest_approval.get('sequence__max') + 1
-    if highest_sequence:
-        approval = CLRelease.objects.filter(
-            cl_id=_id, sequence__lt=highest_sequence).order_by('sequence')
-    else:
-        approval = CLRelease.objects.filter(cl_id=_id).order_by('sequence')
-
-    if request.POST:
-        check = request.POST.getlist('checks[]')
-        _cl = CL.objects.get(cl_id=_id)
-        for i in claim:
-            if str(i[0]) in check:
-                try:
-                    detail = CLDetail(cl_id=_cl, claim_id=i[0])
-                    detail.save()
-                except IntegrityError:
-                    continue
-            else:
-                CLDetail.objects.filter(cl_id=_id, claim_id=i[0]).delete()
-
-        cl.status = 'PENDING'
-        cl.save()
-
-        mail_sent = CLRelease.objects.filter(
-            cl_id=_id).order_by('sequence').values_list('mail_sent', flat=True)
-        if mail_sent[0] == False:
-            email = CLRelease.objects.filter(
-                cl_id=_id).order_by('sequence').values_list('cl_approval_email', flat=True)
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT username FROM apps_clrelease INNER JOIN apps_user ON apps_clrelease.cl_approval_id = apps_user.user_id WHERE cl_id_id = '" + str(_id) + "' AND cl_approval_status = 'N' ORDER BY sequence LIMIT 1")
-                approver = cursor.fetchone()
-
-            subject = 'CL Approval'
-            msg = 'Dear ' + approver[0] + ',\n\nYou have a new CL to approve. Please check your CL release list.\n\n' + \
-                'Click this link to approve, revise, return or reject this CL.\n' + host.url + 'cl_release/view/' + str(_id) + '/0/' + \
-                '\n\nThank you.'
-            send_email(subject, msg, [email[0]])
-
-            # update mail sent to true
-            release = CLRelease.objects.filter(
-                cl_id=_id).order_by('sequence').first()
-            release.mail_sent = True
-            release.save()
-
-        return HttpResponseRedirect(reverse('cl-view', args=[_tab, _id]))
-
-    context = {
-        'data': cl,
-        'cl_detail': cl_detail,
-        'claim': claim,
-        'tab': _tab,
-        'approval': approval,
-        'status': cl.status,
-        'segment': 'cl',
-        'group_segment': 'cl',
-        'crud': 'view',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
-            'menu_id', flat=True),
-        'btn': Auth.objects.get(
-            user_id=request.user.user_id, menu_id='CL') if not request.user.is_superuser else Auth.objects.all(),
-    }
-
-    return render(request, 'home/cl_view.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL')
-def cldetail_delete(request, _tab, _id):
-    detail = CLDetail.objects.get(id=_id)
-    detail.delete()
-
-    return HttpResponseRedirect(reverse('cl-view', args=[_tab, detail.cl_id_id]))
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-RELEASE')
-def cldetail_release_delete(request, _id):
-    detail = CLDetail.objects.get(id=_id)
-    detail.delete()
-
-    return HttpResponseRedirect(reverse('cl-release-view', args=[detail.cl_id_id]))
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL')
-def cl_delete(request, _tab, _id):
-    cl = CL.objects.get(cl_id=_id)
-
-    cl.delete()
-    return HttpResponseRedirect(reverse('cl-index', args=[_tab]))
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-RELEASE')
-def cl_release_index(request):
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT apps_cl.cl_id, apps_cl.cl_date, apps_cl.area_id, apps_distributor.distributor_name, apps_cl.status, apps_clrelease.sequence FROM apps_distributor INNER JOIN apps_cl ON apps_distributor.distributor_id = apps_cl.distributor_id INNER JOIN apps_clrelease ON apps_cl.cl_id = apps_clrelease.cl_id_id INNER JOIN (SELECT cl_id_id, MIN(sequence) AS seq FROM apps_clrelease WHERE cl_approval_status = 'N' GROUP BY cl_id_id ORDER BY sequence ASC) AS q_group ON apps_clrelease.cl_id_id = q_group.cl_id_id AND apps_clrelease.sequence = q_group.seq WHERE (apps_cl.status = 'PENDING' OR apps_cl.status = 'IN APPROVAL') AND apps_clrelease.cl_approval_id = '" + str(request.user.user_id) + "'")
-        release = cursor.fetchall()
-
-    context = {
-        'data': release,
-        'segment': 'cl_release',
-        'group_segment': 'cl',
-        'crud': 'index',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CL-RELEASE') if not request.user.is_superuser else Auth.objects.all(),
-    }
-
-    return render(request, 'home/cl_release_index.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-RELEASE')
-def cl_release_view(request, _id, _is_revise):
-    cl = CL.objects.get(cl_id=_id)
-    cl_detail = CLDetail.objects.filter(cl_id=_id)
-    approved = CLRelease.objects.get(
-        cl_id=_id, cl_approval_id=request.user.user_id).cl_approval_status
-    claim = Claim.objects.filter(status='OPEN', area_id=cl.area_id, proposal__budget__budget_distributor=cl.distributor_id).exclude(
-        cldetail__claim_id__in=CLDetail.objects.all().values_list('claim_id', flat=True)).values_list('claim_id', 'remarks', 'cldetail__claim_id')
-
-    if request.POST:
-        check = request.POST.getlist('checks[]')
-        for i in claim:
-            if str(i[0]) in check:
-                try:
-                    detail = CLDetail(cl_id=_id, claim_id=i[0])
-                    detail.save()
-                except IntegrityError:
-                    continue
-            else:
-                CLDetail.objects.filter(cl_id=_id, claim_id=i[0]).delete()
-
-        return HttpResponseRedirect(reverse('cl-release-view', args=[_id, 0]))
-
-    context = {
-        'data': cl,
-        'cl_detail': cl_detail,
-        'claim': claim,
-        'approved': approved,
-        'is_revise': _is_revise,
-        'segment': 'cl_release',
-        'group_segment': 'cl',
-        'crud': 'view',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
-            'menu_id', flat=True),
-        'btn': Auth.objects.get(
-            user_id=request.user.user_id, menu_id='CL-RELEASE') if not request.user.is_superuser else Auth.objects.all(),
-        'btn_release': CLRelease.objects.get(cl_id=_id, cl_approval_id=request.user.user_id) if not request.user.is_superuser else None,
-    }
-    return render(request, 'home/cl_release_view.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-RELEASE')
-def cl_release_update(request, _id):
-    cl = CL.objects.get(cl_id=_id)
-    cl_detail = CLDetail.objects.filter(cl_id=_id)
-    claim = Claim.objects.filter(status='OPEN', area_id=cl.area_id, proposal__budget__budget_distributor=cl.distributor_id).exclude(
-        cldetail__claim_id__in=CLDetail.objects.all().values_list('claim_id', flat=True)).values_list('claim_id', 'remarks', 'cldetail__claim_id')
-
-    _add = ''
-    _remove = ''
-
-    if request.POST:
-        check = request.POST.getlist('checks[]')
-        for i in claim:
-            if str(i[0]) in check:
-                try:
-                    detail = CLDetail(cl_id=_id, claim_id=i[0])
-                    detail.save()
-                    _add += i[0] + '\n'
-                except IntegrityError:
-                    continue
-            else:
-                CLDetail.objects.filter(cl_id=_id, claim_id=i[0]).delete()
-                _remove += i[0] + '\n'
-
-        recipients = []
-
-        release = CLRelease.objects.get(
-            cl_id=_id, cl_approval_id=request.user.user_id)
-        release.revise_note = request.POST.get('revise_note')
-        release.save()
-
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT cl_id, email FROM apps_cl INNER JOIN apps_user ON apps_cl.entry_by = apps_user.user_id WHERE cl_id = '" + str(_id) + "'")
-            entry_mail = cursor.fetchone()
-            if entry_mail:
-                recipients.append(entry_mail[1])
-
-            cursor.execute(
-                "SELECT cl_id, email FROM apps_cl INNER JOIN apps_user ON apps_cl.update_by = apps_user.user_id WHERE cl_id = '" + str(_id) + "'")
-            update_mail = cursor.fetchone()
-            if update_mail:
-                recipients.append(update_mail[1])
-
-            cursor.execute(
-                "SELECT cl_id, cl_approval_email FROM apps_clrelease WHERE cl_id = '" + str(_id) + "' AND cl_approval_status = 'Y'")
-            approver_mail = cursor.fetchall()
-            for mail in approver_mail:
-                recipients.append(mail[1])
-
-        subject = 'CL Revised'
-        msg = 'Dear All,\n\nThe following is revised CL for CL No. ' + \
-            str(_id) + ':\n'
-        msg += '\nCLAIM ADD:\n'
-        msg += _add
-        msg += '\nCLAIM REMOVE\n'
-        msg += _remove
-
-        msg += '\nNote: ' + \
-            str(release.revise_note) + '\n\nClick the following link to view the CL.\n' + host.url + 'cl/view/inapproval/' + str(_id) + '/' + \
-            '\n\nThank you.'
-
-        recipient_list = list(dict.fromkeys(recipients))
-        send_email(subject, msg, recipient_list)
-
-        return HttpResponseRedirect(reverse('cl-release-view', args=[_id, 0]))
-
-    context = {
-        'data': cl,
-        'cl_detail': cl_detail,
-        'claim': claim,
-        'segment': 'cl_release',
-        'group_segment': 'cl',
-        'crud': 'update',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
-            'menu_id', flat=True),
-        'btn': Auth.objects.get(
-            user_id=request.user.user_id, menu_id='CL-RELEASE') if not request.user.is_superuser else Auth.objects.all(),
-    }
-    return render(request, 'home/cl_view.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-RELEASE')
-def cl_release_approve(request, _id):
-    cl = CL.objects.get(cl_id=_id)
-    release = CLRelease.objects.get(
-        cl_id=_id, cl_approval_id=request.user.user_id)
-    release.cl_approval_status = 'Y'
-    release.cl_approval_date = timezone.now()
-    release.save()
-
-    highest_approval = CLRelease.objects.filter(
-        cl_id=_id).aggregate(Max('sequence'))
-    highest_sequence = highest_approval.get('sequence__min') if highest_approval.get(
-        'sequence__min') else highest_approval.get('sequence__max') + 1
-    if highest_sequence:
-        approval = CLRelease.objects.filter(
-            cl_id=_id, sequence__lt=highest_sequence).order_by('sequence').last()
-    else:
-        approval = CLRelease.objects.filter(
-            cl_id=_id).order_by('sequence').last()
-
-    if release.sequence == approval.sequence:
-        cl.status = 'OPEN'
-
-        recipients = []
-
-        maker = cl.entry_by
-        maker_mail = User.objects.get(user_id=maker).email
-        recipients.append(maker_mail)
-
-        approvers = CLRelease.objects.filter(
-            cl_id=_id, notif=True, cl_approval_status='Y')
-        for i in approvers:
-            recipients.append(i.cl_approval_email)
-
-        subject = 'CL Approved'
-        msg = 'Dear All,\n\nCL No. ' + str(_id) + ' has been approved.\n\nClick the following link to view the CL.\n' + host.url + 'cl/view/open/' + str(_id) + \
-            '\n\nThank you.'
-        recipient_list = list(dict.fromkeys(recipients))
-        send_email(subject, msg, recipient_list)
-    else:
-        cl.status = 'IN APPROVAL'
-
-        email = CLRelease.objects.filter(cl_id=_id, cl_approval_status='N').order_by(
-            'sequence').values_list('cl_approval_email', flat=True)
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT cl_approval_name FROM apps_clrelease WHERE cl_id_id = '" + str(_id) + "' AND cl_approval_status = 'N' ORDER BY sequence LIMIT 1")
-            approver = cursor.fetchone()
-
-        subject = 'CL Approval'
-        msg = 'Dear ' + approver[0] + ',\n\nYou have a new CL to approve. Please check your CL release list.\n\n' + \
-            'Click this link to approve, revise, return or reject this CL.\n' + host.url + 'cl_release/view/' + str(_id) + '/0/' + \
-            '\n\nThank you.'
-        send_email(subject, msg, [email[0]])
-
-    cl.save()
-
-    return HttpResponseRedirect(reverse('cl-release-index'))
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-RELEASE')
-def cl_release_return(request, _id):
-    recipients = []
-    draft = False
-
-    try:
-        return_to = CLRelease.objects.get(
-            cl_id=_id, return_to=True, sequence__lt=CLRelease.objects.get(cl_id=_id, cl_approval_id=request.user.user_id).sequence)
-
-        if return_to:
-            approvers = CLRelease.objects.filter(
-                cl_id=_id, sequence__gte=CLRelease.objects.get(cl_id=_id, return_to=True).sequence, sequence__lt=CLRelease.objects.get(cl_id=_id, cl_approval_id=request.user.user_id).sequence)
-    except CLRelease.DoesNotExist:
-        approvers = CLRelease.objects.filter(
-            claim_id=_id, sequence__lte=CLRelease.objects.get(cl_id=_id, cl_approval_id=request.user.user_id).sequence)
-        draft = True
-
-    for i in approvers:
-        recipients.append(i.claim_approval_email)
-        i.claim_approval_status = 'N'
-        i.claim_approval_date = None
-        i.revise_note = ''
-        i.return_note = ''
-        i.reject_note = ''
-        i.mail_sent = False
-        i.save()
-
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT cl_id, email FROM apps_cl INNER JOIN apps_user ON apps_cl.entry_by = apps_user.user_id WHERE cl_id = '" + str(_id) + "'")
-        entry_mail = cursor.fetchone()
-        if entry_mail:
-            recipients.append(entry_mail[1])
-
-        cursor.execute(
-            "SELECT cl_id, email FROM apps_cl INNER JOIN apps_user ON apps_cl.update_by = apps_user.user_id WHERE cl_id = '" + str(_id) + "'")
-        update_mail = cursor.fetchone()
-        if update_mail:
-            recipients.append(update_mail[1])
-
-    note = CLRelease.objects.get(
-        cl_id=_id, cl_approval_id=request.user.user_id)
-    note.return_note = request.POST.get('return_note')
-    note.save()
-
-    subject = 'CL Returned'
-    msg = 'Dear All,\n\nCL No. ' + str(_id) + ' has been returned.\n\nNote: ' + \
-        str(note.return_note) + \
-        '\n\nClick the following link to revise the CL.\n'
-
-    if draft:
-        cl = CL.objects.get(claim_id=_id)
-        cl.status = 'DRAFT'
-        cl.save()
-        msg += host.url + 'cl/view/pending/' + str(_id) + \
-            '\n\nThank you.'
-    else:
-        msg += host.url + 'cl_release/view/' + \
-            str(_id) + '/0/\n\nThank you.'
-    recipient_list = list(dict.fromkeys(recipients))
-    send_email(subject, msg, recipient_list)
-
-    return HttpResponseRedirect(reverse('claim-release-index'))
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-RELEASE')
-def cl_release_reject(request, _id):
-    cl = CL.objects.get(cl_id=_id)
-    recipients = []
-
-    try:
-        approvers = CLRelease.objects.filter(
-            cl_id=_id, sequence__lt=CLRelease.objects.get(cl_id=_id, cl_approval_id=request.user.user_id).sequence)
-    except CLRelease.DoesNotExist:
-        pass
-
-    for i in approvers:
-        recipients.append(i.cl_approval_email)
-
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT cl_id, email FROM apps_cl INNER JOIN apps_user ON apps_cl.entry_by = apps_user.user_id WHERE cl_id = '" + str(_id) + "'")
-        entry_mail = cursor.fetchone()
-        if entry_mail:
-            recipients.append(entry_mail[1])
-
-        cursor.execute(
-            "SELECT cl_id, email FROM apps_cl INNER JOIN apps_user ON apps_cl.update_by = apps_user.user_id WHERE cl_id = '" + str(_id) + "'")
-        update_mail = cursor.fetchone()
-        if update_mail:
-            recipients.append(update_mail[1])
-
-    note = CLRelease.objects.get(
-        cl_id=_id, cl_approval_id=request.user.user_id)
-    note.reject_note = request.POST.get('reject_note')
-    note.save()
-
-    cl = CL.objects.get(cl_id=_id)
-    cl.status = 'REJECTED'
-    cl.save()
-
-    subject = 'CL Rejected'
-    msg = 'Dear All,\n\nCL No. ' + str(_id) + ' has been rejected.\n\nNote: ' + \
-        str(note.reject_note) + \
-        '\n\nClick the following link to see the CL.\n'
-    msg += host.url + 'cl/view/reject/' + str(_id) + \
-        '\n\nThank you.'
-    recipient_list = list(dict.fromkeys(recipients))
-    send_email(subject, msg, recipient_list)
-
-    return HttpResponseRedirect(reverse('cl-release-index'))
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-APPROVAL')
-def cl_matrix_index(request):
-    areas = AreaSales.objects.all()
-
-    context = {
-        'data': areas,
-        'segment': 'cl_matrix',
-        'group_segment': 'approval',
-        'crud': 'index',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CL-APPROVAL') if not request.user.is_superuser else Auth.objects.all(),
-    }
-    return render(request, 'home/cl_matrix_index.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-APPROVAL')
-def cl_matrix_view(request, _id):
-    area = AreaSales.objects.get(area_id=_id)
-    approvers = CLMatrix.objects.filter(area_id=_id)
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT user_id, username, position_name, q_clmatrix.approver_id FROM apps_user INNER JOIN apps_position ON apps_user.position_id = apps_position.position_id LEFT JOIN (SELECT * FROM apps_clmatrix WHERE area_id = '" + str(_id) + "') AS q_clmatrix ON apps_user.user_id = q_clmatrix.approver_id WHERE q_clmatrix.approver_id IS NULL")
-        users = cursor.fetchall()
-
-    if request.POST:
-        check = request.POST.getlist('checks[]')
-        for i in users:
-            if str(i[0]) in check:
-                try:
-                    approver = CLMatrix(area_id=_id, approver_id=i[0])
-                    approver.save()
-                except IntegrityError:
-                    continue
-            else:
-                CLMatrix.objects.filter(area_id=_id, approver_id=i[0]).delete()
-
-        return HttpResponseRedirect(reverse('cl-matrix-view', args=[_id]))
-
-    context = {
-        'data': area,
-        'users': users,
-        'approvers': approvers,
-        'segment': 'cl_matrix',
-        'group_segment': 'approval',
-        'tab': 'auth',
-        'crud': 'view',
-        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
-        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='CL-APPROVAL') if not request.user.is_superuser else Auth.objects.all(),
-    }
-    return render(request, 'home/cl_matrix_view.html', context)
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-APPROVAL')
-def cl_matrix_update(request, _id, _approver):
-    approvers = CLMatrix.objects.get(area=_id, approver_id=_approver)
-
-    if request.POST:
-        approvers.sequence = int(request.POST.get('sequence'))
-        # approvers.limit = int(request.POST.get('limit'))
-        approvers.return_to = True if request.POST.get('return') else False
-        approvers.approve = True if request.POST.get('approve') else False
-        approvers.revise = True if request.POST.get('revise') else False
-        approvers.returned = True if request.POST.get('returned') else False
-        approvers.reject = True if request.POST.get('reject') else False
-        approvers.notif = True if request.POST.get('notif') else False
-        approvers.printed = True if request.POST.get('printed') else False
-        approvers.as_approved = request.POST.get('as_approved')
-        approvers.save()
-
-        return HttpResponseRedirect(reverse('cl-matrix-view', args=[_id]))
-
-    return render(request, 'home/cl_matrix_view.html')
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL-APPROVAL')
-def cl_matrix_delete(request, _id, _arg):
-    approvers = CLMatrix.objects.get(area=_id, approver_id=_arg)
-    approvers.delete()
-
-    return HttpResponseRedirect(reverse('cl-matrix-view', args=[_id]))
-
-
-@login_required(login_url='/login/')
-@role_required(allowed_roles='CL')
-def cl_print(request, _id):
-    cl = CL.objects.get(cl_id=_id)
-    cl_detail = CLDetail.objects.filter(cl_id=_id)
-    detail_sum = Claim.objects.filter(
-        claim_id__in=cl_detail.values_list('claim_id')).aggregate(total=Sum('total_claim'))
-    approver = CLRelease.objects.filter(
-        cl_id=_id, cl_approval_status='Y', printed=True).order_by('sequence')
-    cl_id = _id.replace('/', '-')
-
-    # Create a new PDF file with landscape orientation
-    filename = 'CL-' + cl_id + '.pdf'
-    pdf_file = canvas.Canvas(filename, pagesize=landscape(A4))
-
-    # Set the font and font size
-    pdf_file.setFont('Helvetica-Bold', 8)
-
-    # Add logo in the center of the page
-    logo_path = 'https://aqiqahon.sahabataqiqah.co.id/apps/static/img/logo.png'
-    logo_width = 60
-    logo_height = 60
-    page_width = landscape(A4)
-    logo_x = (page_width[0] - logo_width) / 2
-    pdf_file.drawImage(logo_path, logo_x, 515,
-                       width=logo_width, height=logo_height)
-
-    # Add header
-    y = 500
-    pdf_file.drawString(25, y, 'Jakarta, ' + cl.cl_date.strftime('%d %B %Y'))
-    pdf_file.drawRightString(800, y, 'No. ' + cl.cl_id)
-
-    y -= 25
-    pdf_file.drawString(25, y, 'Kepada Yth.')
-    y -= 10
-    pdf_file.drawString(25, y, cl.distributor.distributor_name)
-    y -= 10
-    pdf_file.drawString(25, y, 'Di tempat')
-
-    y -= 25
-    pdf_file.setFont('Helvetica', 8)
-    pdf_file.drawString(25, y, 'Dengan hormat,')
-
-    y -= 25
-    pdf_file.drawString(25, y, 'Bersama ini kami sampaikan daftar program yang akan memotong Budget Selisih Margin PT. ABC PI di ' +
-                        cl.distributor.distributor_name + ' sebagai berikut:')
-
-    y -= 20
-    pdf_file.setFont('Helvetica-Bold', 8)
-    pdf_file.rect(25, y - 5, 25, 15, stroke=True)
-    title = 'No.'
-    title_width = pdf_file.stringWidth(title, 'Helvetica-Bold', 8)
-    title_x = 25 + (25 - title_width) / 2
-    pdf_file.drawString(title_x, y, title)
-
-    pdf_file.rect(50, y-5, 150, 15, stroke=True)
-    title = 'No. Klaim'
-    title_width = pdf_file.stringWidth(title, 'Helvetica-Bold', 8)
-    title_x = 50 + (150 - title_width) / 2
-    pdf_file.drawString(title_x, y, title)
-
-    pdf_file.rect(200, y-5, 225, 15, stroke=True)
-    title = 'Deskripsi'
-    title_width = pdf_file.stringWidth(title, 'Helvetica-Bold', 8)
-    title_x = 200 + (225 - title_width) / 2
-    pdf_file.drawString(title_x, y, title)
-
-    pdf_file.rect(425, y-5, 75, 15, stroke=True)
-    title = 'Nilai Klaim'
-    title_width = pdf_file.stringWidth(title, 'Helvetica-Bold', 8)
-    title_x = 425 + (75 - title_width) / 2
-    pdf_file.drawString(title_x, y, title)
-
-    pdf_file.rect(500, y-5, 150, 15, stroke=True)
-    title = 'No. Surat Program'
-    title_width = pdf_file.stringWidth(title, 'Helvetica-Bold', 8)
-    title_x = 500 + (150 - title_width) / 2
-    pdf_file.drawString(title_x, y, title)
-
-    pdf_file.rect(650, y-5, 150, 15, stroke=True)
-    title = 'No. Proposal'
-    title_width = pdf_file.stringWidth(title, 'Helvetica-Bold', 8)
-    title_x = 650 + (150 - title_width) / 2
-    pdf_file.drawString(title_x, y, title)
-
-    pdf_file.setFont("Helvetica", 8)
-    n = 0
-    for i in cl_detail:
-        y -= 15
-        n += 1
-        pdf_file.rect(25, y - 5, 25, 15, stroke=True)
-        title = str(n)
-        title_width = pdf_file.stringWidth(title, 'Helvetica', 8)
-        title_x = 25 + (25 - title_width) / 2
-        pdf_file.drawString(title_x, y, title)
-        pdf_file.rect(50, y - 5, 150, 15, stroke=True)
-        pdf_file.drawString(55, y, i.claim_id)
-        pdf_file.rect(200, y - 5, 225, 15, stroke=True)
-        remarks = Truncator(i.claim.remarks).chars(55)
-        pdf_file.drawString(205, y, remarks)
-        pdf_file.rect(425, y - 5, 75, 15, stroke=True)
-        pdf_file.drawRightString(495, y, "{:,}".format(i.claim.total_claim))
-        pdf_file.rect(500, y - 5, 150, 15, stroke=True)
-        pdf_file.drawString(505, y, i.claim.program_id)
-        pdf_file.rect(650, y - 5, 150, 15, stroke=True)
-        pdf_file.drawString(655, y, i.claim.proposal_id)
-
-    y -= 15
-    pdf_file.setFont("Helvetica-Bold", 8)
-    pdf_file.rect(25, y - 5, 775, 15, stroke=True)
-    pdf_file.drawRightString(420, y, 'TOTAL')
-    pdf_file.drawRightString(495, y, "{:,}".format(detail_sum['total']))
-
-    y -= 25
-    pdf_file.setFont("Helvetica", 8)
-    pdf_file.drawString(
-        25, y, 'Demikian surat konfirmasi ini kami sampaikan. Atas perhatian dan kerjasamanya kami ucapkann terima kasih.')
-
-    y -= 25
-    pdf_file.drawString(25, y, 'Hormat Kami,')
-
-    col_width = (page_width[0] - 50) / 11
-    for i in range(1, approver.count() + 1):
-        if approver:
-            sign_path = User.objects.get(user_id=approver[i - 1].cl_approval_id).signature.path if User.objects.get(
-                user_id=approver[i - 1].cl_approval_id).signature else ''
-            pos = User.objects.get(
-                user_id=approver[i - 1].cl_approval_id).position
-            if sign_path:
-                pdf_file.drawImage(sign_path, 25 + ((col_width * 2) * (i - 1)), y - 50,
-                                   width=col_width - 10, height=40)
-            else:
-                pass
-
-            pdf_file.setFont("Helvetica-Bold", 8)
-            pdf_file.drawString(25 + ((col_width * 2) * (i - 1)),
-                                y - 60, approver[i - 1].cl_approval_name)
-            pdf_file.setFont("Helvetica", 8)
-            pdf_file.drawString(25 + ((col_width * 2) * (i - 1)),
-                                y - 70, str(pos))
-
-    y -= 95
-    pdf_file.setFont("Helvetica-Bold", 8)
-    pdf_file.drawString(25, y, 'Cc : Finance Department')
-
-    pdf_file.save()
-
-    return FileResponse(open(filename, 'rb'), content_type='application/pdf')
-
-
-@login_required(login_url='/login/')
 @role_required(allowed_roles='REGION')
 def region_index(request):
     regions = Region.objects.all()
@@ -4621,6 +3942,20 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
     if request.POST:
         form = FormOrderPackage(request.POST)
         if form.is_valid():
+            extra_price_main = MainCuisine.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('main_cuisine')).cuisine_id).extra_price if request.POST.get('main_cuisine') else 0
+            extra_price_sub = SubCuisine.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('sub_cuisine')).cuisine_id).extra_price if request.POST.get('sub_cuisine') else 0
+            extra_price_side1 = SideCuisine1.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine1')).cuisine_id).extra_price if request.POST.get('side_cuisine1') else 0
+            extra_price_side2 = SideCuisine2.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine2')).cuisine_id).extra_price if request.POST.get('side_cuisine2') else 0
+            extra_price_side3 = SideCuisine3.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine3')).cuisine_id).extra_price if request.POST.get('side_cuisine3') else 0
+            extra_price_side4 = SideCuisine4.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
+            extra_price_side5 = SideCuisine5.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
             package = form.save(commit=False)
             package.order_id = _id
             package.category_id = _cat
@@ -4635,6 +3970,8 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
             package.side_cuisine4 = request.POST.get('side_cuisine4')
             package.side_cuisine5 = request.POST.get('side_cuisine5')
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
+            package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
+                                   extra_price_side3 + extra_price_side4 + extra_price_side5) * (selected_package.box * int(request.POST.get('quantity')))
             package.save()
 
             total = OrderPackage.objects.filter(
@@ -4679,6 +4016,20 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
 def order_cs_package_add(request, _id, _cat, _pack, _type):
     package = Package.objects.get(package_id=_pack)
     if request.POST:
+        extra_price_main = MainCuisine.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('main_cuisine')).cuisine_id).extra_price if request.POST.get('main_cuisine') else 0
+        extra_price_sub = SubCuisine.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('sub_cuisine')).cuisine_id).extra_price if request.POST.get('sub_cuisine') else 0
+        extra_price_side1 = SideCuisine1.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine1')).cuisine_id).extra_price if request.POST.get('side_cuisine1') else 0
+        extra_price_side2 = SideCuisine2.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine2')).cuisine_id).extra_price if request.POST.get('side_cuisine2') else 0
+        extra_price_side3 = SideCuisine3.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine3')).cuisine_id).extra_price if request.POST.get('side_cuisine3') else 0
+        extra_price_side4 = SideCuisine4.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
+        extra_price_side5 = SideCuisine5.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
         package = OrderPackage(
             order_id=_id,
             category_id=_cat,
@@ -4693,7 +4044,9 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
             side_cuisine3=request.POST.get('side_cuisine3'),
             side_cuisine4=request.POST.get('side_cuisine4'),
             side_cuisine5=request.POST.get('side_cuisine5'),
-            unit_price=package.male_price if _type == 'Jantan' else package.female_price
+            unit_price=package.male_price if _type == 'Jantan' else package.female_price,
+            extra_price=(extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
+                         extra_price_side3 + extra_price_side4 + extra_price_side5) * (Package.objects.get(package_id=_pack).box * int(request.POST.get('quantity'))),
         )
         package.save()
 
@@ -4750,6 +4103,20 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
     if request.POST:
         form = FormOrderPackage(request.POST, instance=package)
         if form.is_valid():
+            extra_price_main = MainCuisine.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('main_cuisine')).cuisine_id).extra_price if request.POST.get('main_cuisine') else 0
+            extra_price_sub = SubCuisine.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('sub_cuisine')).cuisine_id).extra_price if request.POST.get('sub_cuisine') else 0
+            extra_price_side1 = SideCuisine1.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine1')).cuisine_id).extra_price if request.POST.get('side_cuisine1') else 0
+            extra_price_side2 = SideCuisine2.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine2')).cuisine_id).extra_price if request.POST.get('side_cuisine2') else 0
+            extra_price_side3 = SideCuisine3.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine3')).cuisine_id).extra_price if request.POST.get('side_cuisine3') else 0
+            extra_price_side4 = SideCuisine4.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
+            extra_price_side5 = SideCuisine5.objects.get(
+                package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
             package = form.save(commit=False)
             package.category_id = _cat
             package.package_id = _pack
@@ -4763,6 +4130,8 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             package.side_cuisine4 = request.POST.get('side_cuisine4')
             package.side_cuisine5 = request.POST.get('side_cuisine5')
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
+            package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
+                                   extra_price_side3 + extra_price_side4 + extra_price_side5) * (selected_package.box * int(request.POST.get('quantity')))
             package.save()
 
             total = OrderPackage.objects.filter(
@@ -4823,6 +4192,20 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
     selected_package = Package.objects.get(package_id=_pack)
 
     if request.POST:
+        extra_price_main = MainCuisine.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('main_cuisine')).cuisine_id).extra_price if request.POST.get('main_cuisine') else 0
+        extra_price_sub = SubCuisine.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('sub_cuisine')).cuisine_id).extra_price if request.POST.get('sub_cuisine') else 0
+        extra_price_side1 = SideCuisine1.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine1')).cuisine_id).extra_price if request.POST.get('side_cuisine1') else 0
+        extra_price_side2 = SideCuisine2.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine2')).cuisine_id).extra_price if request.POST.get('side_cuisine2') else 0
+        extra_price_side3 = SideCuisine3.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine3')).cuisine_id).extra_price if request.POST.get('side_cuisine3') else 0
+        extra_price_side4 = SideCuisine4.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
+        extra_price_side5 = SideCuisine5.objects.get(
+            package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
         package.category_id = _cat
         package.package_id = _pack
         package.type = _type
@@ -4836,6 +4219,8 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
         package.side_cuisine4 = request.POST.get('side_cuisine4')
         package.side_cuisine5 = request.POST.get('side_cuisine5')
         package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
+        package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
+                               extra_price_side3 + extra_price_side4 + extra_price_side5) * (selected_package.box * int(request.POST.get('quantity')))
         package.save()
 
         total = OrderPackage.objects.filter(

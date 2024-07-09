@@ -704,7 +704,7 @@
                                                                     <select class="form-control form-select-sm" name="main_cuisine" id="id-main-cuisine" required>
                                                                         <option value="">Pilih Menu Daging</option>
                                                                         {% for cuisine in main_cuisines %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.main_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.main_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -719,7 +719,7 @@
                                                                     <select class="form-control form-select-sm" name="sub_cuisine" id="id-sub-cuisine" required>
                                                                         <option value="">Pilih Menu Olahan</option>
                                                                         {% for cuisine in sub_cuisines %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.sub_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.sub_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -732,7 +732,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine1" id="id-side-cuisine1" required>
                                                                         <option value="">Pilih Menu Pendamping 1</option>
                                                                         {% for cuisine in side_cuisines1 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine1 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine1 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -747,7 +747,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine2" id="id-side-cuisine2" required>
                                                                         <option value="">Pilih Menu Pendamping 2</option>
                                                                         {% for cuisine in side_cuisines2 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine2 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine2 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -760,7 +760,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine3" id="id-side-cuisine3" required>
                                                                         <option value="">Pilih Menu Pendamping 3</option>
                                                                         {% for cuisine in side_cuisines3 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine3 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine3 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -775,7 +775,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine4" id="id-side-cuisine4" required>
                                                                         <option value="">Pilih Menu Pendamping 4</option>
                                                                         {% for cuisine in side_cuisines4 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine4 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine4 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -788,7 +788,7 @@
                                                                     <select class="form-control form-select-sm" name="side_cuisine5" id="id-side-cuisine5" required>
                                                                         <option value="">Pilih Menu Pendamping 5</option>
                                                                         {% for cuisine in side_cuisines5 %}
-                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine5 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}</option>
+                                                                        <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.side_cuisine5 == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                 </div>
@@ -909,7 +909,7 @@
                                         <select class="form-control form-select-sm" name="main_cuisine" id="id-main-cuisine" required>
                                             <option value="">Pilih Menu Daging</option>
                                             {% for item in main_cuisines %}
-                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -924,7 +924,7 @@
                                         <select class="form-control form-select-sm" name="sub_cuisine" id="id-sub-cuisine" required>
                                             <option value="">Pilih Menu Olahan</option>
                                             {% for item in sub_cuisines %}
-                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -937,7 +937,7 @@
                                         <select class="form-control form-select-sm" name="side_cuisine1" id="id-side-cuisine1" required>
                                             <option value="">Pilih Menu Pendamping 1</option>
                                             {% for item in side_cuisines1 %}
-                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -952,7 +952,7 @@
                                         <select class="form-control form-select-sm" name="side_cuisine2" id="id-side-cuisine2" required>
                                             <option value="">Pilih Menu Pendamping 2</option>
                                             {% for item in side_cuisines2 %}
-                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -965,7 +965,7 @@
                                         <select class="form-control form-select-sm" name="side_cuisine3" id="id-side-cuisine3" required>
                                             <option value="">Pilih Menu Pendamping 3</option>
                                             {% for item in side_cuisines3 %}
-                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -980,7 +980,7 @@
                                         <select class="form-control form-select-sm" name="side_cuisine4" id="id-side-cuisine4" required>
                                             <option value="">Pilih Menu Pendamping 4</option>
                                             {% for item in side_cuisines4 %}
-                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -993,7 +993,7 @@
                                         <select class="form-control form-select-sm" name="side_cuisine5" id="id-side-cuisine5" required>
                                             <option value="">Pilih Menu Pendamping 5</option>
                                             {% for item in side_cuisines5 %}
-                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}</option>
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>

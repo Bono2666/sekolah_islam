@@ -152,6 +152,8 @@ class Package(models.Model):
 class MainCuisine(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -175,6 +177,8 @@ class MainCuisine(models.Model):
 class SubCuisine(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -198,6 +202,8 @@ class SubCuisine(models.Model):
 class SideCuisine1(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -221,6 +227,8 @@ class SideCuisine1(models.Model):
 class SideCuisine2(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -244,6 +252,8 @@ class SideCuisine2(models.Model):
 class SideCuisine3(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -267,6 +277,8 @@ class SideCuisine3(models.Model):
 class SideCuisine4(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -290,6 +302,8 @@ class SideCuisine4(models.Model):
 class SideCuisine5(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -1488,6 +1502,8 @@ class OrderPackage(models.Model):
     side_cuisine3 = models.CharField(max_length=50, null=True)
     side_cuisine4 = models.CharField(max_length=50, null=True)
     side_cuisine5 = models.CharField(max_length=50, null=True)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     unit_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
     total_price = models.DecimalField(
@@ -1505,7 +1521,7 @@ class OrderPackage(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        self.total_price = self.quantity * self.unit_price
+        self.total_price = (self.quantity * self.unit_price) + self.extra_price
         if not self.entry_date:
             self.entry_date = timezone.now()
             self.entry_by = 'customer'

@@ -4,6 +4,8 @@
 
 {% block content %}
 
+{% load humanize %}
+
 <div class="container-fluid mt-0">
     <div class="row">
         <div class="col-xl-12 order-xl-1">
@@ -224,16 +226,24 @@
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                                 Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for item in selected_cuisine %}
-                                        <tr>
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#edit-{{ item.cuisine_id }}"{% endif %}>
                                             <td>
                                                 <div class="d-flex pe-2 py-0">
                                                     <div class="d-flex flex-column justify-content-center">
                                                         <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
                                                     </div>
                                                 </div>
                                             </td>
@@ -259,6 +269,35 @@
                                                 </div>
                                             </div>
                                         </tr>
+                                        <div class="modal fade" id="edit-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Masakan: {{ item.cuisine }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-maincuisine-update' data.package_id item.cuisine_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -328,16 +367,24 @@
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                                 Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for item in selected_subcuisine %}
-                                        <tr>
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#edit-{{ item.cuisine_id }}"{% endif %}>
                                             <td>
                                                 <div class="d-flex pe-2 py-0">
                                                     <div class="d-flex flex-column justify-content-center">
                                                         <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
                                                     </div>
                                                 </div>
                                             </td>
@@ -363,6 +410,35 @@
                                                 </div>
                                             </div>
                                         </tr>
+                                        <div class="modal fade" id="edit-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Masakan: {{ item.cuisine }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-subcuisine-update' data.package_id item.cuisine_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -432,16 +508,24 @@
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                                 Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for item in selected_sidecuisine1 %}
-                                        <tr>
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#edit-{{ item.cuisine_id }}"{% endif %}>
                                             <td>
                                                 <div class="d-flex pe-2 py-0">
                                                     <div class="d-flex flex-column justify-content-center">
                                                         <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
                                                     </div>
                                                 </div>
                                             </td>
@@ -467,6 +551,35 @@
                                                 </div>
                                             </div>
                                         </tr>
+                                        <div class="modal fade" id="edit-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Masakan: {{ item.cuisine }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-sidecuisine1-update' data.package_id item.cuisine_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -536,16 +649,24 @@
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                                 Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for item in selected_sidecuisine2 %}
-                                        <tr>
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#edit-{{ item.cuisine_id }}"{% endif %}>
                                             <td>
                                                 <div class="d-flex pe-2 py-0">
                                                     <div class="d-flex flex-column justify-content-center">
                                                         <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
                                                     </div>
                                                 </div>
                                             </td>
@@ -571,6 +692,35 @@
                                                 </div>
                                             </div>
                                         </tr>
+                                        <div class="modal fade" id="edit-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Masakan: {{ item.cuisine }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-sidecuisine2-update' data.package_id item.cuisine_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -640,16 +790,24 @@
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                                 Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for item in selected_sidecuisine3 %}
-                                        <tr>
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#edit-{{ item.cuisine_id }}"{% endif %}>
                                             <td>
                                                 <div class="d-flex pe-2 py-0">
                                                     <div class="d-flex flex-column justify-content-center">
                                                         <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
                                                     </div>
                                                 </div>
                                             </td>
@@ -675,6 +833,35 @@
                                                 </div>
                                             </div>
                                         </tr>
+                                        <div class="modal fade" id="edit-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Masakan: {{ item.cuisine }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-sidecuisine3-update' data.package_id item.cuisine_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -744,16 +931,24 @@
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                                 Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for item in selected_sidecuisine4 %}
-                                        <tr>
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#edit-{{ item.cuisine_id }}"{% endif %}>
                                             <td>
                                                 <div class="d-flex pe-2 py-0">
                                                     <div class="d-flex flex-column justify-content-center">
                                                         <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
                                                     </div>
                                                 </div>
                                             </td>
@@ -779,6 +974,35 @@
                                                 </div>
                                             </div>
                                         </tr>
+                                        <div class="modal fade" id="edit-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Masakan: {{ item.cuisine }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-sidecuisine4-update' data.package_id item.cuisine_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -848,16 +1072,24 @@
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                                 Nama Menu</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for item in selected_sidecuisine5 %}
-                                        <tr>
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#edit-{{ item.cuisine_id }}"{% endif %}>
                                             <td>
                                                 <div class="d-flex pe-2 py-0">
                                                     <div class="d-flex flex-column justify-content-center">
                                                         <h6 class="mb-0 text-sm">{{ item.cuisine.cuisine_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
                                                     </div>
                                                 </div>
                                             </td>
@@ -883,6 +1115,35 @@
                                                 </div>
                                             </div>
                                         </tr>
+                                        <div class="modal fade" id="edit-{{ item.cuisine_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Masakan: {{ item.cuisine }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-sidecuisine5-update' data.package_id item.cuisine_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                         {% endfor %}
                                     </tbody>
                                 </table>

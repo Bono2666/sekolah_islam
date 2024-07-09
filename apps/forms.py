@@ -1231,7 +1231,7 @@ class FormOrderPackage(ModelForm):
 
     class Meta:
         model = OrderPackage
-        exclude = ['category', 'package', 'type', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price',
+        exclude = ['category', 'package', 'type', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price', 'extra_price',
                    'entry_by', 'update_date', 'update_by']
 
 
