@@ -1019,6 +1019,110 @@ def cuisine_delete(request, _id):
 
 
 @login_required(login_url='/login/')
+@role_required(allowed_roles='EQUIPMENT')
+def equipment_index(request):
+    equipments = Equipment.objects.all()
+
+    context = {
+        'data': equipments,
+        'segment': 'equipment',
+        'group_segment': 'master',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='EQUIPMENT') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/equipment_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='EQUIPMENT')
+def equipment_add(request):
+    if request.POST:
+        form = FormEquipment(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('equipment-index'))
+        else:
+            message = form.errors
+            context = {
+                'form': form,
+                'segment': 'equipment',
+                'group_segment': 'master',
+                'crud': 'add',
+                'message': message,
+                'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+                'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='EQUIPMENT') if not request.user.is_superuser else Auth.objects.all(),
+            }
+            return render(request, 'home/equipment_add.html', context)
+    else:
+        form = FormEquipment()
+        context = {
+            'form': form,
+            'segment': 'equipment',
+            'group_segment': 'master',
+            'crud': 'add',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='EQUIPMENT') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/equipment_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='EQUIPMENT')
+def equipment_view(request, _id):
+    equipments = Equipment.objects.get(equipment_id=_id)
+    form = FormEquipmentView(instance=equipments)
+
+    context = {
+        'form': form,
+        'data': equipments,
+        'segment': 'equipment',
+        'group_segment': 'master',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='EQUIPMENT') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/equipment_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='EQUIPMENT')
+def equipment_update(request, _id):
+    equipments = Equipment.objects.get(equipment_id=_id)
+    if request.POST:
+        form = FormEquipmentUpdate(
+            request.POST, request.FILES, instance=equipments)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('equipment-view', args=[_id, ]))
+    else:
+        form = FormEquipmentUpdate(instance=equipments)
+
+    message = form.errors
+    context = {
+        'form': form,
+        'data': equipments,
+        'segment': 'equipment',
+        'group_segment': 'master',
+        'crud': 'update',
+        'message': message,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='EQUIPMENT') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/equipment_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='EQUIPMENT')
+def equipment_delete(request, _id):
+    equipments = Equipment.objects.get(equipment_id=_id)
+
+    equipments.delete()
+    return HttpResponseRedirect(reverse('equipment-index'))
+
+
+@login_required(login_url='/login/')
 @role_required(allowed_roles='CATEGORY')
 def category_index(request):
     categories = Category.objects.all()
@@ -1182,12 +1286,13 @@ def package_add(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='PACKAGE')
-def package_view(request, _id):
+def package_rice_view(request, _id):
     packages = Package.objects.get(package_id=_id)
     packages.male_price = '{:,}'.format(packages.male_price)
     packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
     selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
     selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
@@ -1195,6 +1300,11 @@ def package_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     main_cuisines = Cuisine.objects.all().exclude(
         cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     sub_cuisines = Cuisine.objects.all().exclude(
@@ -1209,6 +1319,107 @@ def package_view(request, _id):
         cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     side_cuisines5 = Cuisine.objects.all().exclude(
         cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('rice[]')
+        for i in rices:
+            if str(i.cuisine_id) in check:
+                try:
+                    rice = Rice(
+                        package=packages, cuisine=i)
+                    rice.save()
+                except IntegrityError:
+                    continue
+            else:
+                Rice.objects.filter(
+                    package_id=_id, cuisine_id=i.cuisine_id).delete()
+
+        return HttpResponseRedirect(reverse('package-rice-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_rice': selected_rice,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'rice',
+        'eq_tab': 'bag',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
         check = request.POST.getlist('main_cuisine[]')
@@ -1230,6 +1441,7 @@ def package_view(request, _id):
         'form': form,
         'data': packages,
         'categories': categories,
+        'selected_rice': selected_rice,
         'selected_cuisine': selected_cuisine,
         'selected_subcuisine': selected_subcuisine,
         'selected_sidecuisine1': selected_sidecuisine1,
@@ -1237,6 +1449,10 @@ def package_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
         'main_cuisines': main_cuisines,
         'sub_cuisines': sub_cuisines,
         'side_cuisines1': side_cuisines1,
@@ -1244,9 +1460,13 @@ def package_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'main_cuisine',
+        'eq_tab': 'bag',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1262,6 +1482,7 @@ def package_subcuisine_view(request, _id):
     packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
     selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
     selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
@@ -1269,6 +1490,11 @@ def package_subcuisine_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     main_cuisines = Cuisine.objects.all().exclude(
         cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     sub_cuisines = Cuisine.objects.all().exclude(
@@ -1283,6 +1509,12 @@ def package_subcuisine_view(request, _id):
         cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     side_cuisines5 = Cuisine.objects.all().exclude(
         cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
         check = request.POST.getlist('sub_cuisine[]')
@@ -1304,6 +1536,7 @@ def package_subcuisine_view(request, _id):
         'form': form,
         'data': packages,
         'categories': categories,
+        'selected_rice': selected_rice,
         'selected_cuisine': selected_cuisine,
         'selected_subcuisine': selected_subcuisine,
         'selected_sidecuisine1': selected_sidecuisine1,
@@ -1311,6 +1544,10 @@ def package_subcuisine_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
         'main_cuisines': main_cuisines,
         'sub_cuisines': sub_cuisines,
         'side_cuisines1': side_cuisines1,
@@ -1318,9 +1555,13 @@ def package_subcuisine_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'sub_cuisine',
+        'eq_tab': 'bag',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1336,6 +1577,7 @@ def package_sidecuisine1_view(request, _id):
     packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
     selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
     selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
@@ -1343,6 +1585,11 @@ def package_sidecuisine1_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     main_cuisines = Cuisine.objects.all().exclude(
         cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     sub_cuisines = Cuisine.objects.all().exclude(
@@ -1357,6 +1604,12 @@ def package_sidecuisine1_view(request, _id):
         cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     side_cuisines5 = Cuisine.objects.all().exclude(
         cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
         check = request.POST.getlist('side_cuisine1[]')
@@ -1378,6 +1631,7 @@ def package_sidecuisine1_view(request, _id):
         'form': form,
         'data': packages,
         'categories': categories,
+        'selected_rice': selected_rice,
         'selected_cuisine': selected_cuisine,
         'selected_subcuisine': selected_subcuisine,
         'selected_sidecuisine1': selected_sidecuisine1,
@@ -1385,6 +1639,10 @@ def package_sidecuisine1_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
         'main_cuisines': main_cuisines,
         'sub_cuisines': sub_cuisines,
         'side_cuisines1': side_cuisines1,
@@ -1392,9 +1650,13 @@ def package_sidecuisine1_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine1',
+        'eq_tab': 'bag',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1410,6 +1672,7 @@ def package_sidecuisine2_view(request, _id):
     packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
     selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
     selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
@@ -1417,6 +1680,11 @@ def package_sidecuisine2_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     main_cuisines = Cuisine.objects.all().exclude(
         cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     sub_cuisines = Cuisine.objects.all().exclude(
@@ -1431,6 +1699,12 @@ def package_sidecuisine2_view(request, _id):
         cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     side_cuisines5 = Cuisine.objects.all().exclude(
         cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
         check = request.POST.getlist('side_cuisine2[]')
@@ -1452,6 +1726,7 @@ def package_sidecuisine2_view(request, _id):
         'form': form,
         'data': packages,
         'categories': categories,
+        'selected_rice': selected_rice,
         'selected_cuisine': selected_cuisine,
         'selected_subcuisine': selected_subcuisine,
         'selected_sidecuisine1': selected_sidecuisine1,
@@ -1459,6 +1734,10 @@ def package_sidecuisine2_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
         'main_cuisines': main_cuisines,
         'sub_cuisines': sub_cuisines,
         'side_cuisines1': side_cuisines1,
@@ -1466,9 +1745,13 @@ def package_sidecuisine2_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine2',
+        'eq_tab': 'bag',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1484,6 +1767,7 @@ def package_sidecuisine3_view(request, _id):
     packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
     selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
     selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
@@ -1491,6 +1775,11 @@ def package_sidecuisine3_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     main_cuisines = Cuisine.objects.all().exclude(
         cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     sub_cuisines = Cuisine.objects.all().exclude(
@@ -1505,6 +1794,12 @@ def package_sidecuisine3_view(request, _id):
         cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     side_cuisines5 = Cuisine.objects.all().exclude(
         cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
         check = request.POST.getlist('side_cuisine3[]')
@@ -1526,6 +1821,7 @@ def package_sidecuisine3_view(request, _id):
         'form': form,
         'data': packages,
         'categories': categories,
+        'selected_rice': selected_rice,
         'selected_cuisine': selected_cuisine,
         'selected_subcuisine': selected_subcuisine,
         'selected_sidecuisine1': selected_sidecuisine1,
@@ -1533,6 +1829,10 @@ def package_sidecuisine3_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
         'main_cuisines': main_cuisines,
         'sub_cuisines': sub_cuisines,
         'side_cuisines1': side_cuisines1,
@@ -1540,9 +1840,13 @@ def package_sidecuisine3_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine3',
+        'eq_tab': 'bag',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1558,6 +1862,7 @@ def package_sidecuisine4_view(request, _id):
     packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
     selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
     selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
@@ -1565,6 +1870,11 @@ def package_sidecuisine4_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     main_cuisines = Cuisine.objects.all().exclude(
         cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     sub_cuisines = Cuisine.objects.all().exclude(
@@ -1579,6 +1889,12 @@ def package_sidecuisine4_view(request, _id):
         cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     side_cuisines5 = Cuisine.objects.all().exclude(
         cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
         check = request.POST.getlist('side_cuisine4[]')
@@ -1600,6 +1916,7 @@ def package_sidecuisine4_view(request, _id):
         'form': form,
         'data': packages,
         'categories': categories,
+        'selected_rice': selected_rice,
         'selected_cuisine': selected_cuisine,
         'selected_subcuisine': selected_subcuisine,
         'selected_sidecuisine1': selected_sidecuisine1,
@@ -1607,6 +1924,10 @@ def package_sidecuisine4_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
         'main_cuisines': main_cuisines,
         'sub_cuisines': sub_cuisines,
         'side_cuisines1': side_cuisines1,
@@ -1614,9 +1935,13 @@ def package_sidecuisine4_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine4',
+        'eq_tab': 'bag',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1632,6 +1957,7 @@ def package_sidecuisine5_view(request, _id):
     packages.female_price = '{:,}'.format(packages.female_price)
     form = FormPackageView(instance=packages)
     categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
     selected_cuisine = MainCuisine.objects.filter(package_id=_id)
     selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
     selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
@@ -1639,6 +1965,11 @@ def package_sidecuisine5_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     main_cuisines = Cuisine.objects.all().exclude(
         cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     sub_cuisines = Cuisine.objects.all().exclude(
@@ -1653,6 +1984,12 @@ def package_sidecuisine5_view(request, _id):
         cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
     side_cuisines5 = Cuisine.objects.all().exclude(
         cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
         check = request.POST.getlist('side_cuisine5[]')
@@ -1674,6 +2011,7 @@ def package_sidecuisine5_view(request, _id):
         'form': form,
         'data': packages,
         'categories': categories,
+        'selected_rice': selected_rice,
         'selected_cuisine': selected_cuisine,
         'selected_subcuisine': selected_subcuisine,
         'selected_sidecuisine1': selected_sidecuisine1,
@@ -1681,6 +2019,10 @@ def package_sidecuisine5_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
         'main_cuisines': main_cuisines,
         'sub_cuisines': sub_cuisines,
         'side_cuisines1': side_cuisines1,
@@ -1688,9 +2030,298 @@ def package_sidecuisine5_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine5',
+        'eq_tab': 'bag',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_bag_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('equipment[]')
+        for i in eqs:
+            if str(i.equipment_id) in check:
+                try:
+                    eq = Bag(
+                        package=packages, equipment=i)
+                    eq.save()
+                except IntegrityError:
+                    continue
+            else:
+                Bag.objects.filter(
+                    package_id=_id, equipment_id=i.equipment_id).delete()
+
+        return HttpResponseRedirect(reverse('package-bag-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_rice': selected_rice,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'main_cuisine',
+        'eq_tab': 'bag',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_box_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('box[]')
+        for i in box:
+            if str(i.equipment_id) in check:
+                try:
+                    pack = Pack(
+                        package=packages, equipment=i)
+                    pack.save()
+                except IntegrityError:
+                    continue
+            else:
+                Pack.objects.filter(
+                    package_id=_id, equipment_id=i.equipment_id).delete()
+
+        return HttpResponseRedirect(reverse('package-box-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_rice': selected_rice,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'main_cuisine',
+        'eq_tab': 'box',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_addon_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('addon[]')
+        for i in addons:
+            if str(i.equipment_id) in check:
+                try:
+                    addon = Addon(
+                        package=packages, equipment=i)
+                    addon.save()
+                except IntegrityError:
+                    continue
+            else:
+                Addon.objects.filter(
+                    package_id=_id, equipment_id=i.equipment_id).delete()
+
+        return HttpResponseRedirect(reverse('package-addon-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_rice': selected_rice,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_addon': selected_addon,
+        'rices': rices,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'eqs': eqs,
+        'box': box,
+        'addons': addons,
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'main_cuisine',
+        'eq_tab': 'addon',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1705,6 +2336,7 @@ def package_maincuisine_update(request, _id, _cuisine):
 
     if request.POST:
         cuisine.extra_price = request.POST.get('price')
+        cuisine.default = 1 if request.POST.get('default') else 0
         cuisine.save()
 
         return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
@@ -1719,11 +2351,12 @@ def package_subcuisine_update(request, _id, _cuisine):
 
     if request.POST:
         cuisine.extra_price = request.POST.get('price')
+        cuisine.default = 1 if request.POST.get('default') else 0
         cuisine.save()
 
-        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+        return HttpResponseRedirect(reverse('package-subcuisine-view', args=[_id, ]))
 
-    return render(request, 'home/package_view.html')
+    return render(request, 'home/package_subcuisine_view.html')
 
 
 @login_required(login_url='/login/')
@@ -1733,11 +2366,12 @@ def package_sidecuisine1_update(request, _id, _cuisine):
 
     if request.POST:
         cuisine.extra_price = request.POST.get('price')
+        cuisine.default = 1 if request.POST.get('default') else 0
         cuisine.save()
 
-        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+        return HttpResponseRedirect(reverse('package-sidecuisine1-view', args=[_id, ]))
 
-    return render(request, 'home/package_view.html')
+    return render(request, 'home/package_sidecuisine1_view.html')
 
 
 @login_required(login_url='/login/')
@@ -1747,11 +2381,12 @@ def package_sidecuisine2_update(request, _id, _cuisine):
 
     if request.POST:
         cuisine.extra_price = request.POST.get('price')
+        cuisine.default = 1 if request.POST.get('default') else 0
         cuisine.save()
 
-        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+        return HttpResponseRedirect(reverse('package-sidecuisine2-view', args=[_id, ]))
 
-    return render(request, 'home/package_view.html')
+    return render(request, 'home/package_sidecuisine2_view.html')
 
 
 @login_required(login_url='/login/')
@@ -1761,11 +2396,12 @@ def package_sidecuisine3_update(request, _id, _cuisine):
 
     if request.POST:
         cuisine.extra_price = request.POST.get('price')
+        cuisine.default = 1 if request.POST.get('default') else 0
         cuisine.save()
 
-        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+        return HttpResponseRedirect(reverse('package-sidecuisine3-view', args=[_id, ]))
 
-    return render(request, 'home/package_view.html')
+    return render(request, 'home/package_sidecuisine3_view.html')
 
 
 @login_required(login_url='/login/')
@@ -1775,11 +2411,12 @@ def package_sidecuisine4_update(request, _id, _cuisine):
 
     if request.POST:
         cuisine.extra_price = request.POST.get('price')
+        cuisine.default = 1 if request.POST.get('default') else 0
         cuisine.save()
 
-        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+        return HttpResponseRedirect(reverse('package-sidecuisine4-view', args=[_id, ]))
 
-    return render(request, 'home/package_view.html')
+    return render(request, 'home/package_sidecuisine4_view.html')
 
 
 @login_required(login_url='/login/')
@@ -1789,11 +2426,71 @@ def package_sidecuisine5_update(request, _id, _cuisine):
 
     if request.POST:
         cuisine.extra_price = request.POST.get('price')
+        cuisine.default = 1 if request.POST.get('default') else 0
         cuisine.save()
 
-        return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+        return HttpResponseRedirect(reverse('package-sidecuisine5-view', args=[_id, ]))
 
-    return render(request, 'home/package_view.html')
+    return render(request, 'home/package_sidecuisine5_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_rice_update(request, _id, _cuisine):
+    rice = Rice.objects.get(package=_id, cuisine=_cuisine)
+
+    if request.POST:
+        rice.extra_price = request.POST.get('price')
+        rice.default = 1 if request.POST.get('default') else 0
+        rice.save()
+
+        return HttpResponseRedirect(reverse('package-rice-view', args=[_id, ]))
+
+    return render(request, 'home/package_rice_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_bag_update(request, _id, _eq):
+    bag = Bag.objects.get(package=_id, equipment=_eq)
+
+    if request.POST:
+        bag.extra_price = request.POST.get('price')
+        bag.default = 1 if request.POST.get('default') else 0
+        bag.save()
+
+        return HttpResponseRedirect(reverse('package-bag-view', args=[_id, ]))
+
+    return render(request, 'home/package_bag_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_box_update(request, _id, _eq):
+    box = Pack.objects.get(package=_id, equipment=_eq)
+
+    if request.POST:
+        box.extra_price = request.POST.get('price')
+        box.default = 1 if request.POST.get('default') else 0
+        box.save()
+
+        return HttpResponseRedirect(reverse('package-box-view', args=[_id, ]))
+
+    return render(request, 'home/package_box_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_addon_update(request, _id, _eq):
+    addon = Addon.objects.get(package=_id, equipment=_eq)
+
+    if request.POST:
+        addon.extra_price = request.POST.get('price')
+        addon.save()
+
+        return HttpResponseRedirect(reverse('package-addon-view', args=[_id, ]))
+
+    return render(request, 'home/package_addon_view.html')
 
 
 @login_required(login_url='/login/')
@@ -1809,7 +2506,7 @@ def package_maincuisine_delete(request, _id, _cuisine):
 def package_subcuisine_delete(request, _id, _cuisine):
     SubCuisine.objects.filter(
         package_id=_id, cuisine_id=_cuisine).delete()
-    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+    return HttpResponseRedirect(reverse('package-subcuisine-view', args=[_id, ]))
 
 
 @login_required(login_url='/login/')
@@ -1817,7 +2514,7 @@ def package_subcuisine_delete(request, _id, _cuisine):
 def package_sidecuisine1_delete(request, _id, _cuisine):
     SideCuisine1.objects.filter(
         package_id=_id, cuisine_id=_cuisine).delete()
-    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+    return HttpResponseRedirect(reverse('package-sidecuisine1-view', args=[_id, ]))
 
 
 @login_required(login_url='/login/')
@@ -1825,7 +2522,7 @@ def package_sidecuisine1_delete(request, _id, _cuisine):
 def package_sidecuisine2_delete(request, _id, _cuisine):
     SideCuisine2.objects.filter(
         package_id=_id, cuisine_id=_cuisine).delete()
-    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+    return HttpResponseRedirect(reverse('package-sidecuisine2-view', args=[_id, ]))
 
 
 @login_required(login_url='/login/')
@@ -1833,7 +2530,7 @@ def package_sidecuisine2_delete(request, _id, _cuisine):
 def package_sidecuisine3_delete(request, _id, _cuisine):
     SideCuisine3.objects.filter(
         package_id=_id, cuisine_id=_cuisine).delete()
-    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+    return HttpResponseRedirect(reverse('package-sidecuisine3-view', args=[_id, ]))
 
 
 @login_required(login_url='/login/')
@@ -1841,7 +2538,7 @@ def package_sidecuisine3_delete(request, _id, _cuisine):
 def package_sidecuisine4_delete(request, _id, _cuisine):
     SideCuisine4.objects.filter(
         package_id=_id, cuisine_id=_cuisine).delete()
-    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+    return HttpResponseRedirect(reverse('package-sidecuisine4-view', args=[_id, ]))
 
 
 @login_required(login_url='/login/')
@@ -1849,7 +2546,35 @@ def package_sidecuisine4_delete(request, _id, _cuisine):
 def package_sidecuisine5_delete(request, _id, _cuisine):
     SideCuisine5.objects.filter(
         package_id=_id, cuisine_id=_cuisine).delete()
-    return HttpResponseRedirect(reverse('package-view', args=[_id, ]))
+    return HttpResponseRedirect(reverse('package-sidecuisine5-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_rice_delete(request, _id, _cuisine):
+    Rice.objects.filter(package_id=_id, cuisine_id=_cuisine).delete()
+    return HttpResponseRedirect(reverse('package-rice-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_bag_delete(request, _id, _eq):
+    Bag.objects.filter(package_id=_id, equipment_id=_eq).delete()
+    return HttpResponseRedirect(reverse('package-bag-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_box_delete(request, _id, _eq):
+    Pack.objects.filter(package_id=_id, equipment_id=_eq).delete()
+    return HttpResponseRedirect(reverse('package-box-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_addon_delete(request, _id, _eq):
+    Addon.objects.filter(package_id=_id, equipment_id=_eq).delete()
+    return HttpResponseRedirect(reverse('package-addon-view', args=[_id, ]))
 
 
 @login_required(login_url='/login/')
@@ -3924,7 +4649,7 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
     categories = Category.objects.all()
     packages = Package.objects.filter(category=_cat).exclude(package_id__in=OrderPackage.objects.filter(
         order_id=_id).values_list('package_id', flat=True)) if _cat != '0' else None
-    box_types = BoxType.objects.all()
+    box_types = Pack.objects.filter(package=_pack) if _pack != '0' else None
     main_cuisines = MainCuisine.objects.filter(package=_pack)
     sub_cuisines = SubCuisine.objects.filter(package=_pack)
     side_cuisines1 = SideCuisine1.objects.filter(package=_pack)
@@ -3932,6 +4657,9 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
     side_cuisines3 = SideCuisine3.objects.filter(package=_pack)
     side_cuisines4 = SideCuisine4.objects.filter(package=_pack)
     side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
+    rices = Rice.objects.filter(package=_pack)
+    bags = Bag.objects.filter(package=_pack)
+    addons = Addon.objects.filter(package=_pack)
     last_package = OrderPackage.objects.filter(order_id=_id).last(
     ) if OrderPackage.objects.filter(order_id=_id) else None
     selected_package = Package.objects.get(
@@ -3956,12 +4684,18 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
             extra_price_side5 = SideCuisine5.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
+            extra_price_rice = Rice.objects.get(package=_pack, cuisine=Cuisine.objects.get(
+                cuisine_name=request.POST.get('rice')).cuisine_id).extra_price if request.POST.get('rice') else 0
+            extra_price_bag = Bag.objects.get(package=_pack, equipment=Equipment.objects.get(
+                equipment_name=request.POST.get('bag')).equipment_id).extra_price if request.POST.get('bag') else 0
+            extra_price_box = Pack.objects.get(package=_pack, equipment=Equipment.objects.get(
+                equipment_name=request.POST.get('box_type')).equipment_id).extra_price if request.POST.get('box_type') else 0
             package = form.save(commit=False)
             package.order_id = _id
             package.category_id = _cat
             package.package_id = _pack
             package.type = _type
-            package.box_type_id = request.POST.get('box_type')
+            package.box_type = request.POST.get('box_type')
             package.main_cuisine = request.POST.get('main_cuisine')
             package.sub_cuisine = request.POST.get('sub_cuisine')
             package.side_cuisine1 = request.POST.get('side_cuisine1')
@@ -3969,9 +4703,11 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
             package.side_cuisine3 = request.POST.get('side_cuisine3')
             package.side_cuisine4 = request.POST.get('side_cuisine4')
             package.side_cuisine5 = request.POST.get('side_cuisine5')
+            package.rice = request.POST.get('rice')
+            package.bag = request.POST.get('bag')
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
             package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                                   extra_price_side3 + extra_price_side4 + extra_price_side5) * (selected_package.box * int(request.POST.get('quantity')))
+                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 1) * int(request.POST.get('quantity')))
             package.save()
 
             total = OrderPackage.objects.filter(
@@ -4004,6 +4740,9 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'rices': rices,
+        'bags': bags,
+        'addons': addons,
         'last_package': last_package,
         'selected_package': selected_package,
         'order_id': _id,
@@ -4030,13 +4769,19 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
             package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
         extra_price_side5 = SideCuisine5.objects.get(
             package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
+        extra_price_rice = Rice.objects.get(package=_pack, cuisine=Cuisine.objects.get(
+            cuisine_name=request.POST.get('rice')).cuisine_id).extra_price if request.POST.get('rice') else 0
+        extra_price_bag = Bag.objects.get(package=_pack, equipment=Equipment.objects.get(
+            equipment_name=request.POST.get('bag')).equipment_id).extra_price if request.POST.get('bag') else 0
+        extra_price_box = Pack.objects.get(package=_pack, equipment=Equipment.objects.get(
+            equipment_name=request.POST.get('box_type')).equipment_id).extra_price if request.POST.get('box_type') else 0
         package = OrderPackage(
             order_id=_id,
             category_id=_cat,
             package_id=_pack,
             type=_type,
             quantity=int(request.POST.get('quantity')),
-            box_type_id=request.POST.get('box_type'),
+            box_type=request.POST.get('box_type'),
             main_cuisine=request.POST.get('main_cuisine'),
             sub_cuisine=request.POST.get('sub_cuisine'),
             side_cuisine1=request.POST.get('side_cuisine1'),
@@ -4044,9 +4789,11 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
             side_cuisine3=request.POST.get('side_cuisine3'),
             side_cuisine4=request.POST.get('side_cuisine4'),
             side_cuisine5=request.POST.get('side_cuisine5'),
+            rice=request.POST.get('rice'),
+            bag=request.POST.get('bag'),
             unit_price=package.male_price if _type == 'Jantan' else package.female_price,
             extra_price=(extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                         extra_price_side3 + extra_price_side4 + extra_price_side5) * (Package.objects.get(package_id=_pack).box * int(request.POST.get('quantity'))),
+                         extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((Package.objects.get(package_id=_pack).box if Package.objects.get(package_id=_pack).box > 0 else 1) * int(request.POST.get('quantity'))),
         )
         package.save()
 
@@ -4064,7 +4811,7 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
     packages = Package.objects.filter(category=_cat).exclude(package_id__in=OrderPackage.objects.filter(
         order_id=_id).values_list('package_id', flat=True).exclude(package_id=_pack)) if _cat != '0' else None
     package = OrderPackage.objects.get(order_id=_id, id=_package)
-    box_types = BoxType.objects.all()
+    box_types = Pack.objects.filter(package=_pack) if _pack != '0' else None
     main_cuisines = MainCuisine.objects.filter(package=_pack)
     sub_cuisines = SubCuisine.objects.filter(package=_pack)
     side_cuisines1 = SideCuisine1.objects.filter(package=_pack)
@@ -4072,6 +4819,8 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
     side_cuisines3 = SideCuisine3.objects.filter(package=_pack)
     side_cuisines4 = SideCuisine4.objects.filter(package=_pack)
     side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
+    rices = Rice.objects.filter(package=_pack)
+    bags = Bag.objects.filter(package=_pack)
     last_child = OrderChild.objects.filter(order_id=_id).last()
     selected_package = Package.objects.get(
         package_id=_pack) if _pack != '0' else None
@@ -4117,11 +4866,17 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
             extra_price_side5 = SideCuisine5.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
+            extra_price_rice = Rice.objects.get(package=_pack, cuisine=Cuisine.objects.get(
+                cuisine_name=request.POST.get('rice')).cuisine_id).extra_price if request.POST.get('rice') else 0
+            extra_price_bag = Bag.objects.get(package=_pack, equipment=Equipment.objects.get(
+                equipment_name=request.POST.get('bag')).equipment_id).extra_price if request.POST.get('bag') else 0
+            extra_price_box = Pack.objects.get(package=_pack, equipment=Equipment.objects.get(
+                equipment_name=request.POST.get('box_type')).equipment_id).extra_price if request.POST.get('box_type') else 0
             package = form.save(commit=False)
             package.category_id = _cat
             package.package_id = _pack
             package.type = _type
-            package.box_type_id = request.POST.get('box_type')
+            package.box_type = request.POST.get('box_type')
             package.main_cuisine = request.POST.get('main_cuisine')
             package.sub_cuisine = request.POST.get('sub_cuisine')
             package.side_cuisine1 = request.POST.get('side_cuisine1')
@@ -4129,9 +4884,11 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             package.side_cuisine3 = request.POST.get('side_cuisine3')
             package.side_cuisine4 = request.POST.get('side_cuisine4')
             package.side_cuisine5 = request.POST.get('side_cuisine5')
+            package.rice = request.POST.get('rice')
+            package.bag = request.POST.get('bag')
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
             package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                                   extra_price_side3 + extra_price_side4 + extra_price_side5) * (selected_package.box * int(request.POST.get('quantity')))
+                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 1) * int(request.POST.get('quantity')))
             package.save()
 
             total = OrderPackage.objects.filter(
@@ -4179,6 +4936,8 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'rices': rices,
+        'bags': bags,
         'selected_package': selected_package,
         'order_id': _id,
         'msg': msg,
@@ -4206,11 +4965,17 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
             package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
         extra_price_side5 = SideCuisine5.objects.get(
             package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
+        extra_price_rice = Rice.objects.get(package=_pack, cuisine=Cuisine.objects.get(
+            cuisine_name=request.POST.get('rice')).cuisine_id).extra_price if request.POST.get('rice') else 0
+        extra_price_bag = Bag.objects.get(package=_pack, equipment=Equipment.objects.get(
+            equipment_name=request.POST.get('bag')).equipment_id).extra_price if request.POST.get('bag') else 0
+        extra_price_box = Pack.objects.get(package=_pack, equipment=Equipment.objects.get(
+            equipment_name=request.POST.get('box_type')).equipment_id).extra_price if request.POST.get('box_type') else 0
         package.category_id = _cat
         package.package_id = _pack
         package.type = _type
         package.quantity = int(request.POST.get('quantity'))
-        package.box_type_id = request.POST.get('box_type')
+        package.box_type = request.POST.get('box_type')
         package.main_cuisine = request.POST.get('main_cuisine')
         package.sub_cuisine = request.POST.get('sub_cuisine')
         package.side_cuisine1 = request.POST.get('side_cuisine1')
@@ -4218,9 +4983,11 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
         package.side_cuisine3 = request.POST.get('side_cuisine3')
         package.side_cuisine4 = request.POST.get('side_cuisine4')
         package.side_cuisine5 = request.POST.get('side_cuisine5')
+        package.rice = request.POST.get('rice')
+        package.bag = request.POST.get('bag')
         package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
         package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                               extra_price_side3 + extra_price_side4 + extra_price_side5) * (selected_package.box * int(request.POST.get('quantity')))
+                               extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 1) * int(request.POST.get('quantity')))
         package.save()
 
         total = OrderPackage.objects.filter(
@@ -4426,7 +5193,7 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         order_id=_id).values_list('package_id', flat=True)) if _cat != '0' else None
     packages_upd = Package.objects.filter(category=_cat).exclude(package_id__in=OrderPackage.objects.filter(
         order_id=_id).values_list('package_id', flat=True).exclude(package_id=_pack)) if _cat != '0' else None
-    box = BoxType.objects.all()
+    box = Pack.objects.filter(package=_pack) if _pack != '0' else None
     main_cuisines = MainCuisine.objects.filter(package=_pack)
     sub_cuisines = SubCuisine.objects.filter(package=_pack)
     side_cuisines1 = SideCuisine1.objects.filter(package=_pack)
@@ -4434,6 +5201,8 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
     side_cuisines3 = SideCuisine3.objects.filter(package=_pack)
     side_cuisines4 = SideCuisine4.objects.filter(package=_pack)
     side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
+    rices = Rice.objects.filter(package=_pack)
+    bags = Bag.objects.filter(package=_pack)
     selected_package = Package.objects.get(
         package_id=_pack) if _pack != '0' else None
     upd_package = OrderPackage.objects.get(order_id=_id, id=_crud) if _crud not in [
@@ -4456,6 +5225,8 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'rices': rices,
+        'bags': bags,
         'selected_package': selected_package,
         'upd_package': upd_package,
         'box': box,
@@ -4984,7 +5755,7 @@ def order_invoice(request, _id):
         if str_cuisine != '' and package[i - 1].package.box > 0:
             str_box = ' - '
         str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
-                                                                        1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
+                                                                        1].box_type + ')' if package[i - 1].package.box > 0 else ''
 
         pdf_file.drawString(200, y - 5, str_cuisine + str_box)
         pdf_file.rect(375, y - 15, 30, 30, stroke=True)
@@ -5350,7 +6121,7 @@ def order_bap(request, _id):
         if str_cuisine != '' and package[i - 1].package.box > 0:
             str_box = ' - '
         str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
-                                                                        1].box_type.box_type_name + ')' if package[i - 1].package.box > 0 else ''
+                                                                        1].box_type + ')' if package[i - 1].package.box > 0 else ''
 
         pdf_file.drawString(200, y - 5, str_cuisine + str_box)
         pdf_file.rect(375, y - 15, 30, 30, stroke=True)
@@ -5592,7 +6363,7 @@ def order_checklist(request, _id):
     pdf_file.drawString(title_x + 80, y, ':')
     pdf_file.drawString(
         title_x + 90, y, str(package[0].package.box * package[0].quantity if package[0].package.box > 0 else package[0].quantity
-                             ) + ' ' + package[0].box_type.box_type_name)
+                             ) + ' ' + package[0].box_type)
 
     y -= 30
     pdf_file.setFont("Helvetica-Bold", 8)

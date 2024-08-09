@@ -481,6 +481,49 @@ class FormCuisineView(ModelForm):
         fields = ['cuisine_id', 'cuisine_name']
 
 
+class FormEquipment(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormEquipment, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['equipment_id'].label = 'ID Pelengkap'
+        self.fields['equipment_name'].label = 'Nama Pelengkap'
+        self.fields['equipment_id'].widget = forms.TextInput(
+            {'class': 'form-control-sm text-uppercase'})
+        self.fields['equipment_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Equipment
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormEquipmentUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormEquipmentUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['equipment_name'].label = 'Nama Pelengkap'
+        self.fields['equipment_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Equipment
+        exclude = ['equipment_id', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+
+class FormEquipmentView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormEquipmentView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['equipment_name'].label = 'Nama Pelengkap'
+        self.fields['equipment_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = Equipment
+        fields = ['equipment_id', 'equipment_name']
+
+
 class FormCategory(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormCategory, self).__init__(*args, **kwargs)
@@ -1222,16 +1265,15 @@ class FormOrderPackage(ModelForm):
         self.fields['order'].widget = forms.TextInput(
             attrs={'class': 'd-none'})
         self.fields['quantity'].label = 'Jumlah Paket'
-        self.fields['box_type'].label = 'Jenis Box'
         self.fields['total_price'].label = 'Total Harga'
         self.fields['quantity'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners'})
+            attrs={'class': 'form-control-sm', 'min': '1'})
         self.fields['total_price'].widget = forms.NumberInput(
             attrs={'class': 'form-control-sm no-spinners', 'readonly': 'readonly'})
 
     class Meta:
         model = OrderPackage
-        exclude = ['category', 'package', 'type', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price', 'extra_price',
+        exclude = ['category', 'package', 'type', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price', 'extra_price', 'rice', 'bag', 'box_type',
                    'entry_by', 'update_date', 'update_by']
 
 

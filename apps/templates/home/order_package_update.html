@@ -33,33 +33,15 @@
                                             {% if not first_package %}
                                             <li><button class="dropdown-item border-radius-md" type="button" data-bs-toggle="modal" data-bs-target="#delpack-{{ data.id }}">Hapus</button></li>
                                             {% endif %}
-                                            <li><button id="add" type="button" class="dropdown-item border-radius-md">Tambah</button></li>
+                                            <li><button id="add" type="button" class="dropdown-item border-radius-md">Tambah Paket</button></li>
                                         </ul>
                                     </div>
                                 {% else %}
                                     {% if not first_package %}
                                     <button type="button" class="btn btn-sm bg-gradient-warning mb-0 px-4" data-bs-toggle="modal" data-bs-target="#delpack-{{ data.id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
                                     {% endif %}
-                                    <button id="add" type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah</button>
+                                    <button id="add" type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Paket</button>
                                 {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal fade" id="delpack-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
-                                </div>
-                                <div class="modal-body border-bottom-0">
-                                    Anda yakin akan menghapus pesanan paket <strong>{{ data.package.package_name }}</strong>?
-                                </div>
-                                <div class="modal-footer border-0">
-                                    <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
-                                    <a href="{% url 'order-package-delete' order_id data.id %}" role="button" class="btn bg-gradient-warning text-white">Hapus
-                                    </a>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -70,11 +52,11 @@
                                 {{ message }}
                             </div>
                             {% endif %} -->
-                            <!-- {% if msg %}
+                            {% if msg %}
                             <div class="alert text-danger text-bg-light mt-2" role="alert">
                                 {{ msg }}
                             </div>
-                            {% endif %} -->
+                            {% endif %}
                             {{ form.order }}
                             <div class="row">
                                 <div class="col-md-4">
@@ -125,7 +107,7 @@
                                 {% endif %}
                             </div>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-2">
                                     <div class="form-group shadow-none mb-0">
                                         {{ form.quantity.label_tag }}{{ form.quantity }}
                                         <div class="text-sm text-danger">
@@ -133,19 +115,42 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% if selected_package.box > 0 %}
+                                <div class="col-md-2">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="id-box">Box/Paket</label>
+                                        <input type="number" name="box" id="id-box" class="form-control form-control-sm" value="{{ selected_package.box }}" disabled>
+                                    </div>
+                                </div>
+                                {% endif %}
                                 <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
                                     <div class="form-group shadow-none mb-0">
-                                        {{ form.box_type.label_tag }}
+                                        <label for="box_type">Pilihan Box</label>
                                         <select name="box_type" class="form-control form-select-sm">
                                             {% if selected_package.box > 0 %}
                                             <option value="">Pilih Box</option>
                                             {% endif %}
                                             {% for box in box_types %}"
-                                            <option value="{{ box.box_type_id }}" {% if box.box_type_id == data.box_type_id %}selected{% endif %}>{{ box.box_type_name }}</option>
+                                            <option value="{{ box.equipment.equipment_name }}" {% if data.box_type %}{% if box.equipment.equipment_name == data.box_type %}selected{% endif %}{% else %}{% if box.default == 1 %}selected{% endif %}{% endif %}>{{ box.equipment.equipment_name }}{% if box.extra_price > 0 %} (+ Rp {{ box.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
                                 </div>
+                                {% if rices %}
+                                <div class="col-md-4">
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="rice">Pilihan Nasi</label>
+                                        <select name="rice" class="form-control form-select-sm">
+                                            <option value="">Pilih Nasi</option>
+                                            {% for rice in rices %}"
+                                            <option value="{{ rice.cuisine.cuisine_name }}" {% if data.rice %}{% if rice.cuisine.cuisine_name == data.rice %}selected{% endif %}{% else %}{% if rice.default == 1 %}selected{% endif %}{% endif %}>{{ rice.cuisine.cuisine_name }}{% if rice.extra_price > 0 %} (+ Rp {{ rice.extra_price|intcomma }}/box){% endif %}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="row">
                                 {% if main_cuisines %}
                                 <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">
@@ -159,10 +164,8 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                            </div>
-                            <div class="row">
                                 {% if sub_cuisines %}
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="sub_cuisine">Menu Olahan</label>
                                         <select name="sub_cuisine" class="form-control form-select-sm">
@@ -175,11 +178,11 @@
                                 </div>
                                 {% endif %}
                                 {% if side_cuisines1 %}
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="side_cuisine1">Menu Pendamping 1</label>
-                                        <select name="side_cuisine1" class="form-control form-select-sm">
-                                            <option value="">Pilih Pendamping 1</option>
+                                        <select name="side_cuisine1" class="form-control form-select-sm" required>
+                                            <option value="">Pilih Menu Pendamping 1</option>
                                             {% for cuisine in side_cuisines1 %}"
                                             <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine1 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
@@ -193,8 +196,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="side_cuisine2">Menu Pendamping 2</label>
-                                        <select name="side_cuisine2" class="form-control form-select-sm">
-                                            <option value="">Pilih Pendamping 2</option>
+                                        <select name="side_cuisine2" class="form-control form-select-sm" required>
+                                            <option value="">Pilih Menu Pendamping 2</option>
                                             {% for cuisine in side_cuisines2 %}"
                                             <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine2 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
@@ -206,10 +209,10 @@
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="side_cuisine3">Menu Pendamping 3</label>
-                                        <select name="side_cuisine3" class="form-control form-select-sm">
-                                            <option value="">Pilih Pendamping 3</option>
+                                        <select name="side_cuisine3" class="form-control form-select-sm" required>
+                                            <option value="">Pilih Menu Pendamping 3</option>
                                             {% for cuisine in side_cuisines3 %}"
-                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine3 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if data.side_cuisine3 %}{% if cuisine.cuisine.cuisine_name == data.side_cuisine3 %}selected{% endif %}{% else %}{% if cuisine.default == 1 %}selected{% endif %}{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -221,8 +224,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="side_cuisine4">Menu Pendamping 4</label>
-                                        <select name="side_cuisine4" class="form-control form-select-sm">
-                                            <option value="">Pilih Pendamping 4</option>
+                                        <select name="side_cuisine4" class="form-control form-select-sm" required>
+                                            <option value="">Pilih Menu Pendamping 4</option>
                                             {% for cuisine in side_cuisines4 %}"
                                             <option value="{{ cuisine.cuisine.cuisine_name}}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine4 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
@@ -234,8 +237,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="side_cuisine5">Menu Pendamping 5</label>
-                                        <select name="side_cuisine5" class="form-control form-select-sm">
-                                            <option value="">Pilih Pendamping 5</option>
+                                        <select name="side_cuisine5" class="form-control form-select-sm" required>
+                                            <option value="">Pilih Menu Pendamping 5</option>
                                             {% for cuisine in side_cuisines5 %}"
                                             <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.side_cuisine5 %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
@@ -245,8 +248,20 @@
                                 {% endif %}
                             </div>
                             <div class="row">
+                                {% if bags %}
+                                <div class="col-md-6">
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="bag">Pilihan Kemasan Kantong</label>
+                                        <select name="bag" class="form-control form-select-sm">
+                                            {% for bag in bags %}"
+                                            <option value="{{ bag.equipment.equipment_name }}" {% if data.bag %}{% if bag.equipment.equipment_name == data.bag %}selected{% endif %}{% else %}{% if bag.default == 1 %}selected{% endif %}{% endif %}>{{ bag.equipment.equipment_name }}{% if bag.extra_price > 0 %} (+ Rp {{ bag.extra_price|intcomma }}/box){% endif %}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
                                 {% if type != '0' %}
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="unit_price">Harga Per Paket</label>
                                         <input type="text" class="form-control form-control-sm {% if type != 'Jantan' %}d-none{% endif %}" id="male_price" value="{{ selected_package.male_price|intcomma }}" readonly>
@@ -260,6 +275,16 @@
                                         <div class="text-sm text-danger">
                                             {{ form.total_price.errors }}
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="addon">Tambahan (Jika ada)</label>
+                                        <select name="addon" id="addon" class="form-control form-select-sm">
+                                            <option>Pilih Tambahan</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -279,12 +304,34 @@
     </div>
 </div>
 
+<div class="container">
+    <div class="modal fade" id="delpack-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                </div>
+                <div class="modal-body border-bottom-0">
+                    Anda yakin akan menghapus pesanan paket <strong>{{ data.package.package_name }}</strong>?
+                </div>
+                <div class="modal-footer border-0">
+                    <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                    <a href="{% url 'order-package-delete' order_id data.id %}" role="button" class="btn bg-gradient-warning text-white">Hapus
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
 {% block javascripts %}
 <script>
     let add = document.getElementById('add');
     let form = document.getElementById('form-add');
+    let select_addon = document.getElementById('addon');
     let btn_menu = document.getElementById('dropdownTable');
     let dropdown_menu = document.getElementsByClassName('dropdown-menu');
     
@@ -293,6 +340,10 @@
         form.submit();
     });
 
+    select_addon.addEventListener('click', function() {
+        alert('tes')
+    });
+    
     // open dropdown menu
     btn_menu.addEventListener('click', function() {
         dropdown_menu[0].classList.toggle('show');

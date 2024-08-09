@@ -99,6 +99,27 @@ class Cuisine(models.Model):
         return self.cuisine_name
 
 
+class Equipment(models.Model):
+    equipment_id = models.CharField(max_length=50, primary_key=True)
+    equipment_name = models.CharField(max_length=50)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True)
+    update_by = models.CharField(max_length=50, null=True)
+
+    def save(self, *args, **kwargs):
+        self.equipment_id = self.equipment_id.upper()
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Equipment, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.equipment_name
+
+
 class Category(models.Model):
     category_id = models.CharField(max_length=50, primary_key=True)
     category_name = models.CharField(max_length=50)
@@ -149,11 +170,38 @@ class Package(models.Model):
         return self.package_name
 
 
+class Rice(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE, null=True)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'cuisine'], name='unique_rice')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Rice, self).save(*args, **kwargs)
+
+
 class MainCuisine(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -179,6 +227,7 @@ class SubCuisine(models.Model):
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -204,6 +253,7 @@ class SideCuisine1(models.Model):
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -229,6 +279,7 @@ class SideCuisine2(models.Model):
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -254,6 +305,7 @@ class SideCuisine3(models.Model):
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -279,6 +331,7 @@ class SideCuisine4(models.Model):
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -304,6 +357,7 @@ class SideCuisine5(models.Model):
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
     entry_date = models.DateTimeField(null=True)
     entry_by = models.CharField(max_length=50, null=True)
     update_date = models.DateTimeField(null=True, blank=True)
@@ -322,6 +376,84 @@ class SideCuisine5(models.Model):
         self.update_date = timezone.now()
         self.update_by = get_current_user().user_id
         super(SideCuisine5, self).save(*args, **kwargs)
+
+
+class Bag(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'equipment'], name='unique_bag')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Bag, self).save(*args, **kwargs)
+
+
+class Pack(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'equipment'], name='unique_pack')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Pack, self).save(*args, **kwargs)
+
+
+class Addon(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'equipment'], name='unique_addon')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().username
+        super(Addon, self).save(*args, **kwargs)
 
 
 class AreaSales(models.Model):
@@ -1494,7 +1626,7 @@ class OrderPackage(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     type = models.CharField(max_length=10, null=True)
     quantity = models.IntegerField(default=1)
-    box_type = models.ForeignKey(BoxType, on_delete=models.CASCADE, null=True)
+    box_type = models.CharField(max_length=50, null=True)
     main_cuisine = models.CharField(max_length=50, null=True)
     sub_cuisine = models.CharField(max_length=50, null=True)
     side_cuisine1 = models.CharField(max_length=50, null=True)
@@ -1502,6 +1634,8 @@ class OrderPackage(models.Model):
     side_cuisine3 = models.CharField(max_length=50, null=True)
     side_cuisine4 = models.CharField(max_length=50, null=True)
     side_cuisine5 = models.CharField(max_length=50, null=True)
+    rice = models.CharField(max_length=50, null=True)
+    bag = models.CharField(max_length=50, null=True)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
     unit_price = models.DecimalField(
@@ -1528,6 +1662,36 @@ class OrderPackage(models.Model):
         self.update_date = timezone.now()
         self.update_by = 'customer'
         super(OrderPackage, self).save(*args, **kwargs)
+
+
+class OrderPackageAddon(models.Model):
+    order_package = models.ForeignKey(OrderPackage, on_delete=models.CASCADE)
+    addon = models.CharField(max_length=50)
+    quantity = models.IntegerField(default=1)
+    unit_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    total_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['order_package', 'addon'], name='unique_order_package_addon')
+        ]
+
+    def save(self, *args, **kwargs):
+        self.total_price = self.quantity * self.unit_price
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = 'customer'
+        self.update_date = timezone.now()
+        self.update_by = 'customer'
+        super(OrderPackageAddon, self).save(*args, **kwargs)
 
 
 class CashIn(models.Model):
