@@ -256,7 +256,7 @@ urlpatterns = [
     path('order/confirm/<path:_id>/', views.order_confirm, name='order-confirm'),
     path('order/submit/<path:_id>/', views.order_submit, name='order-submit'),
     path('form/', views.form_index, name='form-index'),
-    path('order/', views.order_index, name='order-index'),
+    path('order/<str:_branch>/', views.order_index, name='order-index'),
     path('order/view/<path:_id>/<str:_cat>/<str:_pack>/<str:_type>/<str:_crud>/',
          views.order_view, name='order-view'),
     path('order/cancel/<path:_id>/', views.order_cancel, name='order-cancel'),

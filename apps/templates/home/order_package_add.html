@@ -12,11 +12,11 @@
 
 {% load user_agents %}
 
-<div class="container-fluid mt-0">
-    <div class="row">
-        <div class="col-xl-12 order-xl-1">
-            <form action="{% url 'order-package-add' order_id cat pack type 0 %}" id="form-add" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
+<form action="{% url 'order-package-add' order_id cat pack type 0 %}" id="form-add" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="container-fluid mt-0">
+        <div class="row">
+            <div class="col-xl-12 order-xl-1">
                 <div class="card mb-4 z-index-3">
                     <div class="card-header">
                         <div class="row">
@@ -46,12 +46,11 @@
                                 {{ message }}
                             </div>
                             {% endif %}
-                            <!-- {% if msg %}
+                            {% if msg %}
                             <div class="alert text-danger text-bg-light mt-2" role="alert">
                                 {{ msg }}
                             </div>
-                            {% endif %} -->
-                            {{ form.order }}
+                            {% endif %}
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">
@@ -103,7 +102,8 @@
                             <div class="row">
                                 <div class="col-md-2">
                                     <div class="form-group shadow-none mb-0">
-                                        {{ form.quantity.label_tag }}{{ form.quantity }}
+                                        <label class="form-control-label" for="id_quantity">Jumlah Paket</label>
+                                        {{ form.quantity }}
                                         <div class="text-sm text-danger">
                                             {{ form.quantity.errors }}
                                         </div>
@@ -262,26 +262,20 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                <div class="col-md-6">
-                                    <div class="form-group shadow-none mb-0 d-none">
-                                        {{ form.total_price.label_tag }}{{ form.total_price }}
-                                        <div class="text-sm text-danger">
-                                            {{ form.total_price.errors }}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
+                            {% if addons %}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="addon">Tambahan (Jika ada)</label>
                                         <div class="input-group input-group-alternative">
-                                            <a class="form-control form-control-sm border" data-bs-toggle="modal" data-bs-target="#dialog-addon">Pilih Tambahan</a>
+                                            <a class="form-control form-control-sm border" data-bs-toggle="modal" data-bs-target="#dialog-addon">{% if addon_order %}{{ addon_order }}{% else %}Pilih Tambahan{% endif %}</a>
                                             <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#dialog-addon"><i class="fas fa-angle-down"></i></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
                             <div class="row mt-4">
                                 <div class="col-6">
                                     <a href="{% if last_package %}{% url 'order-package-update' order_id last_package.id last_package.category_id last_package.package_id last_package.type 0 %}{% else %}{% url 'order-child-update' order_id child.id 0 %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
@@ -293,21 +287,18 @@
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="container">
-    <div class="modal fade" id="dialog-addon" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="ModalLabel">Pilih Tambahan</h5>
-                </div>
-                <form method="post" action="" enctype="multipart/form-data">
-                    {% csrf_token %}
+    <div class="container">
+        <div class="modal fade" id="dialog-addon" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Pilih Tambahan</h5>
+                    </div>
                     <div class="modal-body border-bottom-0">
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0" id="menuTable">
@@ -315,7 +306,11 @@
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                             Nama Item</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Harga Satuan</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Jumlah</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pilih</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -324,12 +319,22 @@
                                         <td>
                                             <div class="d-flex pe-2 py-0">
                                                 <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">{{ item.equipment }}</h6>
+                                                    <h6 class="mb-0 text-sm">{{ item.1 }}</h6>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="cursor-pointer border" name="checks[]" value="{{ item.0 }}" {% if item.2 %}checked{% endif %}/>                                                    
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ item.2|intcomma }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control-sm qty" name="qty" value="{% if item.4 %}{{ item.4 }}{% else %}0{% endif %}"/>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="cursor-pointer border checks" name="checks[]" value="{{ item.0 }}" {% if item.3 %}checked{% endif %}/>                                              
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -339,27 +344,79 @@
                     </div>
                     <div class="modal-footer border-0">
                         <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                        <button id="save-addon" class="btn btn-sm bg-gradient-primary text-white">Simpan
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</form>
 
 {% endblock content %}
 
 {% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    $(document).ready(function() {
+        $('#menuTable').DataTable({
+            'info': false,
+            'pageLength': -1,
+            'paginate': false,
+            'language': {
+                'search': 'Cari: ',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+            }
+        });
+    });
+
     let add = document.getElementById('add');
     let form = document.getElementById('form-add');
     let btn_menu = document.getElementById('dropdownTable');
-    let dropdown_menu = document.getElementsByClassName('dropdown-menu')
+    let dropdown_menu = document.getElementsByClassName('dropdown-menu');
+    let c = document.querySelectorAll('.checks');
+    let q = document.querySelectorAll('.qty');
+    let save = document.getElementById('save-addon');
 
+    save.addEventListener('click', function() {
+        let check = [];
+        let qty = [];
+        c.forEach(function(checkbox, index) {
+            if (c[index].checked == true) {
+                check.push(c[index].value);
+                qty.push(q[index].value);
+            }
+        });
+        form.action = "{% url 'order-package-add' order_id cat pack type 2 %}?checks=" + check + "&qty=" + qty;
+        form.submit();
+    });
+    
     add.addEventListener('click', function() {
         form.action = "{% url 'order-package-add' order_id cat pack type 1 %}";
         form.submit();
+    });
+
+    c.forEach(function(checkbox, index) {
+        checkbox.addEventListener('click', function() {
+            if (c[index].checked == true) {
+                if (q[index].value < 1) {
+                    q[index].value = 1;
+                }
+            } else {
+                q[index].value = 0;
+            }
+        });
+    });
+
+    q.forEach(function(quantity, index) {
+        quantity.addEventListener('change', function() {
+            if (q[index].value > 0) {
+                c[index].checked = true;
+            } else {
+                c[index].checked = false;
+            }
+        });
     });
 
     // open dropdown menu

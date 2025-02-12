@@ -1262,19 +1262,16 @@ class FormOrderPackage(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormOrderPackage, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['order'].widget = forms.TextInput(
-            attrs={'class': 'd-none'})
         self.fields['quantity'].label = 'Jumlah Paket'
-        self.fields['total_price'].label = 'Total Harga'
-        self.fields['quantity'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm', 'min': '1'})
-        self.fields['total_price'].widget = forms.NumberInput(
-            attrs={'class': 'form-control-sm no-spinners', 'readonly': 'readonly'})
 
     class Meta:
         model = OrderPackage
-        exclude = ['category', 'package', 'type', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price', 'extra_price', 'rice', 'bag', 'box_type',
+        exclude = ['order', 'total_price', 'category', 'package', 'type', 'entry_date', 'main_cuisine', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price', 'extra_price', 'rice', 'bag', 'box_type',
                    'entry_by', 'update_date', 'update_by']
+
+        widgets = {
+            'quantity': forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'min': 1, 'value': 1}),
+        }
 
 
 class FormOrderConfirmUpdate(ModelForm):

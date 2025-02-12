@@ -12,11 +12,11 @@
 
 {% load user_agents %}
 
-<div class="container-fluid mt-0">
-    <div class="row">
-        <div class="col-xl-12 order-xl-1">
-            <form action="{% url 'order-package-update' order_id data.id cat pack type 0 %}" id="form-add" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
+<form action="{% url 'order-package-update' order_id data.id cat pack type 0 %}" id="form-add" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="container-fluid mt-0">
+        <div class="row">
+            <div class="col-xl-12 order-xl-1">
                 <div class="card mb-4 z-index-3">
                     <div class="card-header">
                         <div class="row">
@@ -278,16 +278,19 @@
                                     </div>
                                 </div>
                             </div>
+                            {% if addons %}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="addon">Tambahan (Jika ada)</label>
-                                        <select name="addon" id="addon" class="form-control form-select-sm">
-                                            <option>Pilih Tambahan</option>
-                                        </select>
+                                        <div class="input-group input-group-alternative">
+                                            <a class="form-control form-control-sm border" data-bs-toggle="modal" data-bs-target="#dialog-addon">{% if addon_order %}{{ addon_order }}{% else %}Pilih Tambahan{% endif %}</a>
+                                            <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#dialog-addon"><i class="fas fa-angle-down"></i></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
                             <div class="row mt-4">
                                 <div class="col-6">
                                     <a href="{% if first_package %}{% url 'order-child-update' order_id last_child.id 0 %}{% else %}{% url 'order-package-update' order_id prev_id prev_cat prev_pack prev_type 0 %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
@@ -298,32 +301,93 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </form>
+                </div>            
+            </div>
         </div>
     </div>
-</div>
 
-<div class="container">
-    <div class="modal fade" id="delpack-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
-                </div>
-                <div class="modal-body border-bottom-0">
-                    Anda yakin akan menghapus pesanan paket <strong>{{ data.package.package_name }}</strong>?
-                </div>
-                <div class="modal-footer border-0">
-                    <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
-                    <a href="{% url 'order-package-delete' order_id data.id %}" role="button" class="btn bg-gradient-warning text-white">Hapus
-                    </a>
+    <div class="container">
+        <div class="modal fade" id="delpack-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                    </div>
+                    <div class="modal-body border-bottom-0">
+                        Anda yakin akan menghapus pesanan paket <strong>{{ data.package.package_name }}</strong>?
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                        <a href="{% url 'order-package-delete' order_id data.id %}" role="button" class="btn bg-gradient-warning text-white">Hapus
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="container">
+        <div class="modal fade" id="dialog-addon" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Pilih Tambahan</h5>
+                    </div>
+                    <div class="modal-body border-bottom-0">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0" id="menuTable">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Nama Item</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Harga Satuan</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Jumlah</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pilih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in addons %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ item.1 }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ item.2|intcomma }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control-sm qty" name="qty" value="{% if item.4 %}{{ item.4 }}{% else %}0{% endif %}"/>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="cursor-pointer border checks" name="checks[]" value="{{ item.0 }}" {% if item.3 %}checked{% endif %}/>                                              
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                        <button id="save-addon" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 {% endblock content %}
 
@@ -334,16 +398,50 @@
     let select_addon = document.getElementById('addon');
     let btn_menu = document.getElementById('dropdownTable');
     let dropdown_menu = document.getElementsByClassName('dropdown-menu');
+    let c = document.querySelectorAll('.checks');
+    let q = document.querySelectorAll('.qty');
+    let save = document.getElementById('save-addon');
+
+    save.addEventListener('click', function() {
+        let check = [];
+        let qty = [];
+        c.forEach(function(checkbox, index) {
+            if (c[index].checked == true) {
+                check.push(c[index].value);
+                qty.push(q[index].value);
+            }
+        });
+        form.action = "{% url 'order-package-update' order_id data.id cat pack type 2 %}?checks=" + check + "&qty=" + qty;
+        form.submit();
+    });
     
     add.addEventListener('click', function() {
         form.action = "{% url 'order-package-update' order_id data.id cat pack type 1 %}";
         form.submit();
     });
 
-    select_addon.addEventListener('click', function() {
-        alert('tes')
+    c.forEach(function(checkbox, index) {
+        checkbox.addEventListener('click', function() {
+            if (c[index].checked == true) {
+                if (q[index].value < 1) {
+                    q[index].value = 1;
+                }
+            } else {
+                q[index].value = 0;
+            }
+        });
     });
-    
+
+    q.forEach(function(quantity, index) {
+        quantity.addEventListener('change', function() {
+            if (q[index].value > 0) {
+                c[index].checked = true;
+            } else {
+                c[index].checked = false;
+            }
+        });
+    });
+
     // open dropdown menu
     btn_menu.addEventListener('click', function() {
         dropdown_menu[0].classList.toggle('show');

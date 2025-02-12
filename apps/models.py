@@ -1655,7 +1655,8 @@ class OrderPackage(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        self.total_price = (self.quantity * self.unit_price) + self.extra_price
+        self.total_price = (Decimal(self.quantity) *
+                            self.unit_price) + self.extra_price
         if not self.entry_date:
             self.entry_date = timezone.now()
             self.entry_by = 'customer'
@@ -1665,8 +1666,10 @@ class OrderPackage(models.Model):
 
 
 class OrderPackageAddon(models.Model):
-    order_package = models.ForeignKey(OrderPackage, on_delete=models.CASCADE)
-    addon = models.CharField(max_length=50)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(
+        Equipment, on_delete=models.CASCADE, null=True)
     quantity = models.IntegerField(default=1)
     unit_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
@@ -1681,7 +1684,7 @@ class OrderPackageAddon(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['order_package', 'addon'], name='unique_order_package_addon')
+                fields=['order', 'package', 'equipment'], name='unique_order_package_addon')
         ]
 
     def save(self, *args, **kwargs):

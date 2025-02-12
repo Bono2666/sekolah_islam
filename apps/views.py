@@ -32,11 +32,13 @@ from django.utils.text import Truncator
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from crum import get_current_user
+from apps.notifications import order_notification
 
 
 @login_required(login_url='/login/')
 def home(request):
     context = {
+        'notif': order_notification(request),
         'segment': 'index',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
     }
@@ -53,6 +55,7 @@ def user_index(request):
 
     context = {
         'data': users,
+        'notif': order_notification(request),
         'segment': 'user',
         'group_segment': 'master',
         'crud': 'index',
@@ -85,6 +88,7 @@ def user_add(request):
             context = {
                 'form': form,
                 'position': position,
+                'notif': order_notification(request),
                 'segment': 'user',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -98,6 +102,7 @@ def user_add(request):
         context = {
             'form': form,
             'position': position,
+            'notif': order_notification(request),
             'segment': 'user',
             'group_segment': 'master',
             'crud': 'add',
@@ -148,6 +153,7 @@ def user_view(request, _id):
         'area': area,
         'item_area': item_area,
         'positions': position,
+        'notif': order_notification(request),
         'segment': 'user',
         'group_segment': 'master',
         'tab': 'auth',
@@ -199,6 +205,7 @@ def user_area_view(request, _id):
         'area': area,
         'item_area': item_area,
         'positions': position,
+        'notif': order_notification(request),
         'segment': 'user',
         'group_segment': 'master',
         'tab': 'area',
@@ -285,6 +292,7 @@ def user_update(request, _id):
         'positions': position,
         'auth': auth,
         'area': area,
+        'notif': order_notification(request),
         'segment': 'user',
         'group_segment': 'master',
         'crud': 'update',
@@ -345,6 +353,7 @@ def set_password(request, _id):
     context = {
         'form': form,
         'data': users,
+        'notif': order_notification(request),
         'segment': 'user',
         'group_segment': 'master',
         'crud': 'update',
@@ -365,6 +374,7 @@ def distributor_index(request):
 
     context = {
         'data': distributors,
+        'notif': order_notification(request),
         'segment': 'distributor',
         'group_segment': 'master',
         'crud': 'index',
@@ -387,6 +397,7 @@ def distributor_add(request):
             message = form.errors
             context = {
                 'form': form,
+                'notif': order_notification(request),
                 'segment': 'distributor',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -399,6 +410,7 @@ def distributor_add(request):
         form = FormDistributor()
         context = {
             'form': form,
+            'notif': order_notification(request),
             'segment': 'distributor',
             'group_segment': 'master',
             'crud': 'add',
@@ -418,6 +430,7 @@ def distributor_view(request, _id):
     context = {
         'form': form,
         'data': distributors,
+        'notif': order_notification(request),
         'segment': 'distributor',
         'group_segment': 'master',
         'crud': 'view',
@@ -445,6 +458,7 @@ def distributor_update(request, _id):
     context = {
         'form': form,
         'data': distributors,
+        'notif': order_notification(request),
         'segment': 'distributor',
         'group_segment': 'master',
         'crud': 'update',
@@ -475,6 +489,7 @@ def area_sales_index(request):
 
     context = {
         'data': area_sales,
+        'notif': order_notification(request),
         'segment': 'area_sales',
         'group_segment': 'master',
         'crud': 'index',
@@ -504,6 +519,7 @@ def area_sales_add(request):
             context = {
                 'form': form,
                 'manager': manager,
+                'notif': order_notification(request),
                 'segment': 'area_sales',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -519,6 +535,7 @@ def area_sales_add(request):
         context = {
             'form': form,
             'manager': manager,
+            'notif': order_notification(request),
             'segment': 'area_sales',
             'group_segment': 'master',
             'crud': 'add',
@@ -541,6 +558,7 @@ def area_sales_view(request, _id):
         'form': form,
         'data': area_sales,
         'managers': managers,
+        'notif': order_notification(request),
         'segment': 'area_sales',
         'group_segment': 'master',
         'crud': 'view',
@@ -571,6 +589,7 @@ def area_sales_update(request, _id):
         'form': form,
         'data': area_sales,
         'managers': managers,
+        'notif': order_notification(request),
         'segment': 'area_sales',
         'group_segment': 'master',
         'crud': 'update',
@@ -603,6 +622,7 @@ def position_add(request):
             message = form.errors
             context = {
                 'form': form,
+                'notif': order_notification(request),
                 'segment': 'position',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -615,6 +635,7 @@ def position_add(request):
         form = FormPosition()
         context = {
             'form': form,
+            'notif': order_notification(request),
             'segment': 'position',
             'group_segment': 'master',
             'crud': 'add',
@@ -633,6 +654,7 @@ def position_index(request):
 
     context = {
         'data': positions,
+        'notif': order_notification(request),
         'segment': 'position',
         'group_segment': 'master',
         'crud': 'index',
@@ -661,6 +683,7 @@ def position_update(request, _id):
     context = {
         'form': form,
         'data': positions,
+        'notif': order_notification(request),
         'segment': 'position',
         'group_segment': 'master',
         'crud': 'update',
@@ -690,6 +713,7 @@ def position_view(request, _id):
     context = {
         'form': form,
         'data': positions,
+        'notif': order_notification(request),
         'segment': 'position',
         'group_segment': 'master',
         'crud': 'view',
@@ -711,6 +735,7 @@ def menu_add(request):
             message = form.errors
             context = {
                 'form': form,
+                'notif': order_notification(request),
                 'segment': 'menu',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -723,6 +748,7 @@ def menu_add(request):
         form = FormMenu()
         context = {
             'form': form,
+            'notif': order_notification(request),
             'segment': 'menu',
             'group_segment': 'master',
             'crud': 'add',
@@ -741,6 +767,7 @@ def menu_index(request):
 
     context = {
         'data': menus,
+        'notif': order_notification(request),
         'segment': 'menu',
         'group_segment': 'master',
         'crud': 'index',
@@ -768,6 +795,7 @@ def menu_update(request, _id):
     context = {
         'form': form,
         'data': menus,
+        'notif': order_notification(request),
         'segment': 'menu',
         'group_segment': 'master',
         'crud': 'update',
@@ -797,6 +825,7 @@ def menu_view(request, _id):
     context = {
         'form': form,
         'data': menus,
+        'notif': order_notification(request),
         'segment': 'menu',
         'group_segment': 'master',
         'crud': 'view',
@@ -818,6 +847,7 @@ def channel_add(request):
             message = form.errors
             context = {
                 'form': form,
+                'notif': order_notification(request),
                 'segment': 'channel',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -830,6 +860,7 @@ def channel_add(request):
         form = FormChannel()
         context = {
             'form': form,
+            'notif': order_notification(request),
             'segment': 'channel',
             'group_segment': 'master',
             'crud': 'add',
@@ -848,6 +879,7 @@ def channel_index(request):
 
     context = {
         'data': channels,
+        'notif': order_notification(request),
         'segment': 'channel',
         'group_segment': 'master',
         'crud': 'index',
@@ -876,6 +908,7 @@ def channel_update(request, _id):
     context = {
         'form': form,
         'data': channels,
+        'notif': order_notification(request),
         'segment': 'channel',
         'group_segment': 'master',
         'crud': 'update',
@@ -905,6 +938,7 @@ def channel_view(request, _id):
     context = {
         'form': form,
         'data': channels,
+        'notif': order_notification(request),
         'segment': 'channel',
         'group_segment': 'master',
         'crud': 'view',
@@ -921,6 +955,7 @@ def cuisine_index(request):
 
     context = {
         'data': cuisines,
+        'notif': order_notification(request),
         'segment': 'cuisine',
         'group_segment': 'master',
         'crud': 'index',
@@ -943,6 +978,7 @@ def cuisine_add(request):
             message = form.errors
             context = {
                 'form': form,
+                'notif': order_notification(request),
                 'segment': 'cuisine',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -955,6 +991,7 @@ def cuisine_add(request):
         form = FormCuisine()
         context = {
             'form': form,
+            'notif': order_notification(request),
             'segment': 'cuisine',
             'group_segment': 'master',
             'crud': 'add',
@@ -973,6 +1010,7 @@ def cuisine_view(request, _id):
     context = {
         'form': form,
         'data': cuisines,
+        'notif': order_notification(request),
         'segment': 'cuisine',
         'group_segment': 'master',
         'crud': 'view',
@@ -999,6 +1037,7 @@ def cuisine_update(request, _id):
     context = {
         'form': form,
         'data': cuisines,
+        'notif': order_notification(request),
         'segment': 'cuisine',
         'group_segment': 'master',
         'crud': 'update',
@@ -1025,6 +1064,7 @@ def equipment_index(request):
 
     context = {
         'data': equipments,
+        'notif': order_notification(request),
         'segment': 'equipment',
         'group_segment': 'master',
         'crud': 'index',
@@ -1047,6 +1087,7 @@ def equipment_add(request):
             message = form.errors
             context = {
                 'form': form,
+                'notif': order_notification(request),
                 'segment': 'equipment',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -1059,6 +1100,7 @@ def equipment_add(request):
         form = FormEquipment()
         context = {
             'form': form,
+            'notif': order_notification(request),
             'segment': 'equipment',
             'group_segment': 'master',
             'crud': 'add',
@@ -1077,6 +1119,7 @@ def equipment_view(request, _id):
     context = {
         'form': form,
         'data': equipments,
+        'notif': order_notification(request),
         'segment': 'equipment',
         'group_segment': 'master',
         'crud': 'view',
@@ -1103,6 +1146,7 @@ def equipment_update(request, _id):
     context = {
         'form': form,
         'data': equipments,
+        'notif': order_notification(request),
         'segment': 'equipment',
         'group_segment': 'master',
         'crud': 'update',
@@ -1129,6 +1173,7 @@ def category_index(request):
 
     context = {
         'data': categories,
+        'notif': order_notification(request),
         'segment': 'category',
         'group_segment': 'master',
         'crud': 'index',
@@ -1151,6 +1196,7 @@ def category_add(request):
             message = form.errors
             context = {
                 'form': form,
+                'notif': order_notification(request),
                 'segment': 'category',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -1163,6 +1209,7 @@ def category_add(request):
         form = FormCategory()
         context = {
             'form': form,
+            'notif': order_notification(request),
             'segment': 'category',
             'group_segment': 'master',
             'crud': 'add',
@@ -1181,6 +1228,7 @@ def category_view(request, _id):
     context = {
         'form': form,
         'data': categories,
+        'notif': order_notification(request),
         'segment': 'category',
         'group_segment': 'master',
         'crud': 'view',
@@ -1207,6 +1255,7 @@ def category_update(request, _id):
     context = {
         'form': form,
         'data': categories,
+        'notif': order_notification(request),
         'segment': 'category',
         'group_segment': 'master',
         'crud': 'update',
@@ -1233,6 +1282,7 @@ def package_index(request):
 
     context = {
         'data': packages,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'crud': 'index',
@@ -1260,6 +1310,7 @@ def package_add(request):
             context = {
                 'form': form,
                 'categories': categories,
+                'notif': order_notification(request),
                 'segment': 'package',
                 'group_segment': 'master',
                 'crud': 'add',
@@ -1274,6 +1325,7 @@ def package_add(request):
         context = {
             'form': form,
             'categories': categories,
+            'notif': order_notification(request),
             'segment': 'package',
             'group_segment': 'master',
             'crud': 'add',
@@ -1368,6 +1420,7 @@ def package_rice_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'rice',
@@ -1463,6 +1516,7 @@ def package_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'main_cuisine',
@@ -1558,6 +1612,7 @@ def package_subcuisine_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'sub_cuisine',
@@ -1653,6 +1708,7 @@ def package_sidecuisine1_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine1',
@@ -1748,6 +1804,7 @@ def package_sidecuisine2_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine2',
@@ -1843,6 +1900,7 @@ def package_sidecuisine3_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine3',
@@ -1938,6 +1996,7 @@ def package_sidecuisine4_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine4',
@@ -2033,6 +2092,7 @@ def package_sidecuisine5_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine5',
@@ -2128,6 +2188,7 @@ def package_bag_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'main_cuisine',
@@ -2223,6 +2284,7 @@ def package_box_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'main_cuisine',
@@ -2318,6 +2380,7 @@ def package_addon_view(request, _id):
         'eqs': eqs,
         'box': box,
         'addons': addons,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'main_cuisine',
@@ -2601,6 +2664,7 @@ def package_update(request, _id):
         'form': form,
         'data': packages,
         'categories': categories,
+        'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'crud': 'update',
@@ -2628,6 +2692,7 @@ def closing_index(request):
 
     context = {
         'data': periods,
+        'notif': order_notification(request),
         'segment': 'closing_period',
         'group_segment': 'master',
         'crud': 'index',
@@ -2657,6 +2722,7 @@ def closing_add(request):
 
     context = {
         'form': form,
+        'notif': order_notification(request),
         'segment': 'closing_period',
         'group_segment': 'master',
         'crud': 'add',
@@ -2693,6 +2759,7 @@ def closing_update(request, _id):
         'data': period,
         'years': YEAR_CHOICES,
         'months': MONTH_CHOICES,
+        'notif': order_notification(request),
         'segment': 'closing_period',
         'group_segment': 'master',
         'crud': 'update',
@@ -2731,6 +2798,7 @@ def closing_view(request, _id):
         'form': form,
         'years': YEAR_CHOICES,
         'months': MONTH_CHOICES,
+        'notif': order_notification(request),
         'segment': 'closing_period',
         'group_segment': 'master',
         'crud': 'view',
@@ -2748,6 +2816,7 @@ def division_index(request):
 
     context = {
         'data': divisions,
+        'notif': order_notification(request),
         'segment': 'division',
         'group_segment': 'master',
         'crud': 'index',
@@ -2772,6 +2841,7 @@ def division_add(request):
 
     context = {
         'form': form,
+        'notif': order_notification(request),
         'segment': 'division',
         'group_segment': 'master',
         'crud': 'add',
@@ -2800,6 +2870,7 @@ def division_update(request, _id):
     context = {
         'form': form,
         'data': division,
+        'notif': order_notification(request),
         'segment': 'division',
         'group_segment': 'master',
         'crud': 'update',
@@ -2829,6 +2900,7 @@ def division_view(request, _id):
     context = {
         'data': division,
         'form': form,
+        'notif': order_notification(request),
         'segment': 'division',
         'group_segment': 'master',
         'crud': 'view',
@@ -2872,6 +2944,7 @@ def claim_index(request, _tab):
         'opens': opens,
         'open_count': open_count,
         'tab': _tab,
+        'notif': order_notification(request),
         'segment': 'claim',
         'group_segment': 'claim',
         'crud': 'index',
@@ -3043,6 +3116,7 @@ def claim_add(request, _area, _distributor, _program):
         'no_save': no_save,
         'add_prop': add_prop,
         'difference': difference,
+        'notif': order_notification(request),
         'segment': 'claim',
         'group_segment': 'claim',
         'crud': 'add',
@@ -3079,6 +3153,7 @@ def claim_view(request, _tab, _id):
         'program': program,
         'approval': approval,
         'status': claim.status,
+        'notif': order_notification(request),
         'segment': 'claim',
         'group_segment': 'claim',
         'crud': 'view',
@@ -3208,6 +3283,7 @@ def claim_update(request, _tab, _id):
         'tab': _tab,
         'message': message,
         'err': err,
+        'notif': order_notification(request),
         'segment': 'claim',
         'group_segment': 'claim',
         'crud': 'update',
@@ -3270,6 +3346,7 @@ def claim_release_index(request):
 
     context = {
         'data': release,
+        'notif': order_notification(request),
         'segment': 'claim_release',
         'group_segment': 'claim',
         'crud': 'index',
@@ -3296,6 +3373,7 @@ def claim_release_view(request, _id, _is_revise):
         'program': program,
         'is_revise': _is_revise,
         'status': claim.status,
+        'notif': order_notification(request),
         'segment': 'claim_release',
         'group_segment': 'claim',
         'crud': 'view',
@@ -3506,6 +3584,7 @@ def claim_release_update(request, _id):
         'add_proposals': add_proposals,
         'proposals': proposals,
         'difference': difference,
+        'notif': order_notification(request),
         'segment': 'claim_release',
         'group_segment': 'claim',
         'crud': 'update',
@@ -3984,6 +4063,7 @@ def claim_archive_index(request):
 
     context = {
         'rejects': rejects,
+        'notif': order_notification(request),
         'segment': 'claim_archive',
         'group_segment': 'claim',
         'crud': 'index',
@@ -4002,6 +4082,7 @@ def claim_matrix_index(request):
 
     context = {
         'data': areas,
+        'notif': order_notification(request),
         'segment': 'claim_matrix',
         'group_segment': 'approval',
         'crud': 'index',
@@ -4044,6 +4125,7 @@ def claim_matrix_view(request, _id, _channel):
         'users': users,
         'approvers': approvers,
         'channel': _channel,
+        'notif': order_notification(request),
         'segment': 'claim_matrix',
         'group_segment': 'approval',
         'tab': 'auth',
@@ -4095,6 +4177,7 @@ def region_index(request):
 
     context = {
         'data': regions,
+        'notif': order_notification(request),
         'segment': 'region',
         'group_segment': 'master',
         'crud': 'index',
@@ -4121,6 +4204,7 @@ def region_add(request):
     message = form.errors
     context = {
         'form': form,
+        'notif': order_notification(request),
         'segment': 'region',
         'group_segment': 'master',
         'crud': 'add',
@@ -4160,6 +4244,7 @@ def region_view(request, _id):
         'data': region,
         'areas': areas,
         'detail': details,
+        'notif': order_notification(request),
         'segment': 'region',
         'group_segment': 'master',
         'crud': 'view',
@@ -4192,6 +4277,7 @@ def region_update(request, _id):
         'form': form,
         'data': region,
         'detail': detail,
+        'notif': order_notification(request),
         'segment': 'region',
         'group_segment': 'master',
         'crud': 'update',
@@ -4229,6 +4315,7 @@ def customer_index(request):
 
     context = {
         'data': customers,
+        'notif': order_notification(request),
         'segment': 'customer',
         'group_segment': 'master',
         'crud': 'index',
@@ -4254,6 +4341,7 @@ def customer_add(request):
     message = form.errors
     context = {
         'form': form,
+        'notif': order_notification(request),
         'segment': 'customer',
         'group_segment': 'master',
         'crud': 'add',
@@ -4295,6 +4383,7 @@ def customer_view(request, _id, _msg):
         'data': customer,
         'details': details,
         'msg': msg,
+        'notif': order_notification(request),
         'segment': 'customer',
         'group_segment': 'master',
         'crud': 'view',
@@ -4325,6 +4414,7 @@ def customer_update(request, _id):
         'form': form,
         'data': customer,
         'msg': '0',
+        'notif': order_notification(request),
         'segment': 'customer',
         'group_segment': 'master',
         'crud': 'update',
@@ -4659,16 +4749,21 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
     side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
     rices = Rice.objects.filter(package=_pack)
     bags = Bag.objects.filter(package=_pack)
-    addons = Addon.objects.filter(package=_pack)
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT apps_addon.equipment_id, equipment_name, extra_price, q_addon.equipment_id, q_addon.quantity FROM apps_equipment INNER JOIN apps_addon ON apps_equipment.equipment_id = apps_addon.equipment_id LEFT JOIN (SELECT * FROM apps_orderpackageaddon WHERE order_id = '" + str(_id) + "' AND package_id = '" + str(_pack) + "') AS q_addon ON apps_addon.equipment_id = q_addon.equipment_id WHERE apps_addon.package_id = '" + str(_pack) + "' ORDER BY equipment_name")
+        addons = cursor.fetchall()
     last_package = OrderPackage.objects.filter(order_id=_id).last(
     ) if OrderPackage.objects.filter(order_id=_id) else None
     selected_package = Package.objects.get(
         package_id=_pack) if _pack != '0' else None
     order = Order.objects.get(order_id=_id)
     child = OrderChild.objects.filter(order_id=_id).last()
+    addon_order = ''
 
     if request.POST:
         form = FormOrderPackage(request.POST)
+
         if form.is_valid():
             extra_price_main = MainCuisine.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('main_cuisine')).cuisine_id).extra_price if request.POST.get('main_cuisine') else 0
@@ -4690,11 +4785,14 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
                 equipment_name=request.POST.get('bag')).equipment_id).extra_price if request.POST.get('bag') else 0
             extra_price_box = Pack.objects.get(package=_pack, equipment=Equipment.objects.get(
                 equipment_name=request.POST.get('box_type')).equipment_id).extra_price if request.POST.get('box_type') else 0
+
             package = form.save(commit=False)
+
             package.order_id = _id
             package.category_id = _cat
             package.package_id = _pack
             package.type = _type
+            package.quantity = request.POST.get('quantity')
             package.box_type = request.POST.get('box_type')
             package.main_cuisine = request.POST.get('main_cuisine')
             package.sub_cuisine = request.POST.get('sub_cuisine')
@@ -4707,18 +4805,60 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
             package.bag = request.POST.get('bag')
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
             package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 1) * int(request.POST.get('quantity')))
+                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 0) * int(request.POST.get('quantity')))
             package.save()
 
             total = OrderPackage.objects.filter(
                 order_id=_id).aggregate(order=Sum('total_price'))
-            order.total_order = total['order']
+            total_addon = OrderPackageAddon.objects.filter(
+                order_id=_id).aggregate(order=Sum('total_price'))
+            _total_addon = total_addon['order'] if total_addon['order'] else 0
+            order.total_order = total['order'] + _total_addon
             order.save()
 
-            if _add == 1:
-                return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
+            if _add == 2:
+                check = request.GET.get('checks')
+                qty = request.GET.get('qty')
+                _ids = check.split(',')
+                _qty = qty.split(',')
+                _qty_idx = 0
+                for index, i in enumerate(addons):
+                    if str(i[0]) in _ids:
+                        try:
+                            _addon = OrderPackageAddon(
+                                order_id=_id, package_id=_pack, equipment_id=i[0], unit_price=i[2])
+                            _addon.save()
+                            _update = OrderPackageAddon.objects.get(
+                                order_id=_id, package_id=_pack, equipment_id=i[0])
+                            _update.quantity = int(_qty[_qty_idx])
+                            _update.save()
+                        except IntegrityError:
+                            _update = OrderPackageAddon.objects.get(
+                                order_id=_id, package_id=_pack, equipment_id=i[0])
+                            _update.quantity = int(_qty[_qty_idx])
+                            _update.save()
+                            continue
+
+                        _qty_idx += 1
+
+                    else:
+                        OrderPackageAddon.objects.filter(
+                            order_id=_id, package_id=_pack, equipment_id=i[0]).delete()
+
+                _addon_order = OrderPackageAddon.objects.filter(
+                    order_id=_id, package_id=_pack)
+                for idx, j in enumerate(_addon_order):
+                    addon_order += j.equipment.equipment_name + \
+                        ' (' + str(j.quantity) + ')'
+                    if idx < _addon_order.count() - 1:
+                        addon_order += ', '
+
+                return HttpResponseRedirect(reverse('order-package-update', args=[_id, package.id, _cat, _pack, _type, 0]))
             else:
-                return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+                if _add == 1:
+                    return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
+                else:
+                    return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
     else:
         form = FormOrderPackage(initial={'order': _id})
 
@@ -4743,6 +4883,7 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
         'rices': rices,
         'bags': bags,
         'addons': addons,
+        'addon_order': addon_order,
         'last_package': last_package,
         'selected_package': selected_package,
         'order_id': _id,
@@ -4799,8 +4940,11 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
 
         total = OrderPackage.objects.filter(
             order_id=_id).aggregate(order=Sum('total_price'))
+        total_addon = OrderPackageAddon.objects.filter(
+            order_id=_id).aggregate(order=Sum('total_price'))
+        _total_addon = total_addon['order'] if total_addon['order'] else 0
         order = Order.objects.get(order_id=_id)
-        order.total_order = total['order']
+        order.total_order = total['order'] + _total_addon
         order.save()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
@@ -4821,11 +4965,16 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
     side_cuisines5 = SideCuisine5.objects.filter(package=_pack)
     rices = Rice.objects.filter(package=_pack)
     bags = Bag.objects.filter(package=_pack)
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT apps_addon.equipment_id, equipment_name, extra_price, q_addon.equipment_id, q_addon.quantity FROM apps_equipment INNER JOIN apps_addon ON apps_equipment.equipment_id = apps_addon.equipment_id LEFT JOIN (SELECT * FROM apps_orderpackageaddon WHERE order_id = '" + str(_id) + "' AND package_id = '" + str(_pack) + "') AS q_addon ON apps_addon.equipment_id = q_addon.equipment_id WHERE apps_addon.package_id = '" + str(_pack) + "' ORDER BY equipment_name")
+        addons = cursor.fetchall()
     last_child = OrderChild.objects.filter(order_id=_id).last()
     selected_package = Package.objects.get(
         package_id=_pack) if _pack != '0' else None
     order = Order.objects.get(order_id=_id)
     orders = OrderPackage.objects.filter(order_id=_id)
+    addon_order = ''
 
     first = False
     prev_id = 0
@@ -4849,8 +4998,17 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             prev_type = i.type
             break
 
+    _addon_order = OrderPackageAddon.objects.filter(
+        order_id=_id, package_id=_pack)
+    for idx, j in enumerate(_addon_order):
+        addon_order += j.equipment.equipment_name + \
+            ' (' + str(j.quantity) + ')'
+        if idx < _addon_order.count() - 1:
+            addon_order += ', '
+
     if request.POST:
         form = FormOrderPackage(request.POST, instance=package)
+
         if form.is_valid():
             extra_price_main = MainCuisine.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('main_cuisine')).cuisine_id).extra_price if request.POST.get('main_cuisine') else 0
@@ -4872,10 +5030,13 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
                 equipment_name=request.POST.get('bag')).equipment_id).extra_price if request.POST.get('bag') else 0
             extra_price_box = Pack.objects.get(package=_pack, equipment=Equipment.objects.get(
                 equipment_name=request.POST.get('box_type')).equipment_id).extra_price if request.POST.get('box_type') else 0
+
             package = form.save(commit=False)
+
             package.category_id = _cat
             package.package_id = _pack
             package.type = _type
+            package.quantity = request.POST.get('quantity')
             package.box_type = request.POST.get('box_type')
             package.main_cuisine = request.POST.get('main_cuisine')
             package.sub_cuisine = request.POST.get('sub_cuisine')
@@ -4888,24 +5049,70 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             package.bag = request.POST.get('bag')
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
             package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 1) * int(request.POST.get('quantity')))
+                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 0) * int(request.POST.get('quantity')))
             package.save()
 
             total = OrderPackage.objects.filter(
                 order_id=_id).aggregate(order=Sum('total_price'))
-            order.total_order = total['order']
+            total_addon = OrderPackageAddon.objects.filter(
+                order_id=_id).aggregate(order=Sum('total_price'))
+            _total_addon = total_addon['order'] if total_addon['order'] else 0
+            order.total_order = total['order'] + _total_addon
             order.save()
 
-            if _add == 1:
-                return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
+            if _add == 2:
+                check = request.GET.get('checks')
+                qty = request.GET.get('qty')
+                _ids = check.split(',')
+                _qty = qty.split(',')
+                _qty_idx = 0
+                # delete all addons first
+                OrderPackageAddon.objects.filter(
+                    order_id=_id, package_id=_pack).delete()
+                for ix, i in enumerate(addons):
+                    if str(i[0]) in _ids:
+                        try:
+                            _addon = OrderPackageAddon(
+                                order_id=_id, package_id=_pack, equipment_id=i[0], unit_price=i[2])
+                            _addon.save()
+                            _update = OrderPackageAddon.objects.get(
+                                order_id=_id, package_id=_pack, equipment_id=i[0])
+                            _update.quantity = int(_qty[_qty_idx])
+                            _update.save()
+                        except IntegrityError:
+                            _update = OrderPackageAddon.objects.get(
+                                order_id=_id, package_id=_pack, equipment_id=i[0])
+                            _update.quantity = int(_qty[_qty_idx])
+                            _update.save()
+                            continue
+
+                        _qty_idx += 1
+
+                    else:
+                        OrderPackageAddon.objects.filter(
+                            order_id=_id, package_id=_pack, equipment_id=i[0]).delete()
+
+                _addon_order = OrderPackageAddon.objects.filter(
+                    order_id=_id, package_id=_pack)
+                for idx, j in enumerate(_addon_order):
+                    addon_order += j.equipment.equipment_name + \
+                        ' (' + str(j.quantity) + ')'
+                    if idx < _addon_order.count() - 1:
+                        addon_order += ', '
+
+                return HttpResponseRedirect(reverse('order-package-update', args=[_id, package.id, _cat, _pack, _type, 0]))
             else:
-                last_package = OrderPackage.objects.filter(order_id=_id).last()
-                if last_package.id == _package:
-                    return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+                if _add == 1:
+                    return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
                 else:
-                    for i in OrderPackage.objects.filter(order_id=_id):
-                        if i.id > _package:
-                            return HttpResponseRedirect(reverse('order-package-update', args=[_id, i.id, i.category_id, i.package_id, i.type, 0]))
+                    last_package = OrderPackage.objects.filter(
+                        order_id=_id).last()
+                    if last_package.id == _package:
+                        return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+                    else:
+                        for i in OrderPackage.objects.filter(order_id=_id):
+                            if i.id > _package:
+                                return HttpResponseRedirect(reverse('order-package-update', args=[_id, i.id, i.category_id, i.package_id, i.type, 0]))
     else:
         form = FormOrderPackage(instance=package)
 
@@ -4938,6 +5145,8 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
         'side_cuisines5': side_cuisines5,
         'rices': rices,
         'bags': bags,
+        'addons': addons,
+        'addon_order': addon_order,
         'selected_package': selected_package,
         'order_id': _id,
         'msg': msg,
@@ -4949,6 +5158,10 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
     package = OrderPackage.objects.get(order_id=_id, package=_pack)
     order = Order.objects.get(order_id=_id)
     selected_package = Package.objects.get(package_id=_pack)
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT apps_addon.equipment_id, equipment_name, extra_price, q_addon.equipment_id, q_addon.quantity FROM apps_equipment INNER JOIN apps_addon ON apps_equipment.equipment_id = apps_addon.equipment_id LEFT JOIN (SELECT * FROM apps_orderpackageaddon WHERE order_id = '" + str(_id) + "' AND package_id = '" + str(_pack) + "') AS q_addon ON apps_addon.equipment_id = q_addon.equipment_id WHERE apps_addon.package_id = '" + str(_pack) + "' ORDER BY equipment_name")
+        addons = cursor.fetchall()
 
     if request.POST:
         extra_price_main = MainCuisine.objects.get(
@@ -4992,7 +5205,10 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
 
         total = OrderPackage.objects.filter(
             order_id=_id).aggregate(order=Sum('total_price'))
-        order.total_order = total['order']
+        total_addon = OrderPackageAddon.objects.filter(
+            order_id=_id).aggregate(order=Sum('total_price'))
+        _total_addon = total_addon['order'] if total_addon['order'] else 0
+        order.total_order = total['order'] + _total_addon
         order.save()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
@@ -5001,11 +5217,18 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
 def order_package_delete(request, _id, _package):
     package = OrderPackage.objects.get(order_id=_id, id=_package)
     package.delete()
+    addon = OrderPackageAddon.objects.filter(
+        order_id=_id, package_id=_package)
+    for i in addon:
+        i.delete()
 
     total = OrderPackage.objects.filter(
         order_id=_id).aggregate(order=Sum('total_price'))
+    total_addon = OrderPackageAddon.objects.filter(
+        order_id=_id).aggregate(order=Sum('total_price'))
+    _total_addon = total_addon['order'] if total_addon['order'] else 0
     order = Order.objects.get(order_id=_id)
-    order.total_order = total['order']
+    order.total_order = total['order'] + _total_addon
     order.save()
 
     first = OrderPackage.objects.filter(order_id=_id).first()
@@ -5014,13 +5237,20 @@ def order_package_delete(request, _id, _package):
 
 
 def order_package_cs_delete(request, _id, _pack):
-    package = OrderPackage.objects.get(order_id=_id, id=_pack)
+    package = OrderPackage.objects.get(order_id=_id, package_id=_pack)
     package.delete()
+    addon = OrderPackageAddon.objects.filter(
+        order_id=_id, package_id=_pack)
+    for i in addon:
+        i.delete()
 
     total = OrderPackage.objects.filter(
         order_id=_id).aggregate(order=Sum('total_price'))
+    total_addon = OrderPackageAddon.objects.filter(
+        order_id=_id).aggregate(order=Sum('total_price'))
+    _total_addon = total_addon['order'] if total_addon['order'] else 0
     order = Order.objects.get(order_id=_id)
-    order.total_order = total['order']
+    order.total_order = total['order'] + _total_addon
     order.save()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
@@ -5081,7 +5311,7 @@ def order_cancel(request, _id):
     order.order_status = 'BATAL'
     order.save()
 
-    return HttpResponseRedirect(reverse('order-index'))
+    return HttpResponseRedirect(reverse('order-index', args=['all']))
 
 
 def order_confirmed(request, _id):
@@ -5142,7 +5372,7 @@ def order_confirmed(request, _id):
                 )
                 new_detail.save()
 
-    return HttpResponseRedirect(reverse('order-index'))
+    return HttpResponseRedirect(reverse('order-index', args=['all']))
 
 
 @login_required(login_url='/login/')
@@ -5152,6 +5382,7 @@ def form_index(request):
 
     context = {
         'data': area_sales,
+        'notif': order_notification(request),
         'segment': 'form',
         'group_segment': 'transaction',
         'crud': 'index',
@@ -5164,12 +5395,24 @@ def form_index(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='ORDER')
-def order_index(request):
-    orders = Order.objects.filter(regional_id__in=AreaUser.objects.filter(user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id', 'regional').exclude(order_status__in=[
+def order_index(request, _branch):
+    all_orders = Order.objects.filter(regional_id__in=AreaUser.objects.filter(user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id', 'regional').exclude(order_status__in=[
         'PENDING', 'BATAL']) if request.user.position_id == 'CS' else Order.objects.filter(regional_id__in=AreaUser.objects.filter(user_id=request.user.user_id).values_list('area_id', flat=True)).order_by('-order_id', 'regional').exclude(order_status__in=['PENDING'])
+    if _branch == 'all':
+        orders = all_orders
+    else:
+        orders = Order.objects.filter(regional_id=_branch).order_by('-order_id', 'regional').exclude(order_status__in=[
+            'PENDING', 'BATAL']) if request.user.position_id == 'CS' else Order.objects.filter(regional_id=_branch).order_by('-order_id', 'regional').exclude(order_status__in=['PENDING'])
+    br_order = all_orders.values_list('regional', flat=True).distinct()
+    branch = AreaSales.objects.filter(area_id__in=br_order)
+    br_name = AreaSales.objects.get(
+        area_id=_branch).area_name if _branch != 'all' else 'Semua Cabang'
 
     context = {
         'data': orders,
+        'branch': branch,
+        'br_name': br_name,
+        'notif': order_notification(request),
         'segment': 'order',
         'group_segment': 'transaction',
         'crud': 'index',
@@ -5207,6 +5450,63 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         package_id=_pack) if _pack != '0' else None
     upd_package = OrderPackage.objects.get(order_id=_id, id=_crud) if _crud not in [
         '0', 'add'] else None
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT apps_addon.equipment_id, equipment_name, extra_price, q_addon.equipment_id, q_addon.quantity FROM apps_equipment INNER JOIN apps_addon ON apps_equipment.equipment_id = apps_addon.equipment_id LEFT JOIN (SELECT * FROM apps_orderpackageaddon WHERE order_id = '" + str(_id) + "' AND package_id = '" + str(_pack) + "') AS q_addon ON apps_addon.equipment_id = q_addon.equipment_id WHERE apps_addon.package_id = '" + str(_pack) + "' ORDER BY equipment_name")
+        addons = cursor.fetchall()
+    addon_order = ''
+
+    _addon_order = OrderPackageAddon.objects.filter(
+        order_id=_id, package_id=_pack)
+    for idx, j in enumerate(_addon_order):
+        addon_order += j.equipment.equipment_name + \
+            ' (' + str(j.quantity) + ')'
+        if idx < _addon_order.count() - 1:
+            addon_order += ', '
+
+    if request.POST:
+        check = request.GET.get('checks')
+        print(check)
+        qty = request.GET.get('qty')
+        _ids = check.split(',')
+        _qty = qty.split(',')
+        _qty_idx = 0
+        # delete all addons first
+        OrderPackageAddon.objects.filter(
+            order_id=_id, package_id=_pack).delete()
+
+        for ix, i in enumerate(addons):
+            if str(i[0]) in _ids:
+                try:
+                    _addon = OrderPackageAddon(
+                        order_id=_id, package_id=_pack, equipment_id=i[0], unit_price=i[2])
+                    _addon.save()
+                    _update = OrderPackageAddon.objects.get(
+                        order_id=_id, package_id=_pack, equipment_id=i[0])
+                    _update.quantity = int(_qty[_qty_idx])
+                    _update.save()
+                except IntegrityError:
+                    _update = OrderPackageAddon.objects.get(
+                        order_id=_id, package_id=_pack, equipment_id=i[0])
+                    _update.quantity = int(_qty[_qty_idx])
+                    _update.save()
+                    continue
+
+                _qty_idx += 1
+
+            else:
+                OrderPackageAddon.objects.filter(
+                    order_id=_id, package_id=_pack, equipment_id=i[0]).delete()
+
+        _addon_order = OrderPackageAddon.objects.filter(
+            order_id=_id, package_id=_pack)
+        for idx, j in enumerate(_addon_order):
+            addon_order += j.equipment.equipment_name + \
+                ' (' + str(j.quantity) + ')'
+            if idx < _addon_order.count() - 1:
+                addon_order += ', '
+
+        return HttpResponseRedirect(reverse('order-view', args=[_id, _cat, _pack, _type, _crud]))
 
     msg = form.errors
     context = {
@@ -5229,12 +5529,16 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         'bags': bags,
         'selected_package': selected_package,
         'upd_package': upd_package,
+        'addons': addons,
+        'addon_order': addon_order,
         'box': box,
+        'id': _id,
         'cat': _cat,
         'pack': _pack,
         'type': _type,
         'crud_det': _crud,
         'msg': msg,
+        'notif': order_notification(request),
         'segment': 'order',
         'group_segment': 'transaction',
         'crud': 'view',
@@ -5343,6 +5647,7 @@ def order_cs_update(request, _id, _cat, _pack, _type):
         'type': _type,
         'crud_det': '0',
         'msg': msg,
+        'notif': order_notification(request),
         'segment': 'order',
         'group_segment': 'transaction',
         'crud': 'update',
@@ -5361,6 +5666,7 @@ def cashin_index(request):
 
     context = {
         'data': cash_in,
+        'notif': order_notification(request),
         'segment': 'cash-in',
         'group_segment': 'accounting',
         'crud': 'index',
@@ -5418,6 +5724,7 @@ def cashin_add(request, _id, _msg):
         'order_id': _id,
         'msg': _msg,
         # 'error': msg,
+        'notif': order_notification(request),
         'segment': 'cash-in',
         'group_segment': 'accounting',
         'crud': 'add',
@@ -5440,6 +5747,7 @@ def cashin_view(request, _id):
         'data': cash_in,
         'form': form,
         'orders': orders,
+        'notif': order_notification(request),
         'segment': 'cash-in',
         'group_segment': 'accounting',
         'crud': 'view',
@@ -5495,6 +5803,7 @@ def cashin_update(request, _id, _msg):
         'form': form,
         'data': cash_in,
         'orders': orders,
+        'notif': order_notification(request),
         'segment': 'cash-in',
         'group_segment': 'accounting',
         'crud': 'update',
@@ -5566,6 +5875,12 @@ def order_invoice(request, _id):
     # Add logo in the top left corner
     logo_path = '../../www/aqiqahon/apps/static/img/logo.png'
     pdf_file.drawImage(logo_path, 35, 745, width=70, height=61)
+
+    if order.order_status == 'LUNAS':
+        # Add image with transparent 20% in the middle of the page
+        image_path = '../../www/aqiqahon/apps/static/img/lunas.png'
+        pdf_file.drawImage(image_path, 35, 400, width=525,
+                           height=350, mask='auto')
 
     title = "INVOICE"
     title_width = pdf_file.stringWidth(
@@ -5709,16 +6024,16 @@ def order_invoice(request, _id):
     y += 15
     total = 0
     for i in range(1, package.count() + 1):
-        y -= 30
-        pdf_file.rect(35, y - 15, 160, 30, stroke=True)
+        y -= 35
+        pdf_file.rect(35, y - 15, 160, 35, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         qty = ' - ' + str(package[i - 1].package.quantity) + \
             ' - ' if package[i - 1].package.quantity > 0 else ''
         pdf_file.drawString(
-            40, y + 5, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
+            40, y + 10, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
         if package[i - 1].package.quantity > 0:
-            pdf_file.drawString(40, y - 5, 'Hewan ' + package[i - 1].type)
-        pdf_file.rect(195, y - 15, 180, 30, stroke=True)
+            pdf_file.drawString(40, y, 'Hewan ' + package[i - 1].type)
+        pdf_file.rect(195, y - 15, 180, 35, stroke=True)
 
         cuisines = [package[i - 1].main_cuisine, package[i - 1].sub_cuisine,
                     package[i - 1].side_cuisine1]
@@ -5737,7 +6052,7 @@ def order_invoice(request, _id):
             if j < len(row) - 1 and len(cuisines) > 0:
                 str_cuisine += ' - '
 
-        pdf_file.drawString(200, y + 5, str_cuisine)
+        pdf_file.drawString(200, y + 10, str_cuisine)
 
         row = []
         str_cuisine = ''
@@ -5757,8 +6072,20 @@ def order_invoice(request, _id):
         str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
                                                                         1].box_type + ')' if package[i - 1].package.box > 0 else ''
 
-        pdf_file.drawString(200, y - 5, str_cuisine + str_box)
-        pdf_file.rect(375, y - 15, 30, 30, stroke=True)
+        pdf_file.drawString(200, y, str_cuisine + str_box)
+
+        # Addon equipment
+        addons = OrderPackageAddon.objects.filter(
+            order_id=_id, package_id=package[i - 1].package_id)
+        str_addon = '+ ' if addons.count() > 0 else ''
+        for j in range(0, addons.count()):
+            str_addon += addons[j].equipment.equipment_name + \
+                ' (' + str(addons[j].quantity) + ')'
+            if j < addons.count() - 1:
+                str_addon += ', '
+        pdf_file.drawString(200, y - 10, str_addon)
+
+        pdf_file.rect(375, y - 15, 30, 35, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         # Calculate the width of the string 'quantity'
         quantity_width = pdf_file.stringWidth(
@@ -5766,18 +6093,30 @@ def order_invoice(request, _id):
         # Calculate the center position of the rectangle
         center_x = 375 + (30 - quantity_width) / 2
         pdf_file.drawString(
-            center_x, y + 5, str(package[i - 1].quantity))
-        pdf_file.rect(405, y - 15, 85, 30, stroke=True)
+            center_x, y + 10, str(package[i - 1].quantity))
+        pdf_file.rect(405, y - 15, 85, 35, stroke=True)
         pdf_file.drawString(
-            410, y + 5, "{:,}".format(package[i - 1].unit_price))
-        pdf_file.rect(490, y - 15, 65, 30, stroke=True)
+            410, y + 10, "{:,}".format(package[i - 1].unit_price))
+        pdf_file.rect(490, y - 15, 65, 35, stroke=True)
         total_price = package[i - 1].unit_price * package[i - 1].quantity
         total += total_price
         total_price_str = "{:,}".format(total_price)
         total_price_width = pdf_file.stringWidth(
             total_price_str, "Helvetica", 8)
         pdf_file.drawString(490 + 65 - total_price_width -
-                            5, y + 5, total_price_str)
+                            5, y + 10, total_price_str)
+
+        # Draw total addon price
+        total_addon = 0
+        for j in range(0, addons.count()):
+            total_price = addons[j].unit_price * addons[j].quantity
+            total_addon += total_price
+            total += total_price
+        total_price_str = "{:,}".format(total_addon)
+        total_price_width = pdf_file.stringWidth(
+            total_price_str, "Helvetica", 8)
+        pdf_file.drawString(490 + 65 - total_price_width -
+                            5, y - 10, total_price_str)
 
     y -= 30
     # create rectangle from first column to column 3
@@ -5915,7 +6254,11 @@ def order_invoice(request, _id):
 
     y -= 30
     pdf_file.setFont("Helvetica-Bold", 8)
-    pdf_file.drawString(35, y, '* DP minimal 30%')
+    pdf_file.drawString(
+        35, y, '* Pembayaran DP 30% dari total Invoice, baru tercatat sebagai order')
+    y -= 12
+    pdf_file.drawString(
+        41, y, 'yang sah. Dan pelunasan selambat-lambatnya pada hari H.')
 
     y -= 30
     pdf_file.drawString(
@@ -5977,6 +6320,12 @@ def order_bap(request, _id):
     # Add logo in the top center
     logo_path = '../../www/aqiqahon/apps/static/img/logo.png'
     pdf_file.drawImage(logo_path, 260, 745, width=70, height=61)
+
+    if order.order_status == 'LUNAS':
+        # Add image with transparent 20% in the middle of the page
+        image_path = '../../www/aqiqahon/apps/static/img/lunas.png'
+        pdf_file.drawImage(image_path, 35, 400, width=525,
+                           height=350, mask='auto')
 
     y = 725
     title = "SURAT JALAN SAHABAT AQIQAH"
@@ -6078,16 +6427,16 @@ def order_bap(request, _id):
     y += 15
     total = 0
     for i in range(1, package.count() + 1):
-        y -= 30
-        pdf_file.rect(35, y - 15, 160, 30, stroke=True)
+        y -= 35
+        pdf_file.rect(35, y - 15, 160, 35, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         qty = ' - ' + str(package[i - 1].package.quantity) + \
             ' - ' if package[i - 1].package.quantity > 0 else ''
         pdf_file.drawString(
-            40, y + 5, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
+            40, y + 10, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
         if package[i - 1].package.quantity > 0:
-            pdf_file.drawString(40, y - 5, 'Hewan ' + package[i - 1].type)
-        pdf_file.rect(195, y - 15, 180, 30, stroke=True)
+            pdf_file.drawString(40, y, 'Hewan ' + package[i - 1].type)
+        pdf_file.rect(195, y - 15, 180, 35, stroke=True)
 
         cuisines = [package[i - 1].main_cuisine, package[i - 1].sub_cuisine,
                     package[i - 1].side_cuisine1, package[i - 1].side_cuisine2]
@@ -6101,7 +6450,7 @@ def order_bap(request, _id):
         for j in range(0, len(row)):
             str_cuisine += row[j] + ' - '
 
-        pdf_file.drawString(200, y + 5, str_cuisine)
+        pdf_file.drawString(200, y + 10, str_cuisine)
 
         cuisines = [package[i - 1].side_cuisine3,
                     package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
@@ -6122,9 +6471,20 @@ def order_bap(request, _id):
             str_box = ' - '
         str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
                                                                         1].box_type + ')' if package[i - 1].package.box > 0 else ''
+        pdf_file.drawString(200, y, str_cuisine + str_box)
 
-        pdf_file.drawString(200, y - 5, str_cuisine + str_box)
-        pdf_file.rect(375, y - 15, 30, 30, stroke=True)
+        # Addon equipment
+        addons = OrderPackageAddon.objects.filter(
+            order_id=_id, package_id=package[i - 1].package_id)
+        str_addon = '+ ' if addons.count() > 0 else ''
+        for j in range(0, addons.count()):
+            str_addon += addons[j].equipment.equipment_name + \
+                ' (' + str(addons[j].quantity) + ')'
+            if j < addons.count() - 1:
+                str_addon += ', '
+        pdf_file.drawString(200, y - 10, str_addon)
+
+        pdf_file.rect(375, y - 15, 30, 35, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         # Calculate the width of the string 'quantity'
         quantity_width = pdf_file.stringWidth(
@@ -6132,18 +6492,30 @@ def order_bap(request, _id):
         # Calculate the center position of the rectangle
         center_x = 375 + (30 - quantity_width) / 2
         pdf_file.drawString(
-            center_x, y + 5, str(package[i - 1].quantity))
-        pdf_file.rect(405, y - 15, 85, 30, stroke=True)
+            center_x, y + 10, str(package[i - 1].quantity))
+        pdf_file.rect(405, y - 15, 85, 35, stroke=True)
         pdf_file.drawString(
-            410, y + 5, "{:,}".format(package[i - 1].unit_price))
-        pdf_file.rect(490, y - 15, 65, 30, stroke=True)
+            410, y + 10, "{:,}".format(package[i - 1].unit_price))
+        pdf_file.rect(490, y - 15, 65, 35, stroke=True)
         total_price = package[i - 1].unit_price * package[i - 1].quantity
         total += total_price
         total_price_str = "{:,}".format(total_price)
         total_price_width = pdf_file.stringWidth(
             total_price_str, "Helvetica", 8)
         pdf_file.drawString(490 + 65 - total_price_width -
-                            5, y + 5, total_price_str)
+                            5, y + 10, total_price_str)
+
+        # Draw total addon price
+        total_addon = 0
+        for j in range(0, addons.count()):
+            total_price = addons[j].unit_price * addons[j].quantity
+            total_addon += total_price
+            total += total_price
+        total_price_str = "{:,}".format(total_addon)
+        total_price_width = pdf_file.stringWidth(
+            total_price_str, "Helvetica", 8)
+        pdf_file.drawString(490 + 65 - total_price_width -
+                            5, y - 10, total_price_str)
 
     y -= 30
     # create rectangle from first column to column 3
@@ -6226,7 +6598,7 @@ def order_bap(request, _id):
 
     pdf_file.rect(250, y, 210, 15, stroke=True)
     pdf_file.setFont("Helvetica-Bold", 8)
-    text = 'Dengan ini saya menyetujui :'
+    text = 'Keterangan'
     text_width = pdf_file.stringWidth(text, "Helvetica-Bold", 8)
     box_width = 210
     text_x = 250 + (box_width - text_width) / 2
@@ -6250,16 +6622,14 @@ def order_bap(request, _id):
     pdf_file.drawString(
         255, y + 5, 'Kelengkapan isi box dari paketan sudah sesuai orderan')
     pdf_file.rect(460, y, 45, 15, stroke=True)
-    pdf_file.rect(505, y - 40, 50, 55, stroke=True)
+    pdf_file.rect(505, y - 25, 50, 40, stroke=True)
     y -= 15
-    pdf_file.rect(250, y - 25, 210, 40, stroke=True)
+    pdf_file.rect(250, y - 10, 210, 25, stroke=True)
     pdf_file.drawString(
-        255, y + 5, 'Ketahanan makanan 3-4 jam setelah makanan tiba di')
+        255, y + 5, 'Saran penyajian: sebaiknya dikonsumsi maks 3 jam')
     pdf_file.drawString(
-        255, y - 5, 'lokasi (bersedia mengirimkan sampel basi setelah 3 jam')
-    pdf_file.drawString(
-        255, y - 15, 'via gosend *biaya ditanggung Sahabat Aqiqah)')
-    pdf_file.rect(460, y - 25, 45, 40, stroke=True)
+        255, y - 5, 'setelah masakan diterima')
+    pdf_file.rect(460, y - 10, 45, 25, stroke=True)
 
     pdf_file.save()
 

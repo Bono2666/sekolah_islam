@@ -21,7 +21,7 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="{% if request|is_mobile %}col-10{% else %}col-6{% endif %} d-flex align-items-center">
-                                <h5 class="mb-4">Order Pemesanan: {% if request|is_mobile %}<br><span class="text-sm">{{ data.order_id }}</span>{% else %}{{ data.order_id }}{% endif %}</h5>
+                                <h5 class="mb-4">No. Pemesanan: {% if request|is_mobile %}<br><span class="text-sm">{{ data.order_id }}</span>{% else %}{{ data.order_id }}{% endif %}</h5>
                             </div>
                             {% if request|is_mobile %}
                             <div class="col-2 text-end">
@@ -30,7 +30,7 @@
                                         <i class="fas fa-ellipsis-v"></i>
                                     </a>
                                     <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownTable">
-                                        <li><a class="dropdown-item border-radius-md" href="{% if crud == 'view' %}{% url 'order-index' %}{% else %}{% url 'order-view' data.order_id '0' '0' '0' '0' %}{% endif %}">{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a></li>
+                                        <li><a class="dropdown-item border-radius-md" href="{% if crud == 'view' %}{% url 'order-index' 'all' %}{% else %}{% url 'order-view' data.order_id '0' '0' '0' '0' %}{% endif %}">{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a></li>
                                         <li><a class="dropdown-item border-radius-md" {% if not btn.edit and not request.user.is_superuser %}hidden{% endif %}{% if status == 'BATAL' %}hidden{% endif %} {% if crud == 'update' %}hidden{% endif %} href="{% url 'order-cs-update' data.order_id '0' '0' '0' %}">Ubah</a></li>
                                         <li><button class="dropdown-item border-radius-md text-body" id="save-btn" type="submit" {% if crud == 'view' %}hidden{% endif %}>Simpan</button></li>
                                         <li><a class="dropdown-item border-radius-md" {% if status != 'DRAFT' %}hidden{% else %}{% if not btn.edit and not request.user.is_superuser %}hidden{% else %}{% if crud == 'update' %}hidden{% endif %}{% endif %}{% endif %} data-bs-toggle="modal" data-bs-target="#confirm-{{ data.order_id }}">Confirmed</a></li>
@@ -40,7 +40,7 @@
                             </div>
                             {% else %}
                             <div class="col-6 text-end">
-                                <a href="{% if crud == 'view' %}{% url 'order-index' %}{% else %}{% url 'order-view' data.order_id '0' '0' '0' '0' %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-3"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a>
+                                <a href="{% if crud == 'view' %}{% url 'order-index' 'all' %}{% else %}{% url 'order-view' data.order_id '0' '0' '0' '0' %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-3"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a>
                                 <a href="{% url 'order-cs-update' data.order_id '0' '0' '0' %}" class="btn btn-sm bg-gradient-dark mb-0 px-4 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}{% if status == 'BATAL' %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah</a>
                                 <button type="submit" id="save-btn" class="btn btn-sm bg-gradient-dark mb-0 px-4" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
                                 <button type="button" class="btn btn-sm bg-gradient-dark mb-0 px-4 {% if status != 'DRAFT' %}disabled{% else %}{% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.order_id }}"><i class="fas fa-check"></i>&nbsp;&nbsp;Confirmed</button>
@@ -621,7 +621,7 @@
                                                 </div>
                                                 <div class="modal-footer border-0">
                                                     <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
-                                                    <a href="{% url 'order-package-cs-delete' data.order_id item.id %}" role="button" class="btn bg-gradient-warning text-white">Hapus
+                                                    <a href="{% url 'order-package-cs-delete' data.order_id item.package_id %}" role="button" class="btn bg-gradient-warning text-white">Hapus
                                                     </a>
                                                 </div>
                                             </div>
@@ -854,6 +854,19 @@
                                     </div>
                                 </div>
                             </div>
+                            {% if addons %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="addon">Tambahan (Jika ada)</label>
+                                        <div class="input-group input-group-alternative">
+                                            <a class="form-control form-control-sm border" data-bs-toggle="modal" data-bs-target="#dialog-addon">{% if addon_order %}{{ addon_order }}{% else %}Pilih Tambahan{% endif %}</a>
+                                            <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#dialog-addon"><i class="fas fa-angle-down"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="modal-footer border-0">
@@ -1083,6 +1096,19 @@
                                     </div>
                                 </div>
                             </div>
+                            {% if addons %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="addon">Tambahan (Jika ada)</label>
+                                        <div class="input-group input-group-alternative">
+                                            <a class="form-control form-control-sm border" data-bs-toggle="modal" data-bs-target="#dialog-addon">{% if addon_order %}{{ addon_order }}{% else %}Pilih Tambahan{% endif %}</a>
+                                            <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#dialog-addon"><i class="fas fa-angle-down"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="modal-footer border-0">
@@ -1096,11 +1122,117 @@
     </div>
 </div>
 
+<div class="container">
+    <div class="modal fade" id="dialog-addon" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form id="form-addon" method="post" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Pilih Tambahan</h5>
+                    </div>
+                    <div class="modal-body border-bottom-0">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0" id="menuTable">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Nama Item</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Harga Satuan</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Jumlah</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pilih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in addons %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ item.1 }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ item.2|intcomma }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control-sm qty" name="qty" value="{% if item.4 %}{{ item.4 }}{% else %}0{% endif %}"/>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="cursor-pointer border checks" name="checks[]" value="{{ item.0 }}" {% if item.3 %}checked{% endif %}/>                                              
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <a href="{% url 'order-view' id cat pack type crud_det %}" role="button"
+                            class="btn btn-sm bg-gradient-dark">Batal</a>
+                        <button id="save-addon" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
 {% block javascripts %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    let form = document.getElementById('form-addon');
+    let c = document.querySelectorAll('.checks');
+    let q = document.querySelectorAll('.qty');
+    let save = document.getElementById('save-addon');
+
+    save.addEventListener('click', function() {
+        let check = [];
+        let qty = [];
+        c.forEach(function(checkbox, index) {
+            if (c[index].checked == true) {
+                check.push(c[index].value);
+                qty.push(q[index].value);
+            }
+        });
+        form.action = "{% url 'order-view' id cat pack type crud_det %}?checks=" + check + "&qty=" + qty;
+        form.submit();
+    });
+    
+    c.forEach(function(checkbox, index) {
+        checkbox.addEventListener('click', function() {
+            if (c[index].checked == true) {
+                if (q[index].value < 1) {
+                    q[index].value = 1;
+                }
+            } else {
+                q[index].value = 0;
+            }
+        });
+    });
+
+    q.forEach(function(quantity, index) {
+        quantity.addEventListener('change', function() {
+            if (q[index].value > 0) {
+                c[index].checked = true;
+            } else {
+                c[index].checked = false;
+            }
+        });
+    });
+
     $(document).ready(function () {
         $('#childTable').DataTable({
             'searching': false,

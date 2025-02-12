@@ -6,14 +6,22 @@
 
 {% load humanize %}
 
+{% load user_agents %}
+
 <!-- Page content -->
 <div class="container-fluid py-0">
     <div class="row">
         <div class="col-12">
             <div class="card mb-6 p-4">
                 <div class="row mb-4">
-                    <div class="col-12 d-flex align-items-center">
-                        <h4 class="mb-0">Order Pemesanan</h4>
+                    <div class="{% if request|is_mobile %}col-5{% else %}col-10{% endif %} d-flex align-items-center">
+                        <h4 class="mb-0">Pemesanan</h4>
+                    </div>
+                    <div class="{% if request|is_mobile %}col-7{% else %}col-2{% endif %} dropdown-center">
+                        <div class="input-group input-group-alternative cursor-pointer">
+                            <a class="form-control form-control-sm pe-6 border" data-bs-toggle="modal" data-bs-target="#dialog-branch">{{ br_name }}</a>
+                            <span class="input-group-text end-0 pe-3 py-2 text-white z-index-0 bg-gradient-dark" data-bs-toggle="modal" data-bs-target="#dialog-branch"><i class="fas fa-angle-down"></i></span>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -37,7 +45,7 @@
                             </thead>
                             <tbody>
                                 {% for item in data %}
-                                <tr data-href="{% url 'order-view' item.order_id '0' '0' '0' '0' %}" class="cursor-pointer">
+                                <tr data-href="{% url 'order-view' item.order_id '0' '0' '0' '0' %}" class="cursor-pointer {% if item.order_status == 'DRAFT' %}text-bg-light{% endif %}">
                                     <td>
                                         <div class="d-flex pe-2 py-0">
                                             <div class="d-flex flex-column justify-content-center">
@@ -76,6 +84,7 @@
                                         <h6 class="mb-0 text-sm">{{ item.entry_date|date:'d M Y' }}</h6>
                                     </td>
                                     <td>
+                                        <h6 class="mb-0 text-sm" hidden>{{ item.entry_date|date:'Y-m-d' }}</h6>
                                         <a class="btn-icon-only border-0 text-primary px-2" data-toggle="tooltip" title="Invoice" {% if item.order_status != 'DRAFT' and item.order_status != 'BATAL' %}href="{% url 'order-invoice' item.order_id %}" target="_blank"{% endif %}><i class="fas fa-file-invoice"></i></a>
                                         <a class="btn-icon-only border-0 text-primary px-2" data-toggle="tooltip" title="Surat Jalan" {% if item.order_status != "DRAFT" and item.order_status != "BATAL" %}href="{% url 'order-bap' item.order_id %}" target="_blank"{% endif %}><i class="fas fa-truck"></i></a>
                                         <a class="btn-icon-only border-0 text-primary px-2" data-toggle="tooltip" title="Checklist Form" {% if item.order_status != "DRAFT" and item.order_status != "BATAL" %}href="{% url 'order-checklist' item.order_id %}" target="_blank"{% endif %}><i class="fas fa-list-ul"></i></a>
@@ -86,6 +95,55 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-0 ps-4">
+    <div class="modal modal-sm fade {% if request|is_mobile %}w-85 ps-6{% endif %}" id="dialog-branch" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-10">
+                        <h5 class="modal-title" id="ModalLabel">Pilih Cabang</h5>
+                    </div>
+                    <div class="col-2 text-sm-end">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <form method="post" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body border-bottom-0">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0" id="branchTable">
+                                <tbody>
+                                    <tr data-href="{% url 'order-index' 'all' %}" class="cursor-pointer">
+                                        <td>
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">Semua Cabang</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% for item in branch %}
+                                    <tr data-href="{% url 'order-index' item.area_id %}" class="cursor-pointer">
+                                        <td>
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ item.area_name }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -102,7 +160,7 @@
             $('#myTable').DataTable({
                 'scrollX': true,
                 'pageLength': 25, 
-                'order': [[1, 'desc']],
+                'order': [[11, 'desc']],
                 'lengthChange': false,
                 'language': {
                     'search': 'Cari: ',
@@ -121,7 +179,7 @@
                 'scrollX': true,
                 'pageLength': 25,
                 'lengthMenu': [25, 50, 100, 250, 500],
-                'order': [[1, 'desc']],
+                'order': [[11, 'desc']],
                 'language': {
                     'search': 'Cari: ',
                     'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
@@ -142,7 +200,18 @@
         }
     });
     
+    // run href on order table when clicked except for the last columns
     $(document).on('click', 'tbody tr td:not(:last-child)', function() {
+        var href = $(this).parent().data('href');
+        if(href) { // Check if href data exists
+            window.location = href;
+        } else {
+            console.log("No data in href");
+        }
+    });
+    
+    // run href on branch table when clicked
+    $(document).on('click', '#branchTable tbody tr td', function() {
         var href = $(this).parent().data('href');
         if(href) { // Check if href data exists
             window.location = href;
