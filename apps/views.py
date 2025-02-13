@@ -480,6 +480,153 @@ def distributor_delete(request, _id):
 
 
 @login_required(login_url='/login/')
+@role_required(allowed_roles='PROMO')
+def promo_index(request):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT promo_id, promo_name, promo_limit FROM apps_promo")
+        promos = cursor.fetchall()
+
+    context = {
+        'data': promos,
+        'notif': order_notification(request),
+        'segment': 'promo',
+        'group_segment': 'master',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PROMO') if not request.user.is_superuser else Auth.objects.all(),
+    }
+
+    return render(request, 'home/promo_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PROMO')
+def promo_add(request):
+    if request.POST:
+        form = FormPromo(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('promo-view', args=[form.instance.promo_id, ]))
+        else:
+            message = form.errors
+            context = {
+                'form': form,
+                'notif': order_notification(request),
+                'segment': 'promo',
+                'group_segment': 'master',
+                'crud': 'add',
+                'message': message,
+                'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+                'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PROMO') if not request.user.is_superuser else Auth.objects.all(),
+            }
+            return render(request, 'home/promo_add.html', context)
+    else:
+        form = FormPromo()
+        error = form.errors
+        context = {
+            'form': form,
+            'notif': order_notification(request),
+            'message': error,
+            'segment': 'promo',
+            'group_segment': 'master',
+            'crud': 'add',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PROMO') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/promo_add.html', context)
+
+
+# View Promo
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PROMO')
+def promo_view(request, _id):
+    promos = Promo.objects.get(promo_id=_id)
+    form = FormPromoView(instance=promos)
+    detail = PromoDetail.objects.filter(promo_id=_id)
+
+    if request.POST:
+        gift = PromoDetail(promo_id=_id, gift=request.POST.get(
+            'gift'), nominal=request.POST.get('nominal'))
+        gift.save()
+        return HttpResponseRedirect(reverse('promo-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': promos,
+        'detail': detail,
+        'notif': order_notification(request),
+        'segment': 'promo',
+        'group_segment': 'master',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PROMO') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/promo_view.html', context)
+
+
+# Update Promo
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PROMO')
+def promo_update(request, _id):
+    promos = Promo.objects.get(promo_id=_id)
+    if request.POST:
+        form = FormPromoUpdate(
+            request.POST, request.FILES, instance=promos)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('promo-view', args=[_id, ]))
+    else:
+        form = FormPromoUpdate(instance=promos)
+
+    message = form.errors
+    context = {
+        'form': form,
+        'data': promos,
+        'notif': order_notification(request),
+        'segment': 'promo',
+        'group_segment': 'master',
+        'crud': 'update',
+        'message': message,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PROMO') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/promo_view.html', context)
+
+
+# Delete Promo
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PROMO')
+def promo_delete(request, _id):
+    promos = Promo.objects.get(promo_id=_id)
+
+    promos.delete()
+    return HttpResponseRedirect(reverse('promo-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PROMO')
+def promo_detail_update(request, _id):
+    promo_detail = PromoDetail.objects.get(id=_id)
+    if request.POST:
+        promo_detail.gift = request.POST.get('gift')
+        promo_detail.nominal = request.POST.get('nominal')
+        promo_detail.save()
+        return HttpResponseRedirect(reverse('promo-view', args=[promo_detail.promo_id, ]))
+
+    return render(request, 'home/promo_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PROMO')
+def promo_detail_delete(request, _id):
+    promo_detail = PromoDetail.objects.get(id=_id)
+
+    promo_detail.delete()
+    return HttpResponseRedirect(reverse('promo-view', args=[promo_detail.promo_id, ]))
+
+
+@login_required(login_url='/login/')
 @role_required(allowed_roles='AREA')
 def area_sales_index(request):
     with connection.cursor() as cursor:
@@ -1303,6 +1450,7 @@ def package_add(request):
             new = form.save(commit=False)
             new.category_id = request.POST.get('category')
             new.type = request.POST.get('type')
+            new.promo = True if request.POST.get('promo') else False
             new.save()
             return HttpResponseRedirect(reverse('package-view', args=[new.package_id, ]))
         else:
@@ -2651,6 +2799,7 @@ def package_update(request, _id):
         if form.is_valid():
             update = form.save(commit=False)
             update.category_id = request.POST.get('category')
+            update.promo = 1 if request.POST.get('promo') else 0
             update.type = request.POST.get('type')
             update.male_price = request.POST.get('male_price')
             update.female_price = request.POST.get('female_price')
@@ -5258,7 +5407,21 @@ def order_package_cs_delete(request, _id, _pack):
 
 def order_confirm_update(request, _id):
     order = Order.objects.get(order_id=_id)
+    pack_order = OrderPackage.objects.filter(order_id=_id, package__promo=True)
     last_package = OrderPackage.objects.filter(order_id=_id).last()
+    min_promo = Promo.objects.filter(promo_limit__gt=0).aggregate(
+        min=Min('promo_limit'))
+    # sort desc by promo_limit
+    promos = Promo.objects.filter(promo_limit__gt=0).order_by('-promo_limit')
+    got_promo = False
+    gifts = None
+    if order.total_order >= min_promo['min'] and pack_order.count() > 0:
+        got_promo = True
+
+        for i in promos:
+            if order.total_order >= i.promo_limit:
+                gifts = PromoDetail.objects.filter(promo_id=i.promo_id)
+                break
 
     if request.POST:
         form = FormOrderConfirmUpdate(request.POST, instance=order)
@@ -5267,15 +5430,37 @@ def order_confirm_update(request, _id):
             order.use_photo = request.POST.get('use_photo')
             order.witnessed = request.POST.get('witnessed')
             order.info_source = request.POST.get('info_source')
+            promo_selected = PromoDetail.objects.get(
+                id=request.POST.get('promo')) if request.POST.get('promo') else None
+            if promo_selected:
+                order.promo = promo_selected.gift
+                order.promo_nominal = promo_selected.nominal
+
+                total = OrderPackage.objects.filter(
+                    order_id=_id).aggregate(order=Sum('total_price'))
+                total_addon = OrderPackageAddon.objects.filter(
+                    order_id=_id).aggregate(order=Sum('total_price'))
+                _total_addon = total_addon['order'] if total_addon['order'] else 0
+                order.total_order = total['order'] + _total_addon
+
+                order.total_order -= promo_selected.nominal
+                # order.save()
+
+                # return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+
             order.save()
 
             return HttpResponseRedirect(reverse('order-confirm', args=[_id]))
     else:
         form = FormOrderConfirmUpdate(instance=order)
 
+    msg = form.errors
     context = {
         'form': form,
         'data': order,
+        'msg': msg,
+        'got_promo': got_promo,
+        'gifts': gifts,
         'last_package': last_package,
         'crud': 'update',
     }
@@ -6024,16 +6209,16 @@ def order_invoice(request, _id):
     y += 15
     total = 0
     for i in range(1, package.count() + 1):
-        y -= 35
-        pdf_file.rect(35, y - 15, 160, 35, stroke=True)
+        y -= 50
+        pdf_file.rect(35, y - 15, 160, 50, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         qty = ' - ' + str(package[i - 1].package.quantity) + \
             ' - ' if package[i - 1].package.quantity > 0 else ''
         pdf_file.drawString(
-            40, y + 10, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
+            40, y + 25, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
         if package[i - 1].package.quantity > 0:
-            pdf_file.drawString(40, y, 'Hewan ' + package[i - 1].type)
-        pdf_file.rect(195, y - 15, 180, 35, stroke=True)
+            pdf_file.drawString(40, y + 15, 'Hewan ' + package[i - 1].type)
+        pdf_file.rect(195, y - 15, 180, 50, stroke=True)
 
         cuisines = [package[i - 1].main_cuisine, package[i - 1].sub_cuisine,
                     package[i - 1].side_cuisine1]
@@ -6052,7 +6237,7 @@ def order_invoice(request, _id):
             if j < len(row) - 1 and len(cuisines) > 0:
                 str_cuisine += ' - '
 
-        pdf_file.drawString(200, y + 10, str_cuisine)
+        pdf_file.drawString(200, y + 25, str_cuisine)
 
         row = []
         str_cuisine = ''
@@ -6072,7 +6257,7 @@ def order_invoice(request, _id):
         str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
                                                                         1].box_type + ')' if package[i - 1].package.box > 0 else ''
 
-        pdf_file.drawString(200, y, str_cuisine + str_box)
+        pdf_file.drawString(200, y + 15, str_cuisine + str_box)
 
         # Addon equipment
         addons = OrderPackageAddon.objects.filter(
@@ -6083,9 +6268,12 @@ def order_invoice(request, _id):
                 ' (' + str(addons[j].quantity) + ')'
             if j < addons.count() - 1:
                 str_addon += ', '
-        pdf_file.drawString(200, y - 10, str_addon)
+        pdf_file.drawString(200, y + 5, str_addon)
 
-        pdf_file.rect(375, y - 15, 30, 35, stroke=True)
+        # Promo
+        pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
+
+        pdf_file.rect(375, y - 15, 30, 50, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         # Calculate the width of the string 'quantity'
         quantity_width = pdf_file.stringWidth(
@@ -6093,18 +6281,18 @@ def order_invoice(request, _id):
         # Calculate the center position of the rectangle
         center_x = 375 + (30 - quantity_width) / 2
         pdf_file.drawString(
-            center_x, y + 10, str(package[i - 1].quantity))
-        pdf_file.rect(405, y - 15, 85, 35, stroke=True)
+            center_x, y + 25, str(package[i - 1].quantity))
+        pdf_file.rect(405, y - 15, 85, 50, stroke=True)
         pdf_file.drawString(
-            410, y + 10, "{:,}".format(package[i - 1].unit_price))
-        pdf_file.rect(490, y - 15, 65, 35, stroke=True)
+            410, y + 25, "{:,}".format(package[i - 1].unit_price))
+        pdf_file.rect(490, y - 15, 65, 50, stroke=True)
         total_price = package[i - 1].unit_price * package[i - 1].quantity
         total += total_price
         total_price_str = "{:,}".format(total_price)
         total_price_width = pdf_file.stringWidth(
             total_price_str, "Helvetica", 8)
         pdf_file.drawString(490 + 65 - total_price_width -
-                            5, y + 10, total_price_str)
+                            5, y + 25, total_price_str)
 
         # Draw total addon price
         total_addon = 0
@@ -6116,7 +6304,7 @@ def order_invoice(request, _id):
         total_price_width = pdf_file.stringWidth(
             total_price_str, "Helvetica", 8)
         pdf_file.drawString(490 + 65 - total_price_width -
-                            5, y - 10, total_price_str)
+                            5, y + 5, total_price_str)
 
     y -= 30
     # create rectangle from first column to column 3
@@ -6139,7 +6327,7 @@ def order_invoice(request, _id):
     pdf_file.setFont("Helvetica-Bold", 8)
     pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
     pdf_file.rect(490, y, 65, 15, stroke=True)
-    total_str = "{:,}".format(order.discount)
+    total_str = "{:,}".format(order.discount + order.promo_nominal)
     total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
     pdf_file.setFont("Helvetica", 8)
     pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)

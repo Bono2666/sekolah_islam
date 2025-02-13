@@ -145,6 +145,7 @@ class Package(models.Model):
     package_id = models.CharField(max_length=50, primary_key=True)
     package_name = models.CharField(max_length=50)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    promo = models.BooleanField(default=False)
     male_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
     female_price = models.DecimalField(
@@ -1568,6 +1569,9 @@ class Order(models.Model):
         max_digits=12, decimal_places=0, default=0)
     pending_payment = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    promo = models.CharField(max_length=50, null=True)
+    promo_nominal = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     use_photo = models.BooleanField(default=False)
     witnessed = models.BooleanField(default=False)
     info_source = models.CharField(max_length=50, null=True)
@@ -1720,3 +1724,49 @@ class CashIn(models.Model):
         self.update_date = timezone.now()
         self.update_by = get_current_user().user_id
         super(CashIn, self).save(*args, **kwargs)
+
+
+class Promo(models.Model):
+    promo_id = models.BigAutoField(primary_key=True)
+    promo_name = models.CharField(max_length=200)
+    promo_limit = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Promo, self).save(*args, **kwargs)
+
+
+class PromoDetail(models.Model):
+    promo = models.ForeignKey(Promo, on_delete=models.CASCADE)
+    gift = models.CharField(max_length=50)
+    nominal = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['promo', 'gift'], name='unique_promo_gift')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(PromoDetail, self).save(*args, **kwargs)

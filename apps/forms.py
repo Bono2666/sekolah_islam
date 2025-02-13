@@ -165,6 +165,55 @@ class FormDistributorUpdate(ModelForm):
                    'entry_by', 'update_date', 'update_by']
 
 
+class FormPromo(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormPromo, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['promo_name'].label = 'Promo Name'
+        self.fields['promo_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['promo_limit'].label = 'Limit'
+        self.fields['promo_limit'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+
+    class Meta:
+        model = Promo
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormPromoUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormPromoUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['promo_name'].label = 'Promo Name'
+        self.fields['promo_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['promo_limit'].label = 'Limit'
+        self.fields['promo_limit'].widget = forms.NumberInput(
+            {'class': 'form-control-sm no-spinners'})
+
+    class Meta:
+        model = Promo
+        exclude = ['promo_id', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+
+class FormPromoView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormPromoView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['promo_name'].label = 'Promo Name'
+        self.fields['promo_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['promo_limit'].label = 'Limit'
+        self.fields['promo_limit'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = Promo
+        fields = ['promo_id', 'promo_name', 'promo_limit']
+
+
 class FormAreaSales(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormAreaSales, self).__init__(*args, **kwargs)
@@ -1185,7 +1234,7 @@ class FormOrderChild(ModelForm):
         self.label_suffix = ''
         self.fields['order'].widget = forms.TextInput(
             attrs={'class': 'd-none'})
-        self.fields['child_name'].label = 'Nama Anak'
+        self.fields['child_name'].label = 'Nama Anak Yang Diaqiqahkan'
         self.fields['child_name'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
         self.fields['child_birth'].label = 'Tanggal Lahir'
@@ -1210,7 +1259,7 @@ class FormOrderCSChild(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormOrderChild, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['child_name'].label = 'Nama Anak'
+        self.fields['child_name'].label = 'Nama Anak Yang Diaqiqahkan'
         self.fields['child_name'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
         self.fields['child_birth'].label = 'Tanggal Lahir'
@@ -1236,7 +1285,7 @@ class FormOrderChildUpdate(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormOrderChildUpdate, self).__init__(*args, **kwargs)
         self.label_suffix = ''
-        self.fields['child_name'].label = 'Nama Anak'
+        self.fields['child_name'].label = 'Nama Anak Yang Diaqiqahkan'
         self.fields['child_name'].widget = forms.TextInput(
             attrs={'class': 'form-control-sm'})
         self.fields['child_birth'].label = 'Tanggal Lahir'

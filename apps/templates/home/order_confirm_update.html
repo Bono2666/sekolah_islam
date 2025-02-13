@@ -31,12 +31,26 @@
                             </div>
                             {% endif %}
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="shadow-none">
                                         <label class="form-control-label" for="input-username">Total Biaya Paket Aqiqah Anda</label>
                                         <h5 class="text-bolder ps-1">Rp. {{ data.total_order|intcomma }}</h5>
                                     </div>  
                                 </div>
+                                {% if got_promo %}
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="input-promo">Pilih Promo</label>
+                                        <!-- on change go to specific link -->
+                                        <select class="form-control form-select-sm" name="promo" id="input-promo" required onchange="this.form.submit()">
+                                            <option value="">Pilih promo</option>
+                                            {% for item in gifts %}
+                                            <option value="{{ item.id }}" {% if item.gift == data.promo %} selected {% endif %}>{{ item.gift }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -109,5 +123,10 @@
 {% endblock content %}
 
 {% block javascripts %}
-
+<script>
+    // select_promo = document.getElementById('input-promo');
+    // select_promo.addEventListener('change', function() {
+    //     window.location.href = "";
+    // });
+</script>
 {% endblock javascripts %}
