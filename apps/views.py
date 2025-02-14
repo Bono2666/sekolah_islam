@@ -4912,28 +4912,47 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
 
     if request.POST:
         form = FormOrderPackage(request.POST)
+        up = []
 
         if form.is_valid():
             extra_price_main = MainCuisine.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('main_cuisine')).cuisine_id).extra_price if request.POST.get('main_cuisine') else 0
+            up.append(request.POST.get('main_cuisine')
+                      ) if extra_price_main > 0 else ''
             extra_price_sub = SubCuisine.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('sub_cuisine')).cuisine_id).extra_price if request.POST.get('sub_cuisine') else 0
+            up.append(request.POST.get('sub_cuisine')
+                      ) if extra_price_sub > 0 else ''
             extra_price_side1 = SideCuisine1.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine1')).cuisine_id).extra_price if request.POST.get('side_cuisine1') else 0
+            up.append(request.POST.get('side_cuisine1')
+                      ) if extra_price_side1 > 0 else ''
             extra_price_side2 = SideCuisine2.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine2')).cuisine_id).extra_price if request.POST.get('side_cuisine2') else 0
+            up.append(request.POST.get('side_cuisine2')
+                      ) if extra_price_side2 > 0 else ''
             extra_price_side3 = SideCuisine3.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine3')).cuisine_id).extra_price if request.POST.get('side_cuisine3') else 0
+            up.append(request.POST.get('side_cuisine3')
+                      ) if extra_price_side3 > 0 else ''
             extra_price_side4 = SideCuisine4.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
+            up.append(request.POST.get('side_cuisine4')
+                      ) if extra_price_side4 > 0 else ''
             extra_price_side5 = SideCuisine5.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
+            up.append(request.POST.get('side_cuisine5')
+                      ) if extra_price_side5 > 0 else ''
             extra_price_rice = Rice.objects.get(package=_pack, cuisine=Cuisine.objects.get(
                 cuisine_name=request.POST.get('rice')).cuisine_id).extra_price if request.POST.get('rice') else 0
+            up.append(request.POST.get('rice')) if extra_price_rice > 0 else ''
             extra_price_bag = Bag.objects.get(package=_pack, equipment=Equipment.objects.get(
                 equipment_name=request.POST.get('bag')).equipment_id).extra_price if request.POST.get('bag') else 0
+            up.append(request.POST.get('bag')) if extra_price_bag > 0 else ''
             extra_price_box = Pack.objects.get(package=_pack, equipment=Equipment.objects.get(
                 equipment_name=request.POST.get('box_type')).equipment_id).extra_price if request.POST.get('box_type') else 0
+            up.append(request.POST.get('box_type')
+                      ) if extra_price_box > 0 else ''
 
             package = form.save(commit=False)
 
@@ -4955,6 +4974,7 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
             package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
                                    extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 0) * int(request.POST.get('quantity')))
+            package.upgrade = ', '.join(up)
             package.save()
 
             total = OrderPackage.objects.filter(
@@ -5444,9 +5464,6 @@ def order_confirm_update(request, _id):
                 order.total_order = total['order'] + _total_addon
 
                 order.total_order -= promo_selected.nominal
-                # order.save()
-
-                # return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
 
             order.save()
 
@@ -5612,6 +5629,9 @@ def order_index(request, _branch):
 @role_required(allowed_roles='ORDER')
 def order_view(request, _id, _cat, _pack, _type, _crud):
     order = Order.objects.get(order_id=_id)
+    pack_order = OrderPackage.objects.filter(order_id=_id, package__promo=True)
+    min_promo = Promo.objects.filter(promo_limit__gt=0).aggregate(
+        min=Min('promo_limit'))
     child = OrderChild.objects.filter(order_id=_id)
     package = OrderPackage.objects.filter(order_id=_id)
     form = FormOrderView(instance=order)
@@ -5648,6 +5668,18 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
             ' (' + str(j.quantity) + ')'
         if idx < _addon_order.count() - 1:
             addon_order += ', '
+
+    # sort desc by promo_limit
+    promos = Promo.objects.filter(promo_limit__gt=0).order_by('-promo_limit')
+    got_promo = False
+    gifts = None
+    if order.total_order >= min_promo['min'] and pack_order.count() > 0:
+        got_promo = True
+
+        for i in promos:
+            if order.total_order >= i.promo_limit:
+                gifts = PromoDetail.objects.filter(promo_id=i.promo_id)
+                break
 
     if request.POST:
         check = request.GET.get('checks')
@@ -5723,6 +5755,8 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         'type': _type,
         'crud_det': _crud,
         'msg': msg,
+        'got_promo': got_promo,
+        'gifts': gifts,
         'notif': order_notification(request),
         'segment': 'order',
         'group_segment': 'transaction',
@@ -5739,8 +5773,23 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
 @role_required(allowed_roles='ORDER')
 def order_cs_update(request, _id, _cat, _pack, _type):
     order = Order.objects.get(order_id=_id)
+    pack_order = OrderPackage.objects.filter(order_id=_id, package__promo=True)
+    min_promo = Promo.objects.filter(promo_limit__gt=0).aggregate(
+        min=Min('promo_limit'))
     child = OrderChild.objects.filter(order_id=_id)
     package = OrderPackage.objects.filter(order_id=_id)
+
+    # sort desc by promo_limit
+    promos = Promo.objects.filter(promo_limit__gt=0).order_by('-promo_limit')
+    got_promo = False
+    gifts = None
+    if order.total_order >= min_promo['min'] and pack_order.count() > 0:
+        got_promo = True
+
+        for i in promos:
+            if order.total_order >= i.promo_limit:
+                gifts = PromoDetail.objects.filter(promo_id=i.promo_id)
+                break
 
     if request.POST:
         form = FormOrderCSUpdate(request.POST, instance=order)
@@ -5760,7 +5809,21 @@ def order_cs_update(request, _id, _cat, _pack, _type):
             order.witnessed = request.POST.get('witnessed')
             order.info_source = request.POST.get('info_source')
             order.order_note = request.POST.get('order_note')
-            order.discount = int(request.POST.get('discount'))
+            order.discount = int(request.POST.get('discount').replace('.', ''))
+            promo_selected = PromoDetail.objects.get(
+                id=request.POST.get('promo')) if request.POST.get('promo') else None
+            if promo_selected:
+                order.promo = promo_selected.gift
+                order.promo_nominal = promo_selected.nominal
+
+                total = OrderPackage.objects.filter(
+                    order_id=_id).aggregate(order=Sum('total_price'))
+                total_addon = OrderPackageAddon.objects.filter(
+                    order_id=_id).aggregate(order=Sum('total_price'))
+                _total_addon = total_addon['order'] if total_addon['order'] else 0
+                order.total_order = total['order'] + _total_addon
+
+                order.total_order -= promo_selected.nominal
             order.save()
 
             if order.order_status != 'DRAFT':
@@ -5827,11 +5890,14 @@ def order_cs_update(request, _id, _cat, _pack, _type):
         'data': order,
         'child': child,
         'package': package,
+        'id': _id,
         'cat': _cat,
         'pack': _pack,
         'type': _type,
         'crud_det': '0',
         'msg': msg,
+        'got_promo': got_promo,
+        'gifts': gifts,
         'notif': order_notification(request),
         'segment': 'order',
         'group_segment': 'transaction',

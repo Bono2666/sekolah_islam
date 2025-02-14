@@ -194,7 +194,7 @@
                                 <div class="col-md-3">
                                     <div class="shadow-none">
                                         <label class="form-control-label" for="id-discount">Diskon</label>
-                                        <input type="text" name="discount" id="id-discount" class="form-control form-control-sm" value="{% if crud == 'view' %}{{ data.discount|intcomma }}{% else %}{{ data.discount }}{% endif %}" {% if crud == 'view' %}readonly{% endif %}>
+                                        <input type="text" name="discount" id="id-discount" class="form-control form-control-sm" value="{% if crud == 'view' %}{{ data.discount|add:data.promo_nominal|intcomma }}{% else %}{{ data.discount|add:data.promo_nominal|intcomma }}{% endif %}" {% if crud == 'view' %}readonly{% endif %}>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -211,7 +211,20 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                {% if got_promo %}
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        <label class="form-control-label" for="input-promo">Pilihan Promo</label>
+                                        <select class="form-control form-select-sm" name="promo" id="input-promo" {% if crud == 'view' %}disabled{% endif %}>
+                                            <option value="">Pilih promo</option>
+                                            {% for item in gifts %}
+                                            <option value="{{ item.id }}" {% if item.gift == data.promo %} selected {% endif %}>{{ item.gift }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="col-md-{% if got_promo %}4{% else %}6{% endif %}">
                                     <div class="shadow-none">
                                         <label class="form-control-label" for="id-use-photo">Sertifikat dan Kartu Ucapan pakai foto atau tidak?</label>
                                         <select class="form-control form-select-sm" name="use_photo" id="id-use-photo" initial=0 {% if crud == 'view' %}disabled{% endif %}>
@@ -220,7 +233,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-{% if got_promo %}4{% else %}6{% endif %}">
                                     <div class="shadow-none">
                                         <label class="form-control-label" for="id-witnessed">Penyembelihan disaksikan?</label>
                                         <select class="form-control form-select-sm" name="witnessed" id="id-witnessed" initial="0" {% if crud == 'view' %}disabled{% endif %}>
@@ -1176,12 +1189,14 @@
                             </table>
                         </div>
                     </div>
+                    {% if crud == 'view' %}
                     <div class="modal-footer border-0">
                         <a href="{% url 'order-view' id cat pack type crud_det %}" role="button"
                             class="btn btn-sm bg-gradient-dark">Batal</a>
                         <button id="save-addon" class="btn btn-sm bg-gradient-primary text-white">Simpan
                         </button>
                     </div>
+                    {% endif %}
                 </form>
             </div>
         </div>
@@ -1198,18 +1213,20 @@
     let q = document.querySelectorAll('.qty');
     let save = document.getElementById('save-addon');
 
-    save.addEventListener('click', function() {
-        let check = [];
-        let qty = [];
-        c.forEach(function(checkbox, index) {
-            if (c[index].checked == true) {
-                check.push(c[index].value);
-                qty.push(q[index].value);
-            }
+    if (crud == 'view') {
+        save.addEventListener('click', function() {
+            let check = [];
+            let qty = [];
+            c.forEach(function(checkbox, index) {
+                if (c[index].checked == true) {
+                    check.push(c[index].value);
+                    qty.push(q[index].value);
+                }
+            });
+            form.action = "{% url 'order-view' id cat pack type crud_det %}?checks=" + check + "&qty=" + qty;
+            form.submit();
         });
-        form.action = "{% url 'order-view' id cat pack type crud_det %}?checks=" + check + "&qty=" + qty;
-        form.submit();
-    });
+    }
     
     c.forEach(function(checkbox, index) {
         checkbox.addEventListener('click', function() {

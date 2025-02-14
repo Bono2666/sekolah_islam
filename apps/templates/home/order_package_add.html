@@ -117,7 +117,8 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
+                                {% if selected_package.box > 0 %}
+                                <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="box_type">Pilihan Box</label>
                                         <select name="box_type" class="form-control form-select-sm" required>
@@ -130,6 +131,7 @@
                                         </select>
                                     </div>
                                 </div>
+                                {% endif %}
                                 {% if rices %}
                                 <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">

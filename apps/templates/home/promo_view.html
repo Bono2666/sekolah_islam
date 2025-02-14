@@ -107,14 +107,14 @@
                             <form method="post" action="{% url 'promo-view' data.promo_id %}" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="modal-body border-bottom-0">
-                                    <label class="form-control-label" for="input-username">Hadiah</label>
-                                    <input type="text" class="form-control-sm" name="gift" placeholder="Hadiah" required>
-                                    <label class="form-control-label" for="input-username">Nominal</label>
-                                    <input type="number" class="form-control-sm" name="nominal" required>
+                                    <label class="form-control-label" for="input-username">Judul</label>
+                                    <input type="text" class="form-control-sm" name="gift" placeholder="Judul Hadiah" required>
+                                    <label class="form-control-label" for="input-username">Nominal Cashback</label>
+                                    <input type="number" class="form-control-sm" name="nominal" required value="0">
                                 </div>
                                 <div class="modal-footer border-0">
                                     <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn bg-gradient-danger text-white">Simpan
+                                    <button type="submit" class="btn bg-gradient-primary text-white">Simpan
                                     </button>
                                 </div>
                             </form>
@@ -128,7 +128,7 @@
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                         Hadiah</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nominal</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nominal Cashback</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
                                 </tr>
                             </thead>
@@ -180,9 +180,9 @@
                                                     <div class="pl-lg-0">
                                                         <div class="row">
                                                             <div class="modal-body border-bottom-0">
-                                                                <label class="form-control-label" for="input-username">Hadiah</label>
+                                                                <label class="form-control-label" for="input-username">Judul</label>
                                                                 <input type="text" class="form-control-sm" name="gift" value="{{ item.gift }}" required>
-                                                                <label class="form-control-label" for="input-username">Nominal</label>
+                                                                <label class="form-control-label" for="input-username">Nominal Cashback</label>
                                                                 <input type="number" class="form-control-sm" name="nominal" value="{{ item.nominal }}" required>
                                                             </div>
                                                         </div>

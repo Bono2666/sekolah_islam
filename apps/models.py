@@ -1569,6 +1569,7 @@ class Order(models.Model):
         max_digits=12, decimal_places=0, default=0)
     pending_payment = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
+    upgrade = models.CharField(max_length=50, null=True)
     promo = models.CharField(max_length=50, null=True)
     promo_nominal = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
