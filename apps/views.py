@@ -5177,28 +5177,47 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
 
     if request.POST:
         form = FormOrderPackage(request.POST, instance=package)
+        up = []
 
         if form.is_valid():
             extra_price_main = MainCuisine.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('main_cuisine')).cuisine_id).extra_price if request.POST.get('main_cuisine') else 0
+            up.append(request.POST.get('main_cuisine')
+                      ) if extra_price_main > 0 else ''
             extra_price_sub = SubCuisine.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('sub_cuisine')).cuisine_id).extra_price if request.POST.get('sub_cuisine') else 0
+            up.append(request.POST.get('sub_cuisine')
+                      ) if extra_price_sub > 0 else ''
             extra_price_side1 = SideCuisine1.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine1')).cuisine_id).extra_price if request.POST.get('side_cuisine1') else 0
+            up.append(request.POST.get('side_cuisine1')
+                      ) if extra_price_side1 > 0 else ''
             extra_price_side2 = SideCuisine2.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine2')).cuisine_id).extra_price if request.POST.get('side_cuisine2') else 0
+            up.append(request.POST.get('side_cuisine2')
+                      ) if extra_price_side2 > 0 else ''
             extra_price_side3 = SideCuisine3.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine3')).cuisine_id).extra_price if request.POST.get('side_cuisine3') else 0
+            up.append(request.POST.get('side_cuisine3')
+                      ) if extra_price_side3 > 0 else ''
             extra_price_side4 = SideCuisine4.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine4')).cuisine_id).extra_price if request.POST.get('side_cuisine4') else 0
+            up.append(request.POST.get('side_cuisine4')
+                      ) if extra_price_side4 > 0 else ''
             extra_price_side5 = SideCuisine5.objects.get(
                 package=_pack, cuisine=Cuisine.objects.get(cuisine_name=request.POST.get('side_cuisine5')).cuisine_id).extra_price if request.POST.get('side_cuisine5') else 0
+            up.append(request.POST.get('side_cuisine5')
+                      ) if extra_price_side5 > 0 else ''
             extra_price_rice = Rice.objects.get(package=_pack, cuisine=Cuisine.objects.get(
                 cuisine_name=request.POST.get('rice')).cuisine_id).extra_price if request.POST.get('rice') else 0
+            up.append(request.POST.get('rice')) if extra_price_rice > 0 else ''
             extra_price_bag = Bag.objects.get(package=_pack, equipment=Equipment.objects.get(
                 equipment_name=request.POST.get('bag')).equipment_id).extra_price if request.POST.get('bag') else 0
+            up.append(request.POST.get('bag')) if extra_price_bag > 0 else ''
             extra_price_box = Pack.objects.get(package=_pack, equipment=Equipment.objects.get(
                 equipment_name=request.POST.get('box_type')).equipment_id).extra_price if request.POST.get('box_type') else 0
+            up.append(request.POST.get('box_type')
+                      ) if extra_price_box > 0 else ''
 
             package = form.save(commit=False)
 
@@ -5219,6 +5238,7 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
             package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
                                    extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 0) * int(request.POST.get('quantity')))
+            package.upgrade = ', '.join(up)
             package.save()
 
             total = OrderPackage.objects.filter(

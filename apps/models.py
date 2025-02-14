@@ -1569,7 +1569,6 @@ class Order(models.Model):
         max_digits=12, decimal_places=0, default=0)
     pending_payment = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
-    upgrade = models.CharField(max_length=50, null=True)
     promo = models.CharField(max_length=50, null=True)
     promo_nominal = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
@@ -1641,6 +1640,7 @@ class OrderPackage(models.Model):
     side_cuisine5 = models.CharField(max_length=50, null=True)
     rice = models.CharField(max_length=50, null=True)
     bag = models.CharField(max_length=50, null=True)
+    upgrade = models.CharField(max_length=50, null=True)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
     unit_price = models.DecimalField(
