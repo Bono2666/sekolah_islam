@@ -6345,6 +6345,10 @@ def order_invoice(request, _id):
 
         pdf_file.drawString(200, y + 15, str_cuisine + str_box)
 
+        # upgrade
+        if package[i - 1].upgrade:
+            pdf_file.drawString(200, y + 5, 'Up: ' + package[i - 1].upgrade)
+
         # Addon equipment
         addons = OrderPackageAddon.objects.filter(
             order_id=_id, package_id=package[i - 1].package_id)
@@ -6354,7 +6358,7 @@ def order_invoice(request, _id):
                 ' (' + str(addons[j].quantity) + ')'
             if j < addons.count() - 1:
                 str_addon += ', '
-        pdf_file.drawString(200, y + 5, str_addon)
+        pdf_file.drawString(200, y - 5, str_addon)
 
         # Promo
         pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
@@ -6380,17 +6384,28 @@ def order_invoice(request, _id):
         pdf_file.drawString(490 + 65 - total_price_width -
                             5, y + 25, total_price_str)
 
+        # Draw total upgrade price
+        if package[i - 1].upgrade:
+            upgrade_price = package[i - 1].extra_price
+            total += upgrade_price
+            total_price_str = "{:,}".format(upgrade_price)
+            total_price_width = pdf_file.stringWidth(
+                total_price_str, "Helvetica", 8)
+            pdf_file.drawString(490 + 65 - total_price_width -
+                                5, y + 5, total_price_str)
+
         # Draw total addon price
-        total_addon = 0
-        for j in range(0, addons.count()):
-            total_price = addons[j].unit_price * addons[j].quantity
-            total_addon += total_price
-            total += total_price
-        total_price_str = "{:,}".format(total_addon)
-        total_price_width = pdf_file.stringWidth(
-            total_price_str, "Helvetica", 8)
-        pdf_file.drawString(490 + 65 - total_price_width -
-                            5, y + 5, total_price_str)
+        if addons.count() > 0:
+            total_addon = 0
+            for j in range(0, addons.count()):
+                total_price = addons[j].unit_price * addons[j].quantity
+                total_addon += total_price
+                total += total_price
+            total_price_str = "{:,}".format(total_addon)
+            total_price_width = pdf_file.stringWidth(
+                total_price_str, "Helvetica", 8)
+            pdf_file.drawString(490 + 65 - total_price_width -
+                                5, y - 5, total_price_str)
 
     y -= 30
     # create rectangle from first column to column 3
