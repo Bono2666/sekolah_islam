@@ -6716,16 +6716,16 @@ def order_bap(request, _id):
     y += 15
     total = 0
     for i in range(1, package.count() + 1):
-        y -= 35
-        pdf_file.rect(35, y - 15, 160, 35, stroke=True)
+        y -= 50
+        pdf_file.rect(35, y - 15, 160, 50, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         qty = ' - ' + str(package[i - 1].package.quantity) + \
             ' - ' if package[i - 1].package.quantity > 0 else ''
         pdf_file.drawString(
-            40, y + 10, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
+            40, y + 25, package[i - 1].category.category_name + ' - ' + package[i - 1].package.package_name + qty)
         if package[i - 1].package.quantity > 0:
-            pdf_file.drawString(40, y, 'Hewan ' + package[i - 1].type)
-        pdf_file.rect(195, y - 15, 180, 35, stroke=True)
+            pdf_file.drawString(40, y + 15, 'Hewan ' + package[i - 1].type)
+        pdf_file.rect(195, y - 15, 180, 50, stroke=True)
 
         cuisines = [package[i - 1].main_cuisine, package[i - 1].sub_cuisine,
                     package[i - 1].side_cuisine1, package[i - 1].side_cuisine2]
@@ -6739,7 +6739,7 @@ def order_bap(request, _id):
         for j in range(0, len(row)):
             str_cuisine += row[j] + ' - '
 
-        pdf_file.drawString(200, y + 10, str_cuisine)
+        pdf_file.drawString(200, y + 25, str_cuisine)
 
         cuisines = [package[i - 1].side_cuisine3,
                     package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
@@ -6760,7 +6760,11 @@ def order_bap(request, _id):
             str_box = ' - '
         str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
                                                                         1].box_type + ')' if package[i - 1].package.box > 0 else ''
-        pdf_file.drawString(200, y, str_cuisine + str_box)
+        pdf_file.drawString(200, y + 15, str_cuisine + str_box)
+
+        # upgrade
+        if package[i - 1].upgrade:
+            pdf_file.drawString(200, y + 5, 'Up: ' + package[i - 1].upgrade)
 
         # Addon equipment
         addons = OrderPackageAddon.objects.filter(
@@ -6771,9 +6775,12 @@ def order_bap(request, _id):
                 ' (' + str(addons[j].quantity) + ')'
             if j < addons.count() - 1:
                 str_addon += ', '
-        pdf_file.drawString(200, y - 10, str_addon)
+        pdf_file.drawString(200, y - 5, str_addon)
 
-        pdf_file.rect(375, y - 15, 30, 35, stroke=True)
+        # Promo
+        pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
+
+        pdf_file.rect(375, y - 15, 30, 50, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         # Calculate the width of the string 'quantity'
         quantity_width = pdf_file.stringWidth(
@@ -6782,17 +6789,27 @@ def order_bap(request, _id):
         center_x = 375 + (30 - quantity_width) / 2
         pdf_file.drawString(
             center_x, y + 10, str(package[i - 1].quantity))
-        pdf_file.rect(405, y - 15, 85, 35, stroke=True)
+        pdf_file.rect(405, y - 15, 85, 50, stroke=True)
         pdf_file.drawString(
-            410, y + 10, "{:,}".format(package[i - 1].unit_price))
-        pdf_file.rect(490, y - 15, 65, 35, stroke=True)
+            410, y + 25, "{:,}".format(package[i - 1].unit_price))
+        pdf_file.rect(490, y - 15, 65, 50, stroke=True)
         total_price = package[i - 1].unit_price * package[i - 1].quantity
         total += total_price
         total_price_str = "{:,}".format(total_price)
         total_price_width = pdf_file.stringWidth(
             total_price_str, "Helvetica", 8)
         pdf_file.drawString(490 + 65 - total_price_width -
-                            5, y + 10, total_price_str)
+                            5, y + 25, total_price_str)
+
+        # Draw total upgrade price
+        if package[i - 1].upgrade:
+            upgrade_price = package[i - 1].extra_price
+            total += upgrade_price
+            total_price_str = "{:,}".format(upgrade_price)
+            total_price_width = pdf_file.stringWidth(
+                total_price_str, "Helvetica", 8)
+            pdf_file.drawString(490 + 65 - total_price_width -
+                                5, y + 5, total_price_str)
 
         # Draw total addon price
         total_addon = 0
@@ -6804,7 +6821,7 @@ def order_bap(request, _id):
         total_price_width = pdf_file.stringWidth(
             total_price_str, "Helvetica", 8)
         pdf_file.drawString(490 + 65 - total_price_width -
-                            5, y - 10, total_price_str)
+                            5, y - 5, total_price_str)
 
     y -= 30
     # create rectangle from first column to column 3
@@ -6827,7 +6844,7 @@ def order_bap(request, _id):
     pdf_file.setFont("Helvetica-Bold", 8)
     pdf_file.drawString(490 - total_str_width - 5, y + 5, total_str)
     pdf_file.rect(490, y, 65, 15, stroke=True)
-    total_str = "{:,}".format(order.discount)
+    total_str = "{:,}".format(order.discount + order.promo_nominal)
     total_str_width = pdf_file.stringWidth(total_str, "Helvetica", 8)
     pdf_file.setFont("Helvetica", 8)
     pdf_file.drawString(490 + 65 - total_str_width - 5, y + 5, total_str)
