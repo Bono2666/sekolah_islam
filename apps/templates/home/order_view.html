@@ -1212,6 +1212,72 @@
     let c = document.querySelectorAll('.checks');
     let q = document.querySelectorAll('.qty');
     let save = document.getElementById('save-addon');
+    let crudStatus = '{{ crud_det }}';
+    const modal_add = document.getElementById('addPaket');
+    const modalAdd = new bootstrap.Modal(modal_add);
+    const modal_edit = document.getElementById('updPack-{{ crud_det }}');
+    const modalEdit = new bootstrap.Modal(modal_edit);
+    let btnSaveOrder = document.getElementById('save-btn');
+    let btnSavePaket = document.getElementById('btn-save-paket');
+    let btnEditPaket = document.getElementById('btn-edit-paket');
+    let orderForm = document.getElementById('order-form');
+    let packForm = document.getElementById('packForm');
+    let editPackForm = document.getElementById('editPackForm');
+
+    $(document).ready(function () {
+        $('#childTable').DataTable({
+            'searching': false,
+            'lengthChange': false,
+            'paging': false,
+            'info': false,
+            'cell-border': true,
+            'order': [[1, 'asc']],
+        });
+        $('#packTable').DataTable({
+            'searching': false,
+            'lengthChange': false,
+            'paging': false,
+            'info': false,
+            'cell-border': true,
+        });
+    });
+
+    $(document).on('click', 'tbody tr td:not(:last-child)', function() {
+        var href = $(this).parent().data('href');
+        if(href) { // Check if href data exists
+            window.location = href;
+        } else {
+            console.log("No data in href");
+        }
+    });
+
+    btnSaveOrder.addEventListener('click', function () {
+        orderForm.submit();
+    });
+
+    btnSavePaket.addEventListener('click', function () {
+        packForm.submit();
+    });
+
+    btnEditPaket.addEventListener('click', function () {
+        editPackForm.submit();
+    });
+
+    btnSavePaket.addEventListener('click', function () {
+        let quantity = document.getElementById('id-quantity').value;
+        let unitPrice = document.getElementById('id-unit-price').value;
+        let totalPrice = document.getElementById('id-total-price');
+
+        totalPrice.value = quantity * unitPrice;
+    });
+
+    if (crudStatus == 'add') {
+        modalAdd.show();
+        modalAdd._config.keyboard = false;
+    } else if (crudStatus != '0') {
+        modalEdit.show();
+        modalEdit._config.keyboard = false;
+    }
 
     if (crud == 'view') {
         save.addEventListener('click', function() {
@@ -1248,74 +1314,6 @@
                 c[index].checked = false;
             }
         });
-    });
-
-    $(document).ready(function () {
-        $('#childTable').DataTable({
-            'searching': false,
-            'lengthChange': false,
-            'paging': false,
-            'info': false,
-            'cell-border': true,
-            'order': [[1, 'asc']],
-        });
-        $('#packTable').DataTable({
-            'searching': false,
-            'lengthChange': false,
-            'paging': false,
-            'info': false,
-            'cell-border': true,
-        });
-    });
-
-    $(document).on('click', 'tbody tr td:not(:last-child)', function() {
-        var href = $(this).parent().data('href');
-        if(href) { // Check if href data exists
-            window.location = href;
-        } else {
-            console.log("No data in href");
-        }
-    });
-
-    let crudStatus = '{{ crud_det }}';
-    const modal_add = document.getElementById('addPaket');
-    const modalAdd = new bootstrap.Modal(modal_add);
-    const modal_edit = document.getElementById('updPack-{{ crud_det }}');
-    const modalEdit = new bootstrap.Modal(modal_edit);
-    
-    if (crudStatus == 'add') {
-        modalAdd.show();
-        modalAdd._config.keyboard = false;
-    } else if (crudStatus != '0') {
-        modalEdit.show();
-        modalEdit._config.keyboard = false;
-    }
-
-    let btnSaveOrder = document.getElementById('save-btn');
-    let btnSavePaket = document.getElementById('btn-save-paket');
-    let btnEditPaket = document.getElementById('btn-edit-paket');
-    let orderForm = document.getElementById('order-form');
-    let packForm = document.getElementById('packForm');
-    let editPackForm = document.getElementById('editPackForm');
-
-    btnSaveOrder.addEventListener('click', function () {
-        orderForm.submit();
-    });
-
-    btnSavePaket.addEventListener('click', function () {
-        packForm.submit();
-    });
-
-    btnEditPaket.addEventListener('click', function () {
-        editPackForm.submit();
-    });
-
-    btnSavePaket.addEventListener('click', function () {
-        let quantity = document.getElementById('id-quantity').value;
-        let unitPrice = document.getElementById('id-unit-price').value;
-        let totalPrice = document.getElementById('id-total-price');
-
-        totalPrice.value = quantity * unitPrice;
     });
 
     $(document).ready(function() {

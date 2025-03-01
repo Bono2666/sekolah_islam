@@ -6325,6 +6325,10 @@ def order_invoice(request, _id):
 
         pdf_file.drawString(200, y + 25, str_cuisine)
 
+        first_row_blank = False
+        if len(row) == 0:
+            first_row_blank = True
+
         row = []
         str_cuisine = ''
         str_box = ''
@@ -6343,11 +6347,19 @@ def order_invoice(request, _id):
         str_box += str(package[i - 1].package.box) + ' Box (' + package[i -
                                                                         1].box_type + ')' if package[i - 1].package.box > 0 else ''
 
-        pdf_file.drawString(200, y + 15, str_cuisine + str_box)
+        if first_row_blank:
+            pdf_file.drawString(200, y + 25, str_cuisine + str_box)
+        else:
+            pdf_file.drawString(200, y + 15, str_cuisine + str_box)
 
         # upgrade
         if package[i - 1].upgrade:
-            pdf_file.drawString(200, y + 5, 'Up: ' + package[i - 1].upgrade)
+            if first_row_blank:
+                pdf_file.drawString(200, y + 15, 'Up: ' +
+                                    package[i - 1].upgrade)
+            else:
+                pdf_file.drawString(200, y + 5, 'Up: ' +
+                                    package[i - 1].upgrade)
 
         # Addon equipment
         addons = OrderPackageAddon.objects.filter(
@@ -6358,10 +6370,10 @@ def order_invoice(request, _id):
                 ' (' + str(addons[j].quantity) + ')'
             if j < addons.count() - 1:
                 str_addon += ', '
-        pdf_file.drawString(200, y - 5, str_addon)
-
-        # Promo
-        pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
+        if first_row_blank:
+            pdf_file.drawString(200, y + 5, str_addon)
+        else:
+            pdf_file.drawString(200, y - 5, str_addon)
 
         pdf_file.rect(375, y - 15, 30, 50, stroke=True)
         pdf_file.setFont("Helvetica", 8)
@@ -6406,6 +6418,9 @@ def order_invoice(request, _id):
                 total_price_str, "Helvetica", 8)
             pdf_file.drawString(490 + 65 - total_price_width -
                                 5, y - 5, total_price_str)
+
+    # Promo
+    pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
 
     y -= 30
     # create rectangle from first column to column 3
@@ -6962,221 +6977,225 @@ def order_checklist(request, _id):
     filename = 'CHECKLIST_' + customer_name + '_' + order_id + '.pdf'
     pdf_file = canvas.Canvas(filename)
 
-    # Add logo in the top left corner
-    logo_path = '../../www/aqiqahon/apps/static/img/logo.png'
-    pdf_file.drawImage(logo_path, 35, 745, width=70, height=61)
+    for i in range(0, package.count()):
+        # Add logo in the top left corner
+        logo_path = '../../www/aqiqahon/apps/static/img/logo.png'
+        pdf_file.drawImage(logo_path, 35, 745, width=70, height=61)
 
-    title = "CHECKLIST FORM"
-    title_width = pdf_file.stringWidth(
-        title, "Helvetica-Bold", 12)  # Set font to bold
-    page_width, _ = A4
-    pdf_file.setFont("Helvetica-Bold", 12)  # Set font to bold
-    # Calculate the x position for the title to be in the top right corner
-    title_x = page_width - title_width - 35  # 25 is a margin from the right edge
-    pdf_file.drawString(title_x, 795, title)
+        title = "CHECKLIST FORM"
+        title_width = pdf_file.stringWidth(
+            title, "Helvetica-Bold", 12)  # Set font to bold
+        page_width, _ = A4
+        pdf_file.setFont("Helvetica-Bold", 12)  # Set font to bold
+        # Calculate the x position for the title to be in the top right corner
+        title_x = page_width - title_width - 35  # 25 is a margin from the right edge
+        pdf_file.drawString(title_x, 795, title)
 
-    # Add address below logo
-    pdf_file.setFont("Helvetica", 8)
-    pdf_file.drawString(35, 725, 'Cabang :')
+        # Add address below logo
+        pdf_file.setFont("Helvetica", 8)
+        pdf_file.drawString(35, 725, 'Cabang :')
 
-    # Add regional info beside regional title with bold font
-    pdf_file.setFont("Helvetica-Bold", 8)
-    pdf_file.drawString(74, 725, order.regional.area_name)
-    pdf_file.setFont("Helvetica", 8)
-    str_address = order.regional.address if order.regional.address else ''
-    address = 'Kantor : ' + str_address
-    y = 713
-    if str_address:
-        pdf_file.drawString(35, y, address)
+        # Add regional info beside regional title with bold font
+        pdf_file.setFont("Helvetica-Bold", 8)
+        pdf_file.drawString(74, 725, order.regional.area_name)
+        pdf_file.setFont("Helvetica", 8)
+        str_address = order.regional.address if order.regional.address else ''
+        address = 'Kantor : ' + str_address
+        y = 713
+        if str_address:
+            pdf_file.drawString(35, y, address)
+            y -= 12
+        str_district = order.regional.district if order.regional.district else ''
+        str_city = order.regional.city if order.regional.city else ''
+        str_postal_code = order.regional.postal_code if order.regional.postal_code else ''
+        comma_district = ', ' if str_district and (
+            str_city or str_postal_code) else ''
+        comma_city = ', ' if str_city and str_postal_code else ''
+        city = str_district + comma_district + str_city + comma_city + str_postal_code
+        if city:
+            pdf_file.drawString(35, y, city)
+            y -= 12
+        phone = 'Telp/Whatsapp : 0812 9658 9090'
+        pdf_file.drawString(35, y, phone)
+        web = 'www.sahabataqiqah.co.id'
+        pdf_file.drawString(35, y - 12, web)
+
+        y = 745
+        # Add title start from the middle of page
+        title = "No. Invoice"
+        page_width, _ = A4
+        title_x = (page_width / 2) + 35
+        pdf_file.drawString(title_x, y, title)
+        pdf_file.drawString(title_x + 80, y, ':')
+        pdf_file.drawString(title_x + 90, y, order.order_id)
         y -= 12
-    str_district = order.regional.district if order.regional.district else ''
-    str_city = order.regional.city if order.regional.city else ''
-    str_postal_code = order.regional.postal_code if order.regional.postal_code else ''
-    comma_district = ', ' if str_district and (
-        str_city or str_postal_code) else ''
-    comma_city = ', ' if str_city and str_postal_code else ''
-    city = str_district + comma_district + str_city + comma_city + str_postal_code
-    if city:
-        pdf_file.drawString(35, y, city)
+        pdf_file.drawString(title_x, y, "Nama Pemesan")
+        pdf_file.drawString(title_x + 80, y, ':')
+        pdf_file.drawString(title_x + 90, y, order.customer_name)
         y -= 12
-    phone = 'Telp/Whatsapp : 0812 9658 9090'
-    pdf_file.drawString(35, y, phone)
-    web = 'www.sahabataqiqah.co.id'
-    pdf_file.drawString(35, y - 12, web)
+        pdf_file.drawString(title_x, y, "Tanggal Delivery")
+        pdf_file.drawString(title_x + 80, y, ':')
+        pdf_file.drawString(title_x + 90, y, order.delivery_date.strftime(
+            '%-d ') + bulan[order.delivery_date.month - 1] + order.delivery_date.strftime(' %Y'))
+        y -= 12
+        pdf_file.drawString(title_x, y, "Checker")
+        pdf_file.drawString(title_x + 80, y, ':')
+        pdf_file.drawString(title_x + 90, y, '______________________')
+        y -= 12
+        pdf_file.drawString(title_x, y, "Driver")
+        pdf_file.drawString(title_x + 80, y, ':')
+        pdf_file.drawString(title_x + 90, y, '______________________')
+        y -= 12
+        pdf_file.drawString(title_x, y, "Menu")
+        pdf_file.drawString(title_x + 80, y, ':')
+        pdf_file.drawString(
+            title_x + 90, y, package[i].category.category_name + ' - ' + package[i].package.package_name)
+        y -= 12
+        pdf_file.drawString(title_x, y, "Jumlah Box/Porsi")
+        pdf_file.drawString(title_x + 80, y, ':')
+        box = package[i].package.box if package[i].package.box > 0 else 1
+        qty = package[i].quantity
+        box_type = package[i].box_type if package[i].box_type else ''
+        pdf_file.drawString(title_x + 90, y, str(box * qty) + ' ' + box_type)
 
-    y = 745
-    # Add title start from the middle of page
-    title = "No. Invoice"
-    page_width, _ = A4
-    title_x = (page_width / 2) + 35
-    pdf_file.drawString(title_x, y, title)
-    pdf_file.drawString(title_x + 80, y, ':')
-    pdf_file.drawString(title_x + 90, y, order.order_id)
-    y -= 12
-    pdf_file.drawString(title_x, y, "Nama Pemesan")
-    pdf_file.drawString(title_x + 80, y, ':')
-    pdf_file.drawString(title_x + 90, y, order.customer_name)
-    y -= 12
-    pdf_file.drawString(title_x, y, "Tanggal Delivery")
-    pdf_file.drawString(title_x + 80, y, ':')
-    pdf_file.drawString(title_x + 90, y, order.delivery_date.strftime(
-        '%-d ') + bulan[order.delivery_date.month - 1] + order.delivery_date.strftime(' %Y'))
-    y -= 12
-    pdf_file.drawString(title_x, y, "Checker")
-    pdf_file.drawString(title_x + 80, y, ':')
-    pdf_file.drawString(title_x + 90, y, '______________________')
-    y -= 12
-    pdf_file.drawString(title_x, y, "Driver")
-    pdf_file.drawString(title_x + 80, y, ':')
-    pdf_file.drawString(title_x + 90, y, '______________________')
-    y -= 12
-    pdf_file.drawString(title_x, y, "Menu")
-    pdf_file.drawString(title_x + 80, y, ':')
-    pdf_file.drawString(
-        title_x + 90, y, package[0].category.category_name + ' - ' + package[0].package.package_name)
-    y -= 12
-    pdf_file.drawString(title_x, y, "Jumlah Box")
-    pdf_file.drawString(title_x + 80, y, ':')
-    pdf_file.drawString(
-        title_x + 90, y, str(package[0].package.box * package[0].quantity if package[0].package.box > 0 else package[0].quantity
-                             ) + ' ' + package[0].box_type)
+        y -= 30
+        pdf_file.setFont("Helvetica-Bold", 8)
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 15
+        y2 = y
+        pdf_file.drawString(40, y, 'DI ISI OLEH DRIVER')
+        pdf_file.drawString(140, y, 'DI ISI OLEH CHECKER')
+        y -= 10
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.setFont("Helvetica", 8)
+        pdf_file.drawString(
+            140, y + 5, 'Nasi Kebuli / Nasi Kuning / Nasi Putih')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        if package[0].main_cuisine:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[0].main_cuisine)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+        if package[0].sub_cuisine:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[0].sub_cuisine)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+        if package[0].side_cuisine1:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[0].side_cuisine1)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+        if package[0].side_cuisine2:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[0].side_cuisine2)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+        if package[0].side_cuisine3:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[0].side_cuisine3)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+        if package[0].side_cuisine4:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[0].side_cuisine4)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+        if package[0].side_cuisine5:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[0].side_cuisine5)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'Kerupuk')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'Acar')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'Mr. Jussie / Air Mineral / Kosong')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'Telor Pindang / Telor Balado')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'Sertifikat')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'Kantong Plastik / Tas Serut')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'Boneka Panda / Boneka Domba / Mug')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'BAP & Kwitansi')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(140, y + 5, 'Sisa Masakan Olahan Daging ......')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
+        y -= 20
+        pdf_file.rect(40, y, 80, 15, stroke=True)
+        pdf_file.drawString(
+            140, y + 5, 'Sisa Masakan Olahan Tulangan & Jeroan ......')
+        y -= 5
+        pdf_file.line(35, y, page_width - 35, y)
 
-    y -= 30
-    pdf_file.setFont("Helvetica-Bold", 8)
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 15
-    y2 = y
-    pdf_file.drawString(40, y, 'DI ISI OLEH DRIVER')
-    pdf_file.drawString(140, y, 'DI ISI OLEH CHECKER')
-    y -= 10
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.setFont("Helvetica", 8)
-    pdf_file.drawString(140, y + 5, 'Nasi Kebuli / Nasi Kuning / Nasi Putih')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    if package[0].main_cuisine:
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, package[0].main_cuisine)
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-    if package[0].sub_cuisine:
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, package[0].sub_cuisine)
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-    if package[0].side_cuisine1:
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, package[0].side_cuisine1)
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-    if package[0].side_cuisine2:
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, package[0].side_cuisine2)
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-    if package[0].side_cuisine3:
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, package[0].side_cuisine3)
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-    if package[0].side_cuisine4:
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, package[0].side_cuisine4)
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-    if package[0].side_cuisine5:
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, package[0].side_cuisine5)
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'Kerupuk')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'Acar')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'Mr. Jussie / Air Mineral / Kosong')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'Telor Pindang / Telor Balado')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'Sertifikat')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'Kantong Plastik / Tas Serut')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'Boneka Panda / Boneka Domba / Mug')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'BAP & Kwitansi')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(140, y + 5, 'Sisa Masakan Olahan Daging ......')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
-    y -= 20
-    pdf_file.rect(40, y, 80, 15, stroke=True)
-    pdf_file.drawString(
-        140, y + 5, 'Sisa Masakan Olahan Tulangan & Jeroan ......')
-    y -= 5
-    pdf_file.line(35, y, page_width - 35, y)
+        pdf_file.setFont("Helvetica-Bold", 8)
+        pdf_file.drawString(title_x, y2, 'CATATAN LAINNYA')
+        y2 -= 30
+        pdf_file.rect(title_x, y2, 80, 15, stroke=True)
+        y2 -= 25
+        pdf_file.rect(title_x, y2, 80, 15, stroke=True)
+        y2 -= 25
+        pdf_file.rect(title_x, y2, 80, 15, stroke=True)
 
-    pdf_file.setFont("Helvetica-Bold", 8)
-    pdf_file.drawString(title_x, y2, 'CATATAN LAINNYA')
-    y2 -= 30
-    pdf_file.rect(title_x, y2, 80, 15, stroke=True)
-    y2 -= 25
-    pdf_file.rect(title_x, y2, 80, 15, stroke=True)
-    y2 -= 25
-    pdf_file.rect(title_x, y2, 80, 15, stroke=True)
-
-    y -= 60
-    title = "TTD CHECKER"
-    title_width = pdf_file.stringWidth(title, "Helvetica-Bold", 8)
-    pdf_file.rect(35, y, (page_width - 2*35) / 2, 15, stroke=False)
-    pdf_file.drawString(35 + (((page_width / 2 - 35) -
-                        title_width) / 2), y + 5, title)
-    string = '( __________________ )'
-    string_width = pdf_file.stringWidth(string, "Helvetica-Bold", 8)
-    pdf_file.drawString(35 + (((page_width / 2 - 35) -
-                        string_width) / 2), y - 80, string)
-    title = "TTD DRIVER"
-    title_width = pdf_file.stringWidth(title, "Helvetica-Bold", 8)
-    pdf_file.rect(35 + (page_width - 2*35) / 2, y,
-                  (page_width - 2*35) / 2, 15, stroke=False)
-    pdf_file.drawString(35 + (page_width - 2*35) / 2 +
-                        ((page_width - 2*35) / 2 - title_width) / 2, y + 5, title)
-    pdf_file.drawString(35 + (page_width - 2*35) / 2 +
-                        ((page_width - 2*35) / 2 - string_width) / 2, y - 80, string)
+        y -= 60
+        title = "TTD CHECKER"
+        title_width = pdf_file.stringWidth(title, "Helvetica-Bold", 8)
+        pdf_file.rect(35, y, (page_width - 2*35) / 2, 15, stroke=False)
+        pdf_file.drawString(35 + (((page_width / 2 - 35) -
+                            title_width) / 2), y + 5, title)
+        string = '( __________________ )'
+        string_width = pdf_file.stringWidth(string, "Helvetica-Bold", 8)
+        pdf_file.drawString(35 + (((page_width / 2 - 35) -
+                            string_width) / 2), y - 80, string)
+        title = "TTD DRIVER"
+        title_width = pdf_file.stringWidth(title, "Helvetica-Bold", 8)
+        pdf_file.rect(35 + (page_width - 2*35) / 2, y,
+                      (page_width - 2*35) / 2, 15, stroke=False)
+        pdf_file.drawString(35 + (page_width - 2*35) / 2 +
+                            ((page_width - 2*35) / 2 - title_width) / 2, y + 5, title)
+        pdf_file.drawString(35 + (page_width - 2*35) / 2 +
+                            ((page_width - 2*35) / 2 - string_width) / 2, y - 80, string)
+        pdf_file.showPage()
 
     pdf_file.save()
 
