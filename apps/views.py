@@ -7067,13 +7067,15 @@ def order_checklist(request, _id):
         pdf_file.drawString(140, y, 'DI ISI OLEH CHECKER')
         y -= 10
         pdf_file.line(35, y, page_width - 35, y)
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.setFont("Helvetica", 8)
-        pdf_file.drawString(
-            140, y + 5, 'Nasi Kebuli / Nasi Kuning / Nasi Putih')
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
+        rice = package[i].rice
+        if rice:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.setFont("Helvetica", 8)
+            pdf_file.drawString(
+                140, y + 5, rice)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
         if package[0].main_cuisine:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
