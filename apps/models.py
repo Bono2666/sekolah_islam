@@ -405,6 +405,86 @@ class Bag(models.Model):
         super(Bag, self).save(*args, **kwargs)
 
 
+class Beverage(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'equipment'], name='unique_drink')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Beverage, self).save(*args, **kwargs)
+
+
+class Other(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'equipment'], name='unique_other')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Other, self).save(*args, **kwargs)
+
+
+class Souvenir(models.Model):
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, null=True, default=None)
+    equipment = models.ForeignKey(
+        Equipment, on_delete=models.CASCADE, null=True, default=None)
+    extra_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    default = models.BooleanField(default=False)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['package', 'equipment'], name='unique_souvenir')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().username
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().username
+        super(Souvenir, self).save(*args, **kwargs)
+
+
 class Pack(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
@@ -1525,27 +1605,6 @@ class BoxType(models.Model):
         return self.box_type_name
 
 
-class Souvenir(models.Model):
-    souvenir_id = models.BigAutoField(primary_key=True)
-    souvenir_name = models.CharField(max_length=200)
-    entry_date = models.DateTimeField(null=True)
-    entry_by = models.CharField(max_length=50, null=True)
-    update_date = models.DateTimeField(
-        null=True, blank=True, auto_now=True)
-    update_by = models.CharField(max_length=50, null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        if not self.entry_date:
-            self.entry_date = timezone.now()
-            self.entry_by = get_current_user().user_id
-        self.update_date = timezone.now()
-        self.update_by = get_current_user().user_id
-        super(Souvenir, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.souvenir_name
-
-
 class Order(models.Model):
     order_id = models.CharField(max_length=50, primary_key=True)
     regional = models.ForeignKey(
@@ -1575,7 +1634,6 @@ class Order(models.Model):
     use_photo = models.BooleanField(default=False)
     witnessed = models.BooleanField(default=False)
     info_source = models.CharField(max_length=50, null=True)
-    souvenir = models.ForeignKey(Souvenir, on_delete=models.CASCADE, null=True)
     order_note = models.CharField(max_length=200, null=True)
     cs = models.CharField(max_length=50, null=True)
     order_status = models.CharField(max_length=15, default='PENDING')
@@ -1632,6 +1690,8 @@ class OrderPackage(models.Model):
     quantity = models.IntegerField(default=1)
     box_type = models.CharField(max_length=50, null=True)
     main_cuisine = models.CharField(max_length=50, null=True)
+    main_cuisine_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
     sub_cuisine = models.CharField(max_length=50, null=True)
     side_cuisine1 = models.CharField(max_length=50, null=True)
     side_cuisine2 = models.CharField(max_length=50, null=True)
@@ -1640,6 +1700,8 @@ class OrderPackage(models.Model):
     side_cuisine5 = models.CharField(max_length=50, null=True)
     rice = models.CharField(max_length=50, null=True)
     bag = models.CharField(max_length=50, null=True)
+    beverage = models.CharField(max_length=50, null=True)
+    souvenir = models.CharField(max_length=50, null=True)
     upgrade = models.CharField(max_length=50, null=True)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
@@ -1668,6 +1730,35 @@ class OrderPackage(models.Model):
         self.update_date = timezone.now()
         self.update_by = 'customer'
         super(OrderPackage, self).save(*args, **kwargs)
+
+
+class OrderPackageSouvenir(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(
+        Equipment, on_delete=models.CASCADE, null=True)
+    unit_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0)
+    quantity = models.IntegerField(default=1)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['order', 'package', 'equipment'], name='unique_order_package_souvenir')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = 'customer'
+        self.update_date = timezone.now()
+        self.update_by = 'customer'
+        super(OrderPackageSouvenir, self).save(*args, **kwargs)
 
 
 class OrderPackageAddon(models.Model):

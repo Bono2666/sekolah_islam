@@ -1500,8 +1500,11 @@ def package_rice_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -1524,6 +1527,12 @@ def package_rice_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -1554,8 +1563,11 @@ def package_rice_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -1565,14 +1577,17 @@ def package_rice_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'rice',
-        'eq_tab': 'bag',
+        'eq_tab': 'beverage',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1596,8 +1611,11 @@ def package_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -1620,6 +1638,12 @@ def package_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -1650,8 +1674,11 @@ def package_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -1661,14 +1688,17 @@ def package_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'main_cuisine',
-        'eq_tab': 'bag',
+        'eq_tab': 'beverage',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -1692,8 +1722,11 @@ def package_subcuisine_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -1716,6 +1749,12 @@ def package_subcuisine_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -1746,8 +1785,11 @@ def package_subcuisine_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -1757,8 +1799,11 @@ def package_subcuisine_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
@@ -1788,8 +1833,11 @@ def package_sidecuisine1_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -1812,6 +1860,12 @@ def package_sidecuisine1_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -1842,8 +1896,11 @@ def package_sidecuisine1_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -1853,8 +1910,11 @@ def package_sidecuisine1_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
@@ -1884,8 +1944,11 @@ def package_sidecuisine2_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -1908,6 +1971,12 @@ def package_sidecuisine2_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souviners = Equipment.objects.all().exclude(equipment_id__in=Souviner.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -1938,8 +2007,11 @@ def package_sidecuisine2_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -1949,8 +2021,11 @@ def package_sidecuisine2_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souviner': souviners,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
@@ -1980,8 +2055,11 @@ def package_sidecuisine3_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -2004,6 +2082,12 @@ def package_sidecuisine3_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -2034,8 +2118,11 @@ def package_sidecuisine3_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -2045,8 +2132,11 @@ def package_sidecuisine3_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
@@ -2076,8 +2166,11 @@ def package_sidecuisine4_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -2100,6 +2193,12 @@ def package_sidecuisine4_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -2130,8 +2229,11 @@ def package_sidecuisine4_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -2141,8 +2243,11 @@ def package_sidecuisine4_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
@@ -2172,8 +2277,11 @@ def package_sidecuisine5_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -2196,6 +2304,12 @@ def package_sidecuisine5_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -2226,8 +2340,11 @@ def package_sidecuisine5_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -2237,14 +2354,128 @@ def package_sidecuisine5_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'side_cuisine5',
         'eq_tab': 'bag',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_beverage_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('beverage[]')
+        for i in beverages:
+            if str(i.equipment_id) in check:
+                try:
+                    beverage = Beverage(
+                        package=packages, equipment=i)
+                    beverage.save()
+                except IntegrityError:
+                    continue
+            else:
+                Beverage.objects.filter(
+                    package_id=_id, equipment_id=i.equipment_id).delete()
+
+        return HttpResponseRedirect(reverse('package-beverage-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_rice': selected_rice,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
+        'selected_addon': selected_addon,
+        'rices': rices,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
+        'eqs': eqs,
+        'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
+        'addons': addons,
+        'notif': order_notification(request),
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'main_cuisine',
+        'eq_tab': 'beverage',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -2268,8 +2499,11 @@ def package_bag_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -2292,6 +2526,12 @@ def package_bag_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -2322,8 +2562,11 @@ def package_bag_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -2333,8 +2576,11 @@ def package_bag_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
@@ -2364,8 +2610,11 @@ def package_box_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -2388,6 +2637,12 @@ def package_box_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -2418,8 +2673,11 @@ def package_box_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -2429,14 +2687,239 @@ def package_box_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
         'group_segment': 'master',
         'tab': 'main_cuisine',
         'eq_tab': 'box',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_souvenir_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('souvenirs[]')
+        for i in souvenirs:
+            if str(i.equipment_id) in check:
+                try:
+                    souvenir = Souvenir(
+                        package=packages, equipment=i)
+                    souvenir.save()
+                except IntegrityError:
+                    continue
+            else:
+                Souvenir.objects.filter(
+                    package_id=_id, equipment_id=i.equipment_id).delete()
+
+        return HttpResponseRedirect(reverse('package-souvenirs-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_rice': selected_rice,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
+        'selected_addon': selected_addon,
+        'rices': rices,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
+        'eqs': eqs,
+        'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
+        'addons': addons,
+        'notif': order_notification(request),
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'main_cuisine',
+        'eq_tab': 'souvenir',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/package_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_other_view(request, _id):
+    packages = Package.objects.get(package_id=_id)
+    packages.male_price = '{:,}'.format(packages.male_price)
+    packages.female_price = '{:,}'.format(packages.female_price)
+    form = FormPackageView(instance=packages)
+    categories = Category.objects.all()
+    selected_rice = Rice.objects.filter(package_id=_id)
+    selected_cuisine = MainCuisine.objects.filter(package_id=_id)
+    selected_subcuisine = SubCuisine.objects.filter(package_id=_id)
+    selected_sidecuisine1 = SideCuisine1.objects.filter(package_id=_id)
+    selected_sidecuisine2 = SideCuisine2.objects.filter(package_id=_id)
+    selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
+    selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
+    selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
+    selected_eq = Bag.objects.filter(package_id=_id)
+    selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
+    selected_addon = Addon.objects.filter(package_id=_id)
+    rices = Cuisine.objects.all().exclude(
+        cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    main_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=MainCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    sub_cuisines = Cuisine.objects.all().exclude(
+        cuisine_id__in=SubCuisine.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines1 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine1.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines2 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine2.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines3 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine3.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines4 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine4.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    side_cuisines5 = Cuisine.objects.all().exclude(
+        cuisine_id__in=SideCuisine5.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
+    eqs = Equipment.objects.all().exclude(equipment_id__in=Bag.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+
+    if request.POST:
+        check = request.POST.getlist('other[]')
+        for i in others:
+            if str(i.equipment_id) in check:
+                try:
+                    other = Other(
+                        package=packages, equipment=i)
+                    other.save()
+                except IntegrityError:
+                    continue
+            else:
+                Other.objects.filter(
+                    package_id=_id, equipment_id=i.equipment_id).delete()
+
+        return HttpResponseRedirect(reverse('package-other-view', args=[_id, ]))
+
+    context = {
+        'form': form,
+        'data': packages,
+        'categories': categories,
+        'selected_rice': selected_rice,
+        'selected_cuisine': selected_cuisine,
+        'selected_subcuisine': selected_subcuisine,
+        'selected_sidecuisine1': selected_sidecuisine1,
+        'selected_sidecuisine2': selected_sidecuisine2,
+        'selected_sidecuisine3': selected_sidecuisine3,
+        'selected_sidecuisine4': selected_sidecuisine4,
+        'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
+        'selected_eq': selected_eq,
+        'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
+        'selected_addon': selected_addon,
+        'rices': rices,
+        'main_cuisines': main_cuisines,
+        'sub_cuisines': sub_cuisines,
+        'side_cuisines1': side_cuisines1,
+        'side_cuisines2': side_cuisines2,
+        'side_cuisines3': side_cuisines3,
+        'side_cuisines4': side_cuisines4,
+        'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
+        'eqs': eqs,
+        'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
+        'addons': addons,
+        'notif': order_notification(request),
+        'segment': 'package',
+        'group_segment': 'master',
+        'tab': 'main_cuisine',
+        'eq_tab': 'other',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='PACKAGE') if not request.user.is_superuser else Auth.objects.all(),
@@ -2460,8 +2943,11 @@ def package_addon_view(request, _id):
     selected_sidecuisine3 = SideCuisine3.objects.filter(package_id=_id)
     selected_sidecuisine4 = SideCuisine4.objects.filter(package_id=_id)
     selected_sidecuisine5 = SideCuisine5.objects.filter(package_id=_id)
+    selected_beverage = Beverage.objects.filter(package_id=_id)
     selected_eq = Bag.objects.filter(package_id=_id)
     selected_pack = Pack.objects.filter(package_id=_id)
+    selected_souvenirs = Souvenir.objects.filter(package_id=_id)
+    selected_other = Other.objects.filter(package_id=_id)
     selected_addon = Addon.objects.filter(package_id=_id)
     rices = Cuisine.objects.all().exclude(
         cuisine_id__in=Rice.objects.filter(package_id=_id).values_list('cuisine_id', flat=True))
@@ -2484,6 +2970,12 @@ def package_addon_view(request, _id):
     box = Equipment.objects.all().exclude(equipment_id__in=Pack.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     addons = Equipment.objects.all().exclude(equipment_id__in=Addon.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
+        package_id=_id).values_list('equipment_id', flat=True))
+    others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
 
     if request.POST:
@@ -2514,8 +3006,11 @@ def package_addon_view(request, _id):
         'selected_sidecuisine3': selected_sidecuisine3,
         'selected_sidecuisine4': selected_sidecuisine4,
         'selected_sidecuisine5': selected_sidecuisine5,
+        'selected_beverage': selected_beverage,
         'selected_eq': selected_eq,
         'selected_pack': selected_pack,
+        'selected_souvenirs': selected_souvenirs,
+        'selected_other': selected_other,
         'selected_addon': selected_addon,
         'rices': rices,
         'main_cuisines': main_cuisines,
@@ -2525,8 +3020,11 @@ def package_addon_view(request, _id):
         'side_cuisines3': side_cuisines3,
         'side_cuisines4': side_cuisines4,
         'side_cuisines5': side_cuisines5,
+        'beverages': beverages,
         'eqs': eqs,
         'box': box,
+        'souvenirs': souvenirs,
+        'others': others,
         'addons': addons,
         'notif': order_notification(request),
         'segment': 'package',
@@ -2662,6 +3160,21 @@ def package_rice_update(request, _id, _cuisine):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='PACKAGE')
+def package_beverage_update(request, _id, _eq):
+    beverage = Beverage.objects.get(package=_id, equipment=_eq)
+
+    if request.POST:
+        beverage.extra_price = request.POST.get('price')
+        beverage.default = 1 if request.POST.get('default') else 0
+        beverage.save()
+
+        return HttpResponseRedirect(reverse('package-beverage-view', args=[_id, ]))
+
+    return render(request, 'home/package_beverage_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
 def package_bag_update(request, _id, _eq):
     bag = Bag.objects.get(package=_id, equipment=_eq)
 
@@ -2688,6 +3201,36 @@ def package_box_update(request, _id, _eq):
         return HttpResponseRedirect(reverse('package-box-view', args=[_id, ]))
 
     return render(request, 'home/package_box_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_souvenir_update(request, _id, _eq):
+    souvenir = Souvenir.objects.get(package=_id, equipment=_eq)
+
+    if request.POST:
+        souvenir.extra_price = request.POST.get('price')
+        souvenir.default = 1 if request.POST.get('default') else 0
+        souvenir.save()
+
+        return HttpResponseRedirect(reverse('package-souvenirs-view', args=[_id, ]))
+
+    return render(request, 'home/package_souvenir_view.html')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_other_update(request, _id, _eq):
+    other = Other.objects.get(package=_id, equipment=_eq)
+
+    if request.POST:
+        other.extra_price = request.POST.get('price')
+        other.default = 1 if request.POST.get('default') else 0
+        other.save()
+
+        return HttpResponseRedirect(reverse('package-other-view', args=[_id, ]))
+
+    return render(request, 'home/package_other_view.html')
 
 
 @login_required(login_url='/login/')
@@ -2769,6 +3312,13 @@ def package_rice_delete(request, _id, _cuisine):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='PACKAGE')
+def package_beverage_delete(request, _id, _eq):
+    Beverage.objects.filter(package_id=_id, equipment_id=_eq).delete()
+    return HttpResponseRedirect(reverse('package-beverage-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
 def package_bag_delete(request, _id, _eq):
     Bag.objects.filter(package_id=_id, equipment_id=_eq).delete()
     return HttpResponseRedirect(reverse('package-bag-view', args=[_id, ]))
@@ -2779,6 +3329,20 @@ def package_bag_delete(request, _id, _eq):
 def package_box_delete(request, _id, _eq):
     Pack.objects.filter(package_id=_id, equipment_id=_eq).delete()
     return HttpResponseRedirect(reverse('package-box-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_souvenir_delete(request, _id, _eq):
+    Souvenir.objects.filter(package_id=_id, equipment_id=_eq).delete()
+    return HttpResponseRedirect(reverse('package-souvenirs-view', args=[_id, ]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='PACKAGE')
+def package_other_delete(request, _id, _eq):
+    Other.objects.filter(package_id=_id, equipment_id=_eq).delete()
+    return HttpResponseRedirect(reverse('package-other-view', args=[_id, ]))
 
 
 @login_required(login_url='/login/')
@@ -4902,6 +5466,8 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
         cursor.execute(
             "SELECT apps_addon.equipment_id, equipment_name, extra_price, q_addon.equipment_id, q_addon.quantity FROM apps_equipment INNER JOIN apps_addon ON apps_equipment.equipment_id = apps_addon.equipment_id LEFT JOIN (SELECT * FROM apps_orderpackageaddon WHERE order_id = '" + str(_id) + "' AND package_id = '" + str(_pack) + "') AS q_addon ON apps_addon.equipment_id = q_addon.equipment_id WHERE apps_addon.package_id = '" + str(_pack) + "' ORDER BY equipment_name")
         addons = cursor.fetchall()
+    souvenirs = Souvenir.objects.filter(
+        package_id=_pack) if _pack != '0' else None
     last_package = OrderPackage.objects.filter(order_id=_id).last(
     ) if OrderPackage.objects.filter(order_id=_id) else None
     selected_package = Package.objects.get(
@@ -4909,6 +5475,7 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
     order = Order.objects.get(order_id=_id)
     child = OrderChild.objects.filter(order_id=_id).last()
     addon_order = ''
+    souvenir_order = ''
 
     if request.POST:
         form = FormOrderPackage(request.POST)
@@ -4963,6 +5530,7 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
             package.quantity = request.POST.get('quantity')
             package.box_type = request.POST.get('box_type')
             package.main_cuisine = request.POST.get('main_cuisine')
+            package.main_cuisine_price = extra_price_main
             package.sub_cuisine = request.POST.get('sub_cuisine')
             package.side_cuisine1 = request.POST.get('side_cuisine1')
             package.side_cuisine2 = request.POST.get('side_cuisine2')
@@ -4971,9 +5539,10 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
             package.side_cuisine5 = request.POST.get('side_cuisine5')
             package.rice = request.POST.get('rice')
             package.bag = request.POST.get('bag')
+            package.souvenir = request.POST.get('souvenir')
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
-            package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 0) * int(request.POST.get('quantity')))
+            package.extra_price = ((extra_price_sub + extra_price_side1 + extra_price_side2 +
+                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 0) * int(request.POST.get('quantity')))) + (extra_price_main * int(request.POST.get('quantity')))
             package.upgrade = ', '.join(up)
             package.save()
 
@@ -4982,7 +5551,8 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
             total_addon = OrderPackageAddon.objects.filter(
                 order_id=_id).aggregate(order=Sum('total_price'))
             _total_addon = total_addon['order'] if total_addon['order'] else 0
-            order.total_order = total['order'] + _total_addon
+            order.total_order = total['order'] + \
+                _total_addon - order.promo_nominal
             order.save()
 
             if _add == 2:
@@ -5024,10 +5594,48 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
 
                 return HttpResponseRedirect(reverse('order-package-update', args=[_id, package.id, _cat, _pack, _type, 0]))
             else:
-                if _add == 1:
-                    return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
+                if _add == 3:
+                    check = request.GET.get('checks')
+                    qty = request.GET.get('qty')
+                    _ids = check.split(',')
+                    _qty = qty.split(',')
+                    _qty_idx = 0
+                    for index, i in enumerate(souvenirs):
+                        if str(i[0]) in _ids:
+                            try:
+                                _souvenir = OrderPackageSouvenir(
+                                    order_id=_id, package_id=_pack, equipment_id=i[0], unit_price=i[2])
+                                _souvenir.save()
+                                _update = OrderPackageSouvenir.objects.get(
+                                    order_id=_id, package_id=_pack, equipment_id=i[0])
+                                _update.quantity = int(_qty[_qty_idx])
+                                _update.save()
+                            except IntegrityError:
+                                _update = OrderPackageSouvenir.objects.get(
+                                    order_id=_id, package_id=_pack, equipment_id=i[0])
+                                _update.quantity = int(_qty[_qty_idx])
+                                _update.save()
+                                continue
+
+                            _qty_idx += 1
+
+                        else:
+                            OrderPackageSouvenir.objects.filter(
+                                order_id=_id, package_id=_pack, equipment_id=i[0]).delete()
+
+                    _souvenir_order = OrderPackageSouvenir.objects.filter(
+                        order_id=_id, package_id=_pack)
+                    for idx, j in enumerate(_souvenir_order):
+                        souvenir_order += j.equipment.equipment_name
+                        if idx < _souvenir_order.count() - 1:
+                            souvenir_order += ', '
+
+                    return HttpResponseRedirect(reverse('order-package-update', args=[_id, package.id, _cat, _pack, _type, 0]))
                 else:
-                    return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+                    if _add == 1:
+                        return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
+                    else:
+                        return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
     else:
         form = FormOrderPackage(initial={'order': _id})
 
@@ -5053,6 +5661,8 @@ def order_package_add(request, _id, _cat, _pack, _type, _add):
         'bags': bags,
         'addons': addons,
         'addon_order': addon_order,
+        'souvenirs': souvenirs,
+        'souvenir_order': souvenir_order,
         'last_package': last_package,
         'selected_package': selected_package,
         'order_id': _id,
@@ -5092,7 +5702,10 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
             type=_type,
             quantity=int(request.POST.get('quantity')),
             box_type=request.POST.get('box_type'),
-            main_cuisine=request.POST.get('main_cuisine'),
+            main_cuisine=request.POST.get('main_cuisine') +
+            ' (+ Rp ' + str('{:,}'.format(extra_price_main)).replace(',', '.') +
+            ')' if extra_price_main > 0 else request.POST.get(
+                'main_cuisine'),
             sub_cuisine=request.POST.get('sub_cuisine'),
             side_cuisine1=request.POST.get('side_cuisine1'),
             side_cuisine2=request.POST.get('side_cuisine2'),
@@ -5102,8 +5715,8 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
             rice=request.POST.get('rice'),
             bag=request.POST.get('bag'),
             unit_price=package.male_price if _type == 'Jantan' else package.female_price,
-            extra_price=(extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                         extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((Package.objects.get(package_id=_pack).box if Package.objects.get(package_id=_pack).box > 0 else 1) * int(request.POST.get('quantity'))),
+            extra_price=((extra_price_sub + extra_price_side1 + extra_price_side2 +
+                         extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((Package.objects.get(package_id=_pack).box if Package.objects.get(package_id=_pack).box > 0 else 1) * int(request.POST.get('quantity')))) + (extra_price_main * int(request.POST.get('quantity'))),
         )
         package.save()
 
@@ -5113,7 +5726,7 @@ def order_cs_package_add(request, _id, _cat, _pack, _type):
             order_id=_id).aggregate(order=Sum('total_price'))
         _total_addon = total_addon['order'] if total_addon['order'] else 0
         order = Order.objects.get(order_id=_id)
-        order.total_order = total['order'] + _total_addon
+        order.total_order = total['order'] + _total_addon - order.promo_nominal
         order.save()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
@@ -5138,12 +5751,17 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
         cursor.execute(
             "SELECT apps_addon.equipment_id, equipment_name, extra_price, q_addon.equipment_id, q_addon.quantity FROM apps_equipment INNER JOIN apps_addon ON apps_equipment.equipment_id = apps_addon.equipment_id LEFT JOIN (SELECT * FROM apps_orderpackageaddon WHERE order_id = '" + str(_id) + "' AND package_id = '" + str(_pack) + "') AS q_addon ON apps_addon.equipment_id = q_addon.equipment_id WHERE apps_addon.package_id = '" + str(_pack) + "' ORDER BY equipment_name")
         addons = cursor.fetchall()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT apps_equipment.equipment_id, equipment_name, extra_price, q_souvenir.equipment_id, q_souvenir.quantity FROM apps_equipment INNER JOIN apps_souvenir ON apps_equipment.equipment_id = apps_souvenir.equipment_id LEFT JOIN (SELECT * FROM apps_orderpackagesouvenir WHERE order_id = '" + str(_id) + "' AND package_id = '" + str(_pack) + "') AS q_souvenir ON apps_souvenir.equipment_id = q_souvenir.equipment_id WHERE apps_souvenir.package_id = '" + str(_pack) + "' ORDER BY equipment_name")
+        souvenirs = cursor.fetchall()
     last_child = OrderChild.objects.filter(order_id=_id).last()
     selected_package = Package.objects.get(
         package_id=_pack) if _pack != '0' else None
     order = Order.objects.get(order_id=_id)
     orders = OrderPackage.objects.filter(order_id=_id)
     addon_order = ''
+    souvenir_order = ''
 
     first = False
     prev_id = 0
@@ -5174,6 +5792,13 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             ' (' + str(j.quantity) + ')'
         if idx < _addon_order.count() - 1:
             addon_order += ', '
+
+    _souvenir_order = OrderPackageSouvenir.objects.filter(
+        order_id=_id, package_id=_pack)
+    for idx, j in enumerate(_souvenir_order):
+        souvenir_order += j.equipment.equipment_name
+        if idx < _souvenir_order.count() - 1:
+            souvenir_order += ', '
 
     if request.POST:
         form = FormOrderPackage(request.POST, instance=package)
@@ -5227,6 +5852,7 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             package.quantity = request.POST.get('quantity')
             package.box_type = request.POST.get('box_type')
             package.main_cuisine = request.POST.get('main_cuisine')
+            package.main_cuisine_price = extra_price_main
             package.sub_cuisine = request.POST.get('sub_cuisine')
             package.side_cuisine1 = request.POST.get('side_cuisine1')
             package.side_cuisine2 = request.POST.get('side_cuisine2')
@@ -5236,8 +5862,8 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             package.rice = request.POST.get('rice')
             package.bag = request.POST.get('bag')
             package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
-            package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 0) * int(request.POST.get('quantity')))
+            package.extra_price = ((extra_price_sub + extra_price_side1 + extra_price_side2 +
+                                   extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 0) * int(request.POST.get('quantity')))) + (extra_price_main * int(request.POST.get('quantity')))
             package.upgrade = ', '.join(up)
             package.save()
 
@@ -5246,7 +5872,8 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
             total_addon = OrderPackageAddon.objects.filter(
                 order_id=_id).aggregate(order=Sum('total_price'))
             _total_addon = total_addon['order'] if total_addon['order'] else 0
-            order.total_order = total['order'] + _total_addon
+            order.total_order = total['order'] + \
+                _total_addon - order.promo_nominal
             order.save()
 
             if _add == 2:
@@ -5291,17 +5918,58 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
 
                 return HttpResponseRedirect(reverse('order-package-update', args=[_id, package.id, _cat, _pack, _type, 0]))
             else:
-                if _add == 1:
-                    return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
+                if _add == 3:
+                    check = request.GET.get('checks')
+                    qty = request.GET.get('qty')
+                    _ids = check.split(',')
+                    _qty = qty.split(',')
+                    _qty_idx = 0
+                    # delete all souvenirs first
+                    OrderPackageSouvenir.objects.filter(
+                        order_id=_id, package_id=_pack).delete()
+                    for ix, i in enumerate(souvenirs):
+                        if str(i[0]) in _ids:
+                            try:
+                                _souvenir = OrderPackageSouvenir(
+                                    order_id=_id, package_id=_pack, equipment_id=i[0], unit_price=i[2])
+                                _souvenir.save()
+                                _update = OrderPackageSouvenir.objects.get(
+                                    order_id=_id, package_id=_pack, equipment_id=i[0])
+                                _update.quantity = int(_qty[_qty_idx])
+                                _update.save()
+                            except IntegrityError:
+                                _update = OrderPackageSouvenir.objects.get(
+                                    order_id=_id, package_id=_pack, equipment_id=i[0])
+                                _update.quantity = int(_qty[_qty_idx])
+                                _update.save()
+                                continue
+
+                            _qty_idx += 1
+
+                        else:
+                            OrderPackageSouvenir.objects.filter(
+                                order_id=_id, package_id=_pack, equipment_id=i[0]).delete()
+
+                    _souvenir_order = OrderPackageSouvenir.objects.filter(
+                        order_id=_id, package_id=_pack)
+                    for idx, j in enumerate(_souvenir_order):
+                        souvenir_order += j.equipment.equipment_name
+                        if idx < _souvenir_order.count() - 1:
+                            souvenir_order += ', '
+
+                    return HttpResponseRedirect(reverse('order-package-update', args=[_id, package.id, _cat, _pack, _type, 0]))
                 else:
-                    last_package = OrderPackage.objects.filter(
-                        order_id=_id).last()
-                    if last_package.id == _package:
-                        return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+                    if _add == 1:
+                        return HttpResponseRedirect(reverse('order-package-add', args=[_id, '0', '0', '0', 0]))
                     else:
-                        for i in OrderPackage.objects.filter(order_id=_id):
-                            if i.id > _package:
-                                return HttpResponseRedirect(reverse('order-package-update', args=[_id, i.id, i.category_id, i.package_id, i.type, 0]))
+                        last_package = OrderPackage.objects.filter(
+                            order_id=_id).last()
+                        if last_package.id == _package:
+                            return HttpResponseRedirect(reverse('order-confirm-update', args=[_id]))
+                        else:
+                            for i in OrderPackage.objects.filter(order_id=_id):
+                                if i.id > _package:
+                                    return HttpResponseRedirect(reverse('order-package-update', args=[_id, i.id, i.category_id, i.package_id, i.type, 0]))
     else:
         form = FormOrderPackage(instance=package)
 
@@ -5336,6 +6004,8 @@ def order_package_update(request, _id, _package, _cat, _pack, _type, _add):
         'bags': bags,
         'addons': addons,
         'addon_order': addon_order,
+        'souvenirs': souvenirs,
+        'souvenir_order': souvenir_order,
         'selected_package': selected_package,
         'order_id': _id,
         'msg': msg,
@@ -5379,6 +6049,7 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
         package.quantity = int(request.POST.get('quantity'))
         package.box_type = request.POST.get('box_type')
         package.main_cuisine = request.POST.get('main_cuisine')
+        package.main_cuisine_price = extra_price_main
         package.sub_cuisine = request.POST.get('sub_cuisine')
         package.side_cuisine1 = request.POST.get('side_cuisine1')
         package.side_cuisine2 = request.POST.get('side_cuisine2')
@@ -5387,9 +6058,10 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
         package.side_cuisine5 = request.POST.get('side_cuisine5')
         package.rice = request.POST.get('rice')
         package.bag = request.POST.get('bag')
+        package.souvenir = request.POST.get('souvenir')
         package.unit_price = selected_package.male_price if _type == 'Jantan' else selected_package.female_price
-        package.extra_price = (extra_price_main + extra_price_sub + extra_price_side1 + extra_price_side2 +
-                               extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 1) * int(request.POST.get('quantity')))
+        package.extra_price = ((extra_price_sub + extra_price_side1 + extra_price_side2 +
+                               extra_price_side3 + extra_price_side4 + extra_price_side5 + extra_price_rice + extra_price_bag + extra_price_box) * ((selected_package.box if selected_package.box > 0 else 1) * int(request.POST.get('quantity')))) + (extra_price_main * int(request.POST.get('quantity')))
         package.save()
 
         total = OrderPackage.objects.filter(
@@ -5397,7 +6069,7 @@ def order_package_cs_update(request, _id, _cat, _pack, _type):
         total_addon = OrderPackageAddon.objects.filter(
             order_id=_id).aggregate(order=Sum('total_price'))
         _total_addon = total_addon['order'] if total_addon['order'] else 0
-        order.total_order = total['order'] + _total_addon
+        order.total_order = total['order'] + _total_addon - order.promo_nominal
         order.save()
 
     return HttpResponseRedirect(reverse('order-view', args=[_id, '0', '0', '0', '0']))
@@ -5409,6 +6081,10 @@ def order_package_delete(request, _id, _package):
     addon = OrderPackageAddon.objects.filter(
         order_id=_id, package_id=_package)
     for i in addon:
+        i.delete()
+    souvenir = OrderPackageSouvenir.objects.filter(
+        order_id=_id, package_id=_package)
+    for i in souvenir:
         i.delete()
 
     total = OrderPackage.objects.filter(
@@ -5431,6 +6107,10 @@ def order_package_cs_delete(request, _id, _pack):
     addon = OrderPackageAddon.objects.filter(
         order_id=_id, package_id=_pack)
     for i in addon:
+        i.delete()
+    souvenir = OrderPackageSouvenir.objects.filter(
+        order_id=_id, package_id=_pack)
+    for i in souvenir:
         i.delete()
 
     total = OrderPackage.objects.filter(
@@ -5679,6 +6359,7 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         cursor.execute(
             "SELECT apps_addon.equipment_id, equipment_name, extra_price, q_addon.equipment_id, q_addon.quantity FROM apps_equipment INNER JOIN apps_addon ON apps_equipment.equipment_id = apps_addon.equipment_id LEFT JOIN (SELECT * FROM apps_orderpackageaddon WHERE order_id = '" + str(_id) + "' AND package_id = '" + str(_pack) + "') AS q_addon ON apps_addon.equipment_id = q_addon.equipment_id WHERE apps_addon.package_id = '" + str(_pack) + "' ORDER BY equipment_name")
         addons = cursor.fetchall()
+    souvenirs = Souvenir.objects.filter(package=_pack)
     addon_order = ''
 
     _addon_order = OrderPackageAddon.objects.filter(
@@ -5703,7 +6384,6 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
 
     if request.POST:
         check = request.GET.get('checks')
-        print(check)
         qty = request.GET.get('qty')
         _ids = check.split(',')
         _qty = qty.split(',')
@@ -5768,6 +6448,7 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         'upd_package': upd_package,
         'addons': addons,
         'addon_order': addon_order,
+        'souvenirs': souvenirs,
         'box': box,
         'id': _id,
         'cat': _cat,
@@ -5829,7 +6510,8 @@ def order_cs_update(request, _id, _cat, _pack, _type):
             order.witnessed = request.POST.get('witnessed')
             order.info_source = request.POST.get('info_source')
             order.order_note = request.POST.get('order_note')
-            order.discount = int(request.POST.get('discount').replace('.', ''))
+            order.discount = int(request.POST.get('discount').replace(
+                '.', '')) if request.POST.get('discount') else 0
             promo_selected = PromoDetail.objects.get(
                 id=request.POST.get('promo')) if request.POST.get('promo') else None
             if promo_selected:
@@ -6313,7 +6995,11 @@ def order_invoice(request, _id):
 
         for cuisine in cuisines:
             if cuisine:
-                row.append(cuisine)
+                if package[i - 1].main_cuisine_price > 0 and cuisine == package[i - 1].main_cuisine:
+                    row.append(cuisine + ' (+ Rp ' +
+                               str('{:,}'.format(package[i - 1].main_cuisine_price)).replace(',', '.') + ')')
+                else:
+                    row.append(cuisine)
 
         cuisines = [package[i - 1].side_cuisine2, package[i - 1].side_cuisine3,
                     package[i - 1].side_cuisine4, package[i - 1].side_cuisine5]
@@ -6420,7 +7106,8 @@ def order_invoice(request, _id):
                                 5, y - 5, total_price_str)
 
     # Promo
-    pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
+    if order.promo:
+        pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
 
     y -= 30
     # create rectangle from first column to column 3
@@ -6749,7 +7436,11 @@ def order_bap(request, _id):
 
         for cuisine in cuisines:
             if cuisine:
-                row.append(cuisine)
+                if package[i - 1].main_cuisine_price > 0:
+                    row.append(cuisine + ' (+ Rp ' +
+                               str('{:,}'.format(package[i - 1].main_cuisine_price)).replace(',', '.') + ')')
+                else:
+                    row.append(cuisine)
 
         for j in range(0, len(row)):
             str_cuisine += row[j] + ' - '
@@ -6793,7 +7484,8 @@ def order_bap(request, _id):
         pdf_file.drawString(200, y - 5, str_addon)
 
         # Promo
-        pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
+        if order.promo:
+            pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
 
         pdf_file.rect(375, y - 15, 30, 50, stroke=True)
         pdf_file.setFont("Helvetica", 8)
@@ -7067,92 +7759,98 @@ def order_checklist(request, _id):
         pdf_file.drawString(140, y, 'DI ISI OLEH CHECKER')
         y -= 10
         pdf_file.line(35, y, page_width - 35, y)
+        pdf_file.setFont("Helvetica", 8)
+
         rice = package[i].rice
         if rice:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
-            pdf_file.setFont("Helvetica", 8)
             pdf_file.drawString(
                 140, y + 5, rice)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
-        if package[0].main_cuisine:
+        if package[i].main_cuisine:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
-            pdf_file.drawString(140, y + 5, package[0].main_cuisine)
+            pdf_file.drawString(140, y + 5, package[i].main_cuisine)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
-        if package[0].sub_cuisine:
+        if package[i].sub_cuisine:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
-            pdf_file.drawString(140, y + 5, package[0].sub_cuisine)
+            pdf_file.drawString(140, y + 5, package[i].sub_cuisine)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
-        if package[0].side_cuisine1:
+        if package[i].side_cuisine1:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
-            pdf_file.drawString(140, y + 5, package[0].side_cuisine1)
+            pdf_file.drawString(140, y + 5, package[i].side_cuisine1)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
-        if package[0].side_cuisine2:
+        if package[i].side_cuisine2:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
-            pdf_file.drawString(140, y + 5, package[0].side_cuisine2)
+            pdf_file.drawString(140, y + 5, package[i].side_cuisine2)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
-        if package[0].side_cuisine3:
+        if package[i].side_cuisine3:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
-            pdf_file.drawString(140, y + 5, package[0].side_cuisine3)
+            pdf_file.drawString(140, y + 5, package[i].side_cuisine3)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
-        if package[0].side_cuisine4:
+        if package[i].side_cuisine4:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
-            pdf_file.drawString(140, y + 5, package[0].side_cuisine4)
+            pdf_file.drawString(140, y + 5, package[i].side_cuisine4)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
-        if package[0].side_cuisine5:
+        if package[i].side_cuisine5:
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
-            pdf_file.drawString(140, y + 5, package[0].side_cuisine5)
+            pdf_file.drawString(140, y + 5, package[i].side_cuisine5)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, 'Kerupuk')
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, 'Acar')
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, 'Mr. Jussie / Air Mineral / Kosong')
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, 'Telor Pindang / Telor Balado')
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
+
+        other = Other.objects.filter(
+            package_id=package[i].package_id)
+        if other.count() > 0:
+            for j in range(0, other.count()):
+                y -= 20
+                pdf_file.rect(40, y, 80, 15, stroke=True)
+                pdf_file.drawString(140, y + 5, str(other[j].equipment))
+                y -= 5
+                pdf_file.line(35, y, page_width - 35, y)
+
+        beverage = Beverage.objects.filter(
+            package_id=package[i].package_id, default=True)
+        if beverage.count() > 0:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, str(beverage[0].equipment))
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+
         y -= 20
         pdf_file.rect(40, y, 80, 15, stroke=True)
         pdf_file.drawString(140, y + 5, 'Sertifikat')
         y -= 5
         pdf_file.line(35, y, page_width - 35, y)
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, 'Kantong Plastik / Tas Serut')
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
-        y -= 20
-        pdf_file.rect(40, y, 80, 15, stroke=True)
-        pdf_file.drawString(140, y + 5, 'Boneka Panda / Boneka Domba / Mug')
-        y -= 5
-        pdf_file.line(35, y, page_width - 35, y)
+
+        if package[i].bag:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[i].bag)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+
+        if package[i].souvenir:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, package[i].souvenir)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+
         y -= 20
         pdf_file.rect(40, y, 80, 15, stroke=True)
         pdf_file.drawString(140, y + 5, 'BAP & Kwitansi')

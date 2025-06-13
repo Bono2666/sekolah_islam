@@ -158,7 +158,7 @@
                                         <select name="main_cuisine" class="form-control form-select-sm">
                                             <option value="">Pilih Menu Daging</option>
                                             {% for cuisine in main_cuisines %}"
-                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.main_cuisine %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if cuisine.cuisine.cuisine_name == data.main_cuisine %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/paket){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -278,8 +278,20 @@
                                     </div>
                                 </div>
                             </div>
-                            {% if addons %}
+                            {% if addons or souvenirs %}
                             <div class="row">
+                                {% if souvenirs %}
+                                <div class="col-md-6">
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="souvenir">Souvenir (Jika ada)</label>
+                                        <div class="input-group input-group-alternative">
+                                            <a class="form-control form-control-sm border" data-bs-toggle="modal" data-bs-target="#dialog-souvenir">{% if souvenir_order %}{{ souvenir_order }}{% else %}Pilih Souvenir{% endif %}</a>
+                                            <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#dialog-souvenir"><i class="fas fa-angle-down"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if addons %}
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="addon">Tambahan (Jika ada)</label>
@@ -289,6 +301,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% endif %}
                             </div>
                             {% endif %}
                             <div class="row mt-4">
@@ -387,6 +400,58 @@
             </div>
         </div>
     </div>
+
+    <div class="container">
+        <div class="modal fade" id="dialog-souvenir" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Pilih Souvenir</h5>
+                    </div>
+                    <div class="modal-body border-bottom-0">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0" id="menuTable">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Nama Item</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" hidden>
+                                            Jumlah</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pilih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in souvenirs %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ item.1 }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td hidden>
+                                            <input type="number" class="form-control-sm qty" name="qty" value="{% if item.4 %}{{ item.4 }}{% else %}1{% endif %}"/>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="cursor-pointer border checks" name="checks[]" value="{{ item.0 }}" {% if item.3 %}checked{% endif %}/>                                              
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                        <button id="save-souvenir" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 
 {% endblock content %}
@@ -400,7 +465,21 @@
     let dropdown_menu = document.getElementsByClassName('dropdown-menu');
     let c = document.querySelectorAll('.checks');
     let q = document.querySelectorAll('.qty');
+    let save_souvenir = document.getElementById('save-souvenir');
     let save = document.getElementById('save-addon');
+
+    save_souvenir.addEventListener('click', function() {
+        let check = [];
+        let qty = [];
+        c.forEach(function(checkbox, index) {
+            if (c[index].checked == true) {
+                check.push(c[index].value);
+                qty.push(q[index].value);
+            }
+        });
+        form.action = "{% url 'order-package-update' order_id data.id cat pack type 3 %}?checks=" + check + "&qty=" + qty;
+        form.submit();
+    });
 
     save.addEventListener('click', function() {
         let check = [];

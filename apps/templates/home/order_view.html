@@ -194,7 +194,7 @@
                                 <div class="col-md-3">
                                     <div class="shadow-none">
                                         <label class="form-control-label" for="id-discount">Diskon</label>
-                                        <input type="text" name="discount" id="id-discount" class="form-control form-control-sm" value="{% if crud == 'view' %}{{ data.discount|add:data.promo_nominal|intcomma }}{% else %}{{ data.discount|add:data.promo_nominal|intcomma }}{% endif %}" {% if crud == 'view' %}readonly{% endif %}>
+                                        <input type="number" min="0" required name="discount" id="id-discount" class="form-control form-control-sm" value="{% if crud == 'view' %}{{ data.discount|add:data.promo_nominal|intcomma }}{% else %}{{ data.discount|add:data.promo_nominal|intcomma }}{% endif %}" {% if crud == 'view' %}readonly{% endif %}>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -749,7 +749,7 @@
                                         <select class="form-control form-select-sm" name="main_cuisine" id="id-main-cuisine" required>
                                             <option value="">Pilih Menu Daging</option>
                                             {% for item in main_cuisines %}
-                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
+                                            <option value="{{ item.cuisine.cuisine_name }}">{{ item.cuisine.cuisine_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/paket){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -899,7 +899,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="ModalLabel">Ubah Paket</h5>
                 </div>
-                <form id="editPackForm" method="post" action="{% url 'order-package-cs-update' data.order_id cat pack type %}" enctype="multipart/form-data">
+                <form id="editPackForm" method="post" action="" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-body border-bottom-0">
                         <div class="pl-lg-0">
@@ -991,7 +991,7 @@
                                         <select class="form-control form-select-sm" name="main_cuisine" id="id-main-cuisine" required>
                                             <option value="">Pilih Menu Daging</option>
                                             {% for cuisine in main_cuisines %}
-                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.main_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/box){% endif %}</option>
+                                            <option value="{{ cuisine.cuisine.cuisine_name }}" {% if upd_package.main_cuisine == cuisine.cuisine.cuisine_name %}selected{% endif %}>{{ cuisine.cuisine.cuisine_name }}{% if cuisine.extra_price > 0 %} (+ Rp {{ cuisine.extra_price|intcomma }}/paket){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -1109,8 +1109,22 @@
                                     </div>
                                 </div>
                             </div>
-                            {% if addons %}
+                            {% if addons or souvenirs %}
                             <div class="row">
+                                {% if souvenirs %}
+                                <div class="col-md-6">
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="souvenir">Pilihan Souvenir</label>
+                                        <select name="souvenir" class="form-control form-select-sm">
+                                            <option value="">Pilih Souvenir</option>
+                                            {% for souvenir in souvenirs %}"
+                                            <option value="{{ souvenir.equipment.equipment_name }}" {% if upd_package.souvenir %}{% if souvenir.equipment.equipment_name == upd_package.souvenir %}selected{% endif %}{% else %}{% if souvenir.default == 1 %}selected{% endif %}{% endif %}>{{ souvenir.equipment.equipment_name }}{% if souvenir.extra_price > 0 %} (+ Rp {{ souvenir.extra_price|intcomma }}){% endif %}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if addons %}
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="addon">Tambahan (Jika ada)</label>
@@ -1120,6 +1134,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% endif %}
                             </div>
                             {% endif %}
                         </div>
@@ -1203,14 +1218,77 @@
     </div>
 </div>
 
+<div class="container">
+    <div class="modal fade" id="dialog-souvenir" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form id="form-souvenir" method="POST" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Pilih Souvenir</h5>
+                    </div>
+                    <div class="modal-body border-bottom-0">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0" id="menuTable">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Nama Item</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" hidden>
+                                            Jumlah</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pilih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in souvenirs %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex pe-2 py-0">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ item.1 }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td hidden>
+                                            <input type="number" class="form-control-sm qty" name="qty" value="{% if item.4 %}{{ item.4 }}{% else %}0{% endif %}"/>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="cursor-pointer border checks" name="souvenir[]" value="{{ item.0 }}" {% if item.3 %}checked{% endif %}/>                                              
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% if crud == 'view' %}
+                    <div class="modal-footer border-0">
+                        <a href="{% url 'order-view' id cat pack type crud_det %}" role="button"
+                            class="btn btn-sm bg-gradient-dark">Batal</a>
+                        <button id="save-souvenir" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                        </button>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
 {% block javascripts %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     let form = document.getElementById('form-addon');
+    let formSouvenir = document.getElementById('form-souvenir');
+    let checks = document.getElementsByName('souvenir[]');
     let c = document.querySelectorAll('.checks');
     let q = document.querySelectorAll('.qty');
+    let dialogSouvenir = document.getElementById('dialog-souvenir');
+    let dialogAddon = document.getElementById('dialog-addon');
     let save = document.getElementById('save-addon');
     let crudStatus = '{{ crud_det }}';
     const modal_add = document.getElementById('addPaket');
@@ -1223,6 +1301,19 @@
     let orderForm = document.getElementById('order-form');
     let packForm = document.getElementById('packForm');
     let editPackForm = document.getElementById('editPackForm');
+
+    save.addEventListener('click', function() {
+        let check = [];
+        let qty = [];
+        c.forEach(function(checkbox, index) {
+            if (c[index].checked == true) {
+                check.push(c[index].value);
+                qty.push(q[index].value);
+            }
+        });
+        form.action = "{% url 'order-view' id cat pack type crud_det %}?checks=" + check + "&qty=" + qty;
+        form.submit();
+    });
 
     $(document).ready(function () {
         $('#childTable').DataTable({
@@ -1260,6 +1351,7 @@
     });
 
     btnEditPaket.addEventListener('click', function () {
+        editPackForm.action = "{% url 'order-package-cs-update' data.order_id cat pack type %}";
         editPackForm.submit();
     });
 
@@ -1279,21 +1371,6 @@
         modalEdit._config.keyboard = false;
     }
 
-    if (crud == 'view') {
-        save.addEventListener('click', function() {
-            let check = [];
-            let qty = [];
-            c.forEach(function(checkbox, index) {
-                if (c[index].checked == true) {
-                    check.push(c[index].value);
-                    qty.push(q[index].value);
-                }
-            });
-            form.action = "{% url 'order-view' id cat pack type crud_det %}?checks=" + check + "&qty=" + qty;
-            form.submit();
-        });
-    }
-    
     c.forEach(function(checkbox, index) {
         checkbox.addEventListener('click', function() {
             if (c[index].checked == true) {

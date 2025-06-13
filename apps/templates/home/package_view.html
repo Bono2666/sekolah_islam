@@ -1401,6 +1401,10 @@
                 </div>
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if eq_tab == 'beverage' %}active{% endif %}" id="main-beverage-tab" data-bs-toggle="tab" data-bs-target="#main-beverage-tab-pane" type="button"
+                        role="tab" aria-controls="main-beverage-tab-pane" aria-selected="true">Minuman</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link text-sm text-body {% if eq_tab == 'bag' %}active{% endif %}" id="main-bag-tab" data-bs-toggle="tab" data-bs-target="#main-bag-tab-pane" type="button"
                         role="tab" aria-controls="main-bag-tab-pane" aria-selected="true">Kantong</button>
                     </li>
@@ -1409,11 +1413,171 @@
                         role="tab" aria-controls="main-box-tab-pane" aria-selected="false">Box</button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if eq_tab == 'souvenir' %}active{% endif %}" id="main-souvenirs-tab" data-bs-toggle="tab" data-bs-target="#main-souvenirs-tab-pane" type="button"
+                        role="tab" aria-controls="main-souvenirs-tab-pane" aria-selected="false">Souvenir</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-sm text-body {% if eq_tab == 'other' %}active{% endif %}" id="main-other-tab" data-bs-toggle="tab" data-bs-target="#main-other-tab-pane" type="button"
+                        role="tab" aria-controls="main-other-tab-pane" aria-selected="false">Lain-lain</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link text-sm text-body {% if eq_tab == 'addon' %}active{% endif %}" id="main-addon-tab" data-bs-toggle="tab" data-bs-target="#main-addon-tab-pane" type="button"
                         role="tab" aria-controls="main-addon-tab-pane" aria-selected="false">Tambahan</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade {% if eq_tab == 'beverage' %}show active{% endif %}" id="main-beverage-tab-pane" role="tabpanel" aria-labelledby="main-beverage-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#add-item" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Item</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="add-item" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Item</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-beverage-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="eqTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Item</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in beverages %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.equipment_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="beverage[]" value="{{ item.equipment_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabEq">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Item</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Default</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_beverage %}
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#editeq-{{ item.equipment_id }}"{% endif %}>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.equipment.equipment_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" class="border mt-1" name="default" value="{{ item.default}}" {% if item.default %}checked{% endif %} disabled/>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#deleteeq-{{ item.equipment_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="deleteeq-{{ item.equipment_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus pelengkap <strong>{{ item.equipment.equipment_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-beverage-delete' data.package_id item.equipment_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        <div class="modal fade" id="editeq-{{ item.equipment_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Pelengkap: {{ item.equipment }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-beverage-update' data.package_id item.equipment_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <input type="checkbox" class="border mt-1" name="default" value="{{ item.default}}" {% if item.default %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Set Default</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                     <div class="tab-pane fade {% if eq_tab == 'bag' %}show active{% endif %}" id="main-bag-tab-pane" role="tabpanel" aria-labelledby="main-bag-tab" tabindex="0">
                         <div class="row">
                             <div class="col-6 d-flex align-items-center">
@@ -1684,6 +1848,310 @@
                                                         <h5 class="modal-title" id="ModalLabel">Pelengkap: {{ item.equipment }}</h5>
                                                     </div>
                                                     <form method="post" action="{% url 'package-box-update' data.package_id item.equipment_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <input type="checkbox" class="border mt-1" name="default" value="{{ item.default}}" {% if item.default %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Set Default</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if eq_tab == 'souvenir' %}show active{% endif %}" id="main-souvenirs-tab-pane" role="tabpanel" aria-labelledby="main-souvenirs-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#add-item4" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Item</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="add-item4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Item</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-souvenirs-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="eqTable4">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Item</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in souvenirs %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.equipment_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="souvenirs[]" value="{{ item.equipment_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabEq4">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Item</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Default</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_souvenirs %}
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#editeq4-{{ item.equipment_id }}"{% endif %}>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.equipment.equipment_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" class="border mt-1" name="default" value="{{ item.default}}" {% if item.default %}checked{% endif %} disabled/>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#deleteeq4-{{ item.equipment_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade" id="deleteeq4-{{ item.equipment_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus pelengkap <strong>{{ item.equipment.equipment_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-souvenirs-delete' data.package_id item.equipment_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        <div class="modal fade" id="editeq4-{{ item.equipment_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Pelengkap: {{ item.equipment }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-souvenirs-update' data.package_id item.equipment_id %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body border-bottom-0">
+                                                            <div class="pl-lg-0">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <label class="form-control-label" for="price">Biaya Tambahan</label>
+                                                                            <input type="text" class="form-control-sm" name="price" value="{{ item.extra_price }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group shadow-none">
+                                                                            <input type="checkbox" class="border mt-1" name="default" value="{{ item.default}}" {% if item.default %}checked{% endif %}/>&nbsp;&nbsp;<label class="form-control-label">Set Default</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn bg-gradient-primary text-white {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if eq_tab == 'other' %}show active{% endif %}" id="main-other-tab-pane" role="tabpanel" aria-labelledby="main-other-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button id="myBtn" type="button" class="btn btn-sm bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#add-item5" {% if not btn.edit and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Item</button>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="add-item5" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Pilih Item</h5>
+                                    </div>
+                                    <form method="post" action="{% url 'package-other-view' data.package_id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body border-bottom-0">
+                                            <div class="table-responsive p-0">
+                                                <table class="table align-items-center mb-0" id="eqTable5">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                                Nama Item</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in others %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex pe-2 py-0">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ item.equipment_name }}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" class="cursor-pointer border" name="other[]" value="{{ item.equipment_id }}"/>                                                    
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm bg-gradient-primary text-white">Simpan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="tabEq5">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                                Nama Item</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya Tambahan</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Default</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in selected_other %}
+                                        <tr {% if crud == 'view' %}class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#editeq5-{{ item.equipment_id }}"{% endif %}>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.equipment.equipment_name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex pe-2 py-0">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ item.extra_price|intcomma }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" class="border mt-1" name="default" value="{{ item.default}}" {% if item.default %}checked{% endif %} disabled/>
+                                            </td>
+                                            <td>
+                                                <button class="btn-icon-only text-dark bg-transparent border-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#deleteeq5-{{ item.equipment_id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                            </td>
+                                            <div class="modal fade " id="deleteeq5-{{ item.equipment_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                        </div>
+                                                        <div class="modal-body border-bottom-0">
+                                                            Anda yakin akan menghapus pelengkap <strong>{{ item.equipment.equipment_name }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                            <a href="{% url 'package-other-delete' data.package_id item.equipment_id %}" role="button" class="btn bg-gradient-primary text-white">Hapus
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                        <div class="modal fade" id="editeq5-{{ item.equipment_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ModalLabel">Pelengkap: {{ item.equipment }}</h5>
+                                                    </div>
+                                                    <form method="post" action="{% url 'package-other-update' data.package_id item.equipment_id %}" enctype="multipart/form-data">
                                                         {% csrf_token %}
                                                         <div class="modal-body border-bottom-0">
                                                             <div class="pl-lg-0">
@@ -2007,6 +2475,23 @@
             }
         });
 
+        $('#tabEq').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+            'filter': false,
+            'language': {
+                'search': 'Cari: ',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'next': 'Selanjutnya',
+                    'previous': 'Sebelumnya'
+                }
+            }
+        });
+
         $('#tabEq1').DataTable({
             'pageLength': 10,
             'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
@@ -2042,6 +2527,40 @@
         });
 
         $('#tabEq3').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+            'filter': false,
+            'language': {
+                'search': 'Cari: ',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'next': 'Selanjutnya',
+                    'previous': 'Sebelumnya'
+                }
+            }
+        });
+
+        $('#tabEq4').DataTable({
+            'pageLength': 10,
+            'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+            'filter': false,
+            'language': {
+                'search': 'Cari: ',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'next': 'Selanjutnya',
+                    'previous': 'Sebelumnya'
+                }
+            }
+        });
+
+        $('#tabEq5').DataTable({
             'pageLength': 10,
             'lengthMenu': [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
             'filter': false,
@@ -2162,6 +2681,19 @@
                 }
             }
         });
+        $('#eqTable').DataTable({
+            'language': {
+                'search': 'Cari: ',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'next': 'Selanjutnya',
+                    'previous': 'Sebelumnya'
+                }
+            }
+        });
         $('#eqTable1').DataTable({
             'language': {
                 'search': 'Cari: ',
@@ -2189,6 +2721,32 @@
             }
         });
         $('#eqTable3').DataTable({
+            'language': {
+                'search': 'Cari: ',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'next': 'Selanjutnya',
+                    'previous': 'Sebelumnya'
+                }
+            }
+        });
+        $('#eqTable4').DataTable({
+            'language': {
+                'search': 'Cari: ',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'infoEmpty': '',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'next': 'Selanjutnya',
+                    'previous': 'Sebelumnya'
+                }
+            }
+        });
+        $('#eqTable5').DataTable({
             'language': {
                 'search': 'Cari: ',
                 'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
