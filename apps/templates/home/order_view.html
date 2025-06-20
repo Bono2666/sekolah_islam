@@ -867,8 +867,22 @@
                                     </div>
                                 </div>
                             </div>
-                            {% if addons %}
+                            {% if addons or souvenirs %}
                             <div class="row">
+                                {% if souvenirs %}
+                                <div class="col-md-6">
+                                    <div class="form-group shadow-none mb-0">
+                                        <label for="souvenir">Souvenir</label>
+                                        <select name="souvenir" class="form-control form-select-sm" required>
+                                            <option value="">Pilih Souvenir</option>
+                                            {% for souvenir in souvenirs %}
+                                            <option value="{{ souvenir.equipment.equipment_name }}" {% if souvenir.default == 1 %}selected{% endif %}>{{ souvenir.equipment.equipment_name }}{% if souvenir.extra_price > 0 %} (+ Rp {{ souvenir.extra_price|intcomma }}){% endif %}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if addons %}
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="addon">Tambahan (Jika ada)</label>
@@ -878,6 +892,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% endif %}
                             </div>
                             {% endif %}
                         </div>
@@ -1114,9 +1129,8 @@
                                 {% if souvenirs %}
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
-                                        <label for="souvenir">Pilihan Souvenir</label>
+                                        <label for="souvenir">Souvenir</label>
                                         <select name="souvenir" class="form-control form-select-sm">
-                                            <option value="">Pilih Souvenir</option>
                                             {% for souvenir in souvenirs %}"
                                             <option value="{{ souvenir.equipment.equipment_name }}" {% if upd_package.souvenir %}{% if souvenir.equipment.equipment_name == upd_package.souvenir %}selected{% endif %}{% else %}{% if souvenir.default == 1 %}selected{% endif %}{% endif %}>{{ souvenir.equipment.equipment_name }}{% if souvenir.extra_price > 0 %} (+ Rp {{ souvenir.extra_price|intcomma }}){% endif %}</option>
                                             {% endfor %}
