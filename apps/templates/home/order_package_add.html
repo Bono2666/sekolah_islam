@@ -112,18 +112,18 @@
                                 {% if selected_package.box > 0 %}
                                 <div class="col-md-2">
                                     <div class="shadow-none">
-                                        <label class="form-control-label" for="id-box">Box/Paket</label>
-                                        <input type="number" name="box" id="id-box" class="form-control form-control-sm" value="{{ selected_package.box }}" disabled>
+                                        <label class="form-control-label" for="id-box">Jumlah Box/Porsi per Paket</label>
+                                        <input type="number" name="box" id="id-box" class="form-control form-control-sm" value="{{ selected_package.box }}" min="1" max="{{ selected_package.box }}" required>
                                     </div>
                                 </div>
                                 {% endif %}
                                 {% if selected_package.box > 0 %}
                                 <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">
-                                        <label for="box_type">Pilihan Box</label>
+                                        <label for="box_type">Pilihan Kemasan</label>
                                         <select name="box_type" class="form-control form-select-sm" required>
                                             {% if selected_package.box > 0 %}
-                                            <option value="">Pilih Box</option>
+                                            <option value="">Pilih Kemasan</option>
                                             {% endif %}
                                             {% for box in box_types %}"
                                             <option value="{{ box.equipment.equipment_name }}" {% if box.default == 1 %}selected{% endif %}>{{ box.equipment.equipment_name }}{% if box.extra_price > 0 %} (+ Rp {{ box.extra_price|intcomma }}/box){% endif %}</option>
@@ -448,6 +448,19 @@
     let q = document.querySelectorAll('.qty');
     let save_souvenir = document.getElementById('save-souvenir');
     let save = document.getElementById('save-addon');
+    let portion = document.getElementById('id-box');
+    let box_qty = parseInt('{{ selected_package.box }}');
+
+    portion.addEventListener('change', function() {
+        if (portion.value < 1) {
+            alert('Jumlah box/porsi tidak boleh kurang dari 1');
+            portion.value = box_qty;
+        }
+        if (portion.value > box_qty) {
+            alert('Jumlah box/porsi tidak boleh lebih dari ' + box_qty);
+            portion.value = box_qty;
+        }
+    });
 
     save.addEventListener('click', function() {
         let check = [];

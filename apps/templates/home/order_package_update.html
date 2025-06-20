@@ -119,7 +119,7 @@
                                 <div class="col-md-2">
                                     <div class="shadow-none">
                                         <label class="form-control-label" for="id-box">Box/Paket</label>
-                                        <input type="number" name="box" id="id-box" class="form-control form-control-sm" value="{{ selected_package.box }}" disabled>
+                                        <input type="number" name="box" id="id-box" class="form-control form-control-sm" value="{{ selected_package.box }}" min="1" max="{{ selected_package.box }}" required>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -283,9 +283,9 @@
                                 {% if souvenirs %}
                                 <div class="col-md-6">
                                     <div class="form-group shadow-none mb-0">
-                                        <label for="souvenir">Souvenir (Jika ada)</label>
+                                        <label for="souvenir">Souvenir</label>
                                         <div class="input-group input-group-alternative">
-                                            <a class="form-control form-control-sm border" data-bs-toggle="modal" data-bs-target="#dialog-souvenir">{% if souvenir_order %}{{ souvenir_order }}{% else %}Pilih Souvenir{% endif %}</a>
+                                            <a id="souvenir" class="form-control form-control-sm border" data-bs-toggle="modal" data-bs-target="#dialog-souvenir">{% if souvenir_order %}{{ souvenir_order }}{% else %}Pilih Souvenir{% endif %}</a>
                                             <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#dialog-souvenir"><i class="fas fa-angle-down"></i></span>
                                         </div>
                                     </div>
@@ -309,7 +309,7 @@
                                     <a href="{% if first_package %}{% url 'order-child-update' order_id last_child.id 0 %}{% else %}{% url 'order-package-update' order_id prev_id prev_cat prev_pack prev_type 0 %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0 px-4"><i class="fas fa-angle-left"></i>&nbsp;&nbsp;Kembali</a>
                                 </div>
                                 <div class="col-6 text-end">
-                                    <button type="submit" class="btn btn-sm bg-gradient-warning mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
+                                    <button id="next" class="btn btn-sm bg-gradient-warning mb-0 px-4">Lanjutkan&nbsp;&nbsp;<i class="fas fa-angle-right"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -467,6 +467,32 @@
     let q = document.querySelectorAll('.qty');
     let save_souvenir = document.getElementById('save-souvenir');
     let save = document.getElementById('save-addon');
+    let portion = document.getElementById('id-box');
+    let box_qty = parseInt('{{ selected_package.box }}');
+    let next = document.getElementById('next');
+    let souvenir = document.getElementById('souvenir').innerText;
+
+    next.addEventListener('click', function() {
+        if (souvenir == 'Pilih Souvenir') {
+            alert('Silakan pilih souvenir terlebih dahulu');
+            event.preventDefault();
+            return false;
+        } else {
+            form.action = "{% url 'order-package-update' order_id data.id cat pack type 0 %}";
+            form.submit();
+        }
+    });
+
+    portion.addEventListener('change', function() {
+        if (portion.value < 1) {
+            alert('Jumlah box/porsi tidak boleh kurang dari 1');
+            portion.value = box_qty;
+        }
+        if (portion.value > box_qty) {
+            alert('Jumlah box/porsi tidak boleh lebih dari ' + box_qty);
+            portion.value = box_qty;
+        }
+    });
 
     save_souvenir.addEventListener('click', function() {
         let check = [];
@@ -495,8 +521,13 @@
     });
     
     add.addEventListener('click', function() {
-        form.action = "{% url 'order-package-update' order_id data.id cat pack type 1 %}";
-        form.submit();
+        if (souvenir == 'Pilih Souvenir') {
+            alert('Silakan pilih souvenir terlebih dahulu');
+            return false;
+        } else {
+            form.action = "{% url 'order-package-update' order_id data.id cat pack type 1 %}";
+            form.submit();
+        }
     });
 
     c.forEach(function(checkbox, index) {

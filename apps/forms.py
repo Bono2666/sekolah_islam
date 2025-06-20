@@ -1315,7 +1315,7 @@ class FormOrderPackage(ModelForm):
 
     class Meta:
         model = OrderPackage
-        exclude = ['order', 'total_price', 'category', 'package', 'type', 'entry_date', 'main_cuisine', 'main_cuisine_price', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price', 'extra_price', 'rice', 'bag', 'box_type', 'upgrade', 'beverage', 'souvenir',
+        exclude = ['order', 'total_price', 'category', 'package', 'type', 'entry_date', 'main_cuisine', 'main_cuisine_price', 'sub_cuisine', 'side_cuisine1', 'side_cuisine2', 'side_cuisine3', 'side_cuisine4', 'side_cuisine5', 'unit_price', 'extra_price', 'rice', 'bag', 'box_qty', 'box_type', 'upgrade', 'beverage', 'souvenir',
                    'entry_by', 'update_date', 'update_by']
 
         widgets = {

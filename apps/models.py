@@ -1688,6 +1688,7 @@ class OrderPackage(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     type = models.CharField(max_length=10, null=True)
     quantity = models.IntegerField(default=1)
+    box_qty = models.IntegerField(default=1, null=True)
     box_type = models.CharField(max_length=50, null=True)
     main_cuisine = models.CharField(max_length=50, null=True)
     main_cuisine_price = models.DecimalField(
@@ -1701,7 +1702,7 @@ class OrderPackage(models.Model):
     rice = models.CharField(max_length=50, null=True)
     bag = models.CharField(max_length=50, null=True)
     beverage = models.CharField(max_length=50, null=True)
-    souvenir = models.CharField(max_length=50, null=True)
+    souvenir = models.CharField(max_length=50, null=True, default='')
     upgrade = models.CharField(max_length=50, null=True)
     extra_price = models.DecimalField(
         max_digits=12, decimal_places=0, default=0)
