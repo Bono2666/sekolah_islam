@@ -7106,11 +7106,13 @@ def order_invoice(request, _id):
                                 5, y - 5, total_price_str)
 
     # Promo
+    pdf_file.setFont("Helvetica-Bold", 8)
     if order.promo:
         pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
 
     y -= 30
     # create rectangle from first column to column 3
+    pdf_file.setFont("Helvetica", 8)
     pdf_file.rect(35, y, 455, 15, stroke=True)
     total_str = 'Sub Total'
     total_str_width = pdf_file.stringWidth(total_str, "Helvetica-Bold", 8)
@@ -7483,10 +7485,6 @@ def order_bap(request, _id):
                 str_addon += ', '
         pdf_file.drawString(200, y - 5, str_addon)
 
-        # Promo
-        if order.promo:
-            pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
-
         pdf_file.rect(375, y - 15, 30, 50, stroke=True)
         pdf_file.setFont("Helvetica", 8)
         # Calculate the width of the string 'quantity'
@@ -7529,6 +7527,11 @@ def order_bap(request, _id):
             total_price_str, "Helvetica", 8)
         pdf_file.drawString(490 + 65 - total_price_width -
                             5, y - 5, total_price_str)
+
+    # Promo
+    pdf_file.setFont("Helvetica-Bold", 8)
+    if order.promo:
+        pdf_file.drawString(200, y - 40, 'Promo: ' + order.promo)
 
     y -= 30
     # create rectangle from first column to column 3
