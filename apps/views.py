@@ -6850,7 +6850,7 @@ def order_invoice(request, _id):
 
     # Add regional info beside regional title with bold font
     pdf_file.setFont("Helvetica-Bold", 8)
-    pdf_file.drawString(74, 725, order.regional.area_name)
+    pdf_file.drawString(70, 725, order.regional.area_name)
     pdf_file.setFont("Helvetica", 8)
     str_address = order.regional.address if order.regional.address else ''
     address = 'Kantor : ' + str_address
@@ -7888,6 +7888,13 @@ def order_checklist(request, _id):
             y -= 20
             pdf_file.rect(40, y, 80, 15, stroke=True)
             pdf_file.drawString(140, y + 5, package[i].souvenir)
+            y -= 5
+            pdf_file.line(35, y, page_width - 35, y)
+
+        if order.promo and order.promo_nominal == 0:
+            y -= 20
+            pdf_file.rect(40, y, 80, 15, stroke=True)
+            pdf_file.drawString(140, y + 5, 'Promo: ' + order.promo)
             y -= 5
             pdf_file.line(35, y, page_width - 35, y)
 
