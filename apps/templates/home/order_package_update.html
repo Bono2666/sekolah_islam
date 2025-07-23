@@ -123,13 +123,10 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
+                                <div class="col-md-4 {% if not box_types %}d-none{% endif %}">
                                     <div class="form-group shadow-none mb-0">
-                                        <label for="box_type">Pilihan Box</label>
+                                        <label for="box_type">Pilihan Kemasan</label>
                                         <select name="box_type" class="form-control form-select-sm">
-                                            {% if selected_package.box > 0 %}
-                                            <option value="">Pilih Box</option>
-                                            {% endif %}
                                             {% for box in box_types %}"
                                             <option value="{{ box.equipment.equipment_name }}" {% if data.box_type %}{% if box.equipment.equipment_name == data.box_type %}selected{% endif %}{% else %}{% if box.default == 1 %}selected{% endif %}{% endif %}>{{ box.equipment.equipment_name }}{% if box.extra_price > 0 %} (+ Rp {{ box.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}

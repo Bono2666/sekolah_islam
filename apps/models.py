@@ -1733,6 +1733,32 @@ class OrderPackage(models.Model):
         super(OrderPackage, self).save(*args, **kwargs)
 
 
+class OrderLeftoverFood(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
+    leftover_food = models.CharField(max_length=50, null=True)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(
+        null=True, blank=True, auto_now=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['order', 'package', 'leftover_food'], name='unique_order_leftover_food')
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(OrderLeftoverFood, self).save(*args, **kwargs)
+
+
 class OrderPackageSouvenir(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     package = models.ForeignKey(Package, on_delete=models.CASCADE)

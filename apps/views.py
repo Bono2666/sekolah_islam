@@ -1974,7 +1974,7 @@ def package_sidecuisine2_view(request, _id):
         package_id=_id).values_list('equipment_id', flat=True))
     beverages = Equipment.objects.all().exclude(equipment_id__in=Beverage.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
-    souviners = Equipment.objects.all().exclude(equipment_id__in=Souviner.objects.filter(
+    souvenirs = Equipment.objects.all().exclude(equipment_id__in=Souvenir.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
     others = Equipment.objects.all().exclude(equipment_id__in=Other.objects.filter(
         package_id=_id).values_list('equipment_id', flat=True))
@@ -2024,7 +2024,7 @@ def package_sidecuisine2_view(request, _id):
         'beverages': beverages,
         'eqs': eqs,
         'box': box,
-        'souviner': souviners,
+        'souvenir': souvenirs,
         'others': others,
         'addons': addons,
         'notif': order_notification(request),
@@ -6334,6 +6334,7 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
         min=Min('promo_limit'))
     child = OrderChild.objects.filter(order_id=_id)
     package = OrderPackage.objects.filter(order_id=_id)
+    leftoverfood = OrderLeftoverFood.objects.filter(order_id=_id)
     form = FormOrderView(instance=order)
     formChild = FormOrderChild()
     category = Category.objects.all()
@@ -6374,11 +6375,11 @@ def order_view(request, _id, _cat, _pack, _type, _crud):
     promos = Promo.objects.filter(promo_limit__gt=0).order_by('-promo_limit')
     got_promo = False
     gifts = None
-    if order.total_order >= min_promo['min'] and pack_order.count() > 0:
+    if (order.total_order + order.promo_nominal) >= min_promo['min'] and pack_order.count() > 0:
         got_promo = True
 
         for i in promos:
-            if order.total_order >= i.promo_limit:
+            if (order.total_order + order.promo_nominal) >= i.promo_limit:
                 gifts = PromoDetail.objects.filter(promo_id=i.promo_id)
                 break
 
@@ -6484,11 +6485,11 @@ def order_cs_update(request, _id, _cat, _pack, _type):
     promos = Promo.objects.filter(promo_limit__gt=0).order_by('-promo_limit')
     got_promo = False
     gifts = None
-    if order.total_order >= min_promo['min'] and pack_order.count() > 0:
+    if (order.total_order + order.promo_nominal) >= min_promo['min'] and pack_order.count() > 0:
         got_promo = True
 
         for i in promos:
-            if order.total_order >= i.promo_limit:
+            if (order.total_order + order.promo_nominal) >= i.promo_limit:
                 gifts = PromoDetail.objects.filter(promo_id=i.promo_id)
                 break
 

@@ -117,12 +117,12 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                {% if selected_package.box > 0 %}
+                                {% if box_types %}
                                 <div class="col-md-4">
                                     <div class="form-group shadow-none mb-0">
                                         <label for="box_type">Pilihan Kemasan</label>
                                         <select name="box_type" class="form-control form-select-sm" required>
-                                            {% if selected_package.box > 0 %}
+                                            {% if box_types %}
                                             <option value="">Pilih Kemasan</option>
                                             {% endif %}
                                             {% for box in box_types %}"

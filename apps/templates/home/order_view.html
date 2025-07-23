@@ -215,7 +215,7 @@
                                 <div class="col-md-4">
                                     <div class="shadow-none">
                                         <label class="form-control-label" for="input-promo">Pilihan Promo</label>
-                                        <select class="form-control form-select-sm" name="promo" id="input-promo" {% if crud == 'view' %}disabled{% endif %}>
+                                        <select class="form-control form-select-sm" name="promo" id="input-promo" {% if crud == 'view' %}disabled{% endif %} required>
                                             <option value="">Pilih promo</option>
                                             {% for item in gifts %}
                                             <option value="{{ item.id }}" {% if item.gift == data.promo %} selected {% endif %}>{{ item.gift }}</option>
@@ -261,6 +261,7 @@
                                             <option value="Repeat Order" {% if data.info_source == 'Repeat Order' %} selected {% endif %}>Repeat Order</option>
                                             <option value="Website" {% if data.info_source == 'Website' %} selected {% endif %}>Website</option>
                                             <option value="Sahabat Bumil" {% if data.info_source == 'Sahabat Bumil' %} selected {% endif %}>Sahabat Bumil</option>
+                                            <option value="Google Maps" {% if data.info_source == 'Google Maps' %} selected {% endif %}>Google Maps</option>
                                         </select>
                                     </div>
                                 </div>
@@ -544,7 +545,7 @@
         </div>
         {% endif %}
         <div class="col-12">
-            <div class="card mb-5 p-4 {% if request|is_mobile %}z-index-0{% endif %}">
+            <div class="card mb-1 p-4 {% if request|is_mobile %}z-index-0{% endif %}">
                 <div class="row mb-3">
                     <div class="col-6 d-flex align-items-center">
                         <h5 class="mb-2">Paket Aqiqah</h5>
@@ -715,12 +716,12 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
+                                <div class="col-md-4 {% if not box %}d-none{% endif %}">
                                     <div class="shadow-none">
-                                        <label class="form-control-label" for="id-box-type">Pilihan Box</label>
+                                        <label class="form-control-label" for="id-box-type">Pilihan Kemasan</label>
                                         <select class="form-control form-select-sm" name="box_type" id="id-box-type" required>
-                                            {% if selected_package.box > 0 %}
-                                            <option value="">Pilih Box</option>
+                                            {% if box %}
+                                            <option value="">Pilih Kemasan</option>
                                             {% endif %}
                                             {% for item in box %}
                                             <option value="{{ item.equipment.equipment_name }}" {% if item.default == 1 %}selected{% endif %}>{{ item.equipment.equipment_name }}{% if item.extra_price > 0 %} (+ Rp {{ item.extra_price|intcomma }}/box){% endif %}</option>
@@ -972,13 +973,10 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                <div class="col-md-4 {% if selected_package.box < 1 or not selected_package.box %}d-none{% endif %}">
+                                <div class="col-md-4 {% if not box %}d-none{% endif %}">
                                     <div class="shadow-none">
-                                        <label class="form-control-label" for="id-box-type">Pilihan Box</label>
+                                        <label class="form-control-label" for="id-box-type">Pilihan Kemasan</label>
                                         <select class="form-control form-select-sm" name="box_type" id="id-box-type" required>
-                                            {% if selected_package.box > 0 %}
-                                            <option value="">Pilih Box</option>
-                                            {% endif %}
                                             {% for item_box in box %}
                                             <option value="{{ item_box.equipment.equipment_name }}" {% if upd_package.box_type %}{% if item_box.equipment.equipment_name == upd_package.box_type %}selected{% endif %}{% else %}{% if item_box.default == 1 %}selected{% endif %}{% endif %}>{{ item_box.equipment.equipment_name }}{% if item_box.extra_price > 0 %} (+ Rp {{ item_box.extra_price|intcomma }}/box){% endif %}</option>
                                             {% endfor %}
@@ -1164,6 +1162,93 @@
     </div>
 </div>
 
+{% for item in package %}
+<div class="container-fluid py-2">
+    <div class="row">
+        {% if message %}
+        <div class="alert text-danger text-bg-light" role="alert">
+            {{ message }}
+        </div>
+        {% endif %}
+        <div class="col-12">
+            <div class="card {% if forloop.last %}mb-6{% else %}mb-1{% endif %} p-4 {% if request|is_mobile %}z-index-0{% endif %}">
+                <div class="row mb-0">
+                    <div class="col-6 d-flex align-items-center">
+                        <h5 class="mb-0">Sisa Masakan</h5>
+                    </div>
+                    <div class="col-6 text-end">
+                        {% if request|is_mobile %}
+                        <div class="dropdown float-lg-end pe-2" {% if status == 'BATAL' or status == 'SELESAI' %}hidden{% else %}{% if not btn.edit and not request.user.is_superuser %}hidden{% endif %} {% if crud == 'update' %}hidden{% endif %}{% endif %}>
+                            <a class="cursor-pointer text-body" id="dropdownPaket" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                            <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5 z-index-3" aria-labelledby="dropdownPaket">
+                                <li><a class="dropdown-item border-radius-md" data-bs-toggle="modal" href="#addPaket">Tambah Item</a></li>
+                            </ul>
+                        </div>
+                        {% else %}
+                        <button type="button" class="btn btn-sm bg-gradient-dark mb-0 {% if status == 'BATAL' or status == 'SELESAI' %}disabled{% else %}{% if not btn.edit and not request.user.is_superuser %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#addPaket"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Item</button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h6 class="text-secondary text-xs mb-2">{{ item.category.category_name }} - {{ item.package.package_name }}</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-1">
+                    <div class="table-responsive p-0">
+                        <table class="table {% if crud == 'view' %}hover{% endif %} align-items-center mb-0" id="leftoverTable{{ forloop.counter }}">
+                            <thead>
+                                <tr>
+                                    <th class="mb-0 text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        Sisa Masakan</th>
+                                    <th class="mb-0 text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in package %}
+                                <tr {% if crud == 'view' %}class="cursor-pointer" data-href="{% url 'order-view' item.order_id item.category_id item.package_id item.type item.id %}"{% endif %}>
+                                    <td>
+                                        <div class="d-flex pe-2 py-0">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-xs">{{ item.category.category_name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn-icon-only text-dark bg-transparent border-0 p-0 m-0" data-bs-toggle="modal" {% if btn.edit or request.user.is_superuser %}data-bs-target="#delpack-{{ item.id }}"{% else %}disabled{% endif %} {% if crud == 'update' %}disabled{% endif %} {% if data.order_status == 'BATAL' or data.order_status == 'SELESAI' %}disabled{% endif %} {% if package|length == 1 %}disabled{% endif %}><i class="fas fa-times-circle"></i></button>
+                                    </td>
+                                    <div class="modal fade" id="delpack-{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                                </div>
+                                                <div class="modal-body border-bottom-0">
+                                                    Anda yakin akan menghapus pesanan paket <strong>{{ item.package.package_name }}</strong>?
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button role="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                                    <a href="{% url 'order-package-cs-delete' data.order_id item.package_id %}" role="button" class="btn bg-gradient-warning text-white">Hapus
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 <div class="container">
     <div class="modal fade" id="dialog-addon" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
@@ -1315,6 +1400,16 @@
     let orderForm = document.getElementById('order-form');
     let packForm = document.getElementById('packForm');
     let editPackForm = document.getElementById('editPackForm');
+    let gotPromo = '{{ got_promo }}';
+    let inputPromo = document.getElementById('input-promo');
+    let cat = '{{ cat }}';
+    let pack = '{{ pack }}';
+    let type = '{{ type }}';
+    let crud = '{{ crud }}';
+
+    if (gotPromo && inputPromo.value == '' && cat == '0' && pack == '0' && type == '0' && crudStatus == '0' && crud == 'view') {
+        alert('Anda belum memilih hadiah promo. Silakan pilih hadiah promo.');
+    }
 
     save.addEventListener('click', function() {
         let check = [];
@@ -1344,6 +1439,46 @@
             'paging': false,
             'info': false,
             'cell-border': true,
+        });
+        $('#leftoverTable1').DataTable({
+            'searching': false,
+            'lengthChange': false,
+            'paging': false,
+            'info': false,
+            'cell-border': true,
+            'order': [[0, 'asc']],
+        });
+        $('#leftoverTable2').DataTable({
+            'searching': false,
+            'lengthChange': false,
+            'paging': false,
+            'info': false,
+            'cell-border': true,
+            'order': [[0, 'asc']],
+        });
+        $('#leftoverTable3').DataTable({
+            'searching': false,
+            'lengthChange': false,
+            'paging': false,
+            'info': false,
+            'cell-border': true,
+            'order': [[0, 'asc']],
+        });
+        $('#leftoverTable4').DataTable({
+            'searching': false,
+            'lengthChange': false,
+            'paging': false,
+            'info': false,
+            'cell-border': true,
+            'order': [[0, 'asc']],
+        });
+        $('#leftoverTable5').DataTable({
+            'searching': false,
+            'lengthChange': false,
+            'paging': false,
+            'info': false,
+            'cell-border': true,
+            'order': [[0, 'asc']],
         });
     });
 
