@@ -4532,7 +4532,7 @@ def claim_print(request, _id):
     pdf_file.setFont('Helvetica-Bold', 11)
 
     # Add logo in the center of the page
-    logo_path = 'https://aqiqahon.sahabataqiqah.co.id/apps/static/img/logo.png'
+    logo_path = 'https://sekolah.ksisolusi.com/apps/static/img/logo.png'
     logo_width = 60
     logo_height = 60
     page_width = landscape(A4)

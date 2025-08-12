@@ -4,7 +4,7 @@
   <div class="sidenav-header">
     <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
     <a class="navbar-brand button cursor-pointer m-0 pt-4" {% if crud != 'add' and crud != 'update' %}href="{% url 'home' %}"{% endif %}>
-      <img src="https://aqiqahon.sahabataqiqah.co.id/apps/static/img/color.png" class="navbar-brand-img w-95" alt="main_logo">
+      <img src="https://sekolah.ksisolusi.com/apps/static/img/logo.png" class="navbar-brand-img w-25" alt="main_logo">
     </a>
   </div>
   <hr class="horizontal default mt-2">
@@ -32,42 +32,94 @@
         </a>
       </li> -->
       <li class="nav-item">
-        <a class="nav-link {% if 'transaction' in group_segment %}active{% endif %} {% if 'claim' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#claim-menu">
+        <a class="nav-link {% if 'santri' in group_segment %}active{% endif %} {% if 'claim' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#claim-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-            {% if 'transaction' in group_segment %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-              <title>contactless-card</title>
-              <g fill="#F7F7F7" stroke="#F7F7F7">
-                <path d="M24.865,16.814a6.976,6.976,0,0,0,0-7.628" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <path d="M21.34,14.856a2.94,2.94,0,0,0,0-3.712" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <path d="M1,25V7A2,2,0,0,1,3,5H29a2,2,0,0,1,2,2V25a2,2,0,0,1-2,2H3A2,2,0,0,1,1,25Z" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <line x1="6" y1="22" x2="18" y2="22" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
-                <line x1="22" y1="22" x2="26" y2="22" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
-                <rect x="6" y="10" width="5" height="4" fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></rect>
-                <circle cx="18" cy="13" r="1" data-stroke="none" stroke="none"></circle>
+            {% if 'santri' in group_segment %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <title>user</title>
+              <g fill="none">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M2 11C2 5.47723 6.47723 1 12 1C17.5228 1 22 5.47723 22 11C22 16.5228 17.5228 21 12 21C6.47723 21 2 16.5228 2 11Z" fill="url(#1752500502811-9294189_user_existing_0_t4csz04ye)" data-glass="origin" mask="url(#1752500502811-9294189_user_mask_s86i2afs5)"></path>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M2 11C2 5.47723 6.47723 1 12 1C17.5228 1 22 5.47723 22 11C22 16.5228 17.5228 21 12 21C6.47723 21 2 16.5228 2 11Z" fill="url(#1752500502811-9294189_user_existing_0_t4csz04ye)" data-glass="clone" filter="url(#1752500502811-9294189_user_filter_nsyh9isk4)" clip-path="url(#1752500502811-9294189_user_clipPath_1jvvjoq1t)"></path>
+                <path d="M12.4414 14C16.3397 14.0001 19.4999 17.1603 19.5 21.0586C19.5 22.1307 18.6307 23 17.5586 23H6.44141C5.36932 23 4.5 22.1307 4.5 21.0586C4.50012 17.1603 7.6603 14.0001 11.5586 14H12.4414ZM12 5C13.933 5 15.5 6.567 15.5 8.5C15.5 10.433 13.933 12 12 12C10.067 12 8.5 10.433 8.5 8.5C8.5 6.567 10.067 5 12 5Z" fill="url(#1752500502811-9294189_user_existing_1_bnqb6d6gm)" data-glass="blur"></path>
+                <path d="M17.5586 22.25V23H6.44141V22.25H17.5586ZM18.75 21.0586C18.7499 17.5745 15.9255 14.7501 12.4414 14.75H11.5586C8.07451 14.7501 5.25012 17.5745 5.25 21.0586C5.25 21.7165 5.78354 22.25 6.44141 22.25V23L6.24316 22.9902C5.26408 22.891 4.5 22.0638 4.5 21.0586C4.50012 17.1603 7.6603 14.0001 11.5586 14H12.4414L12.8047 14.0088C16.5342 14.198 19.4999 17.2821 19.5 21.0586C19.5 22.1307 18.6307 23 17.5586 23V22.25C18.2165 22.25 18.75 21.7165 18.75 21.0586Z" fill="url(#1752500502811-9294189_user_existing_2_duz35xtpd)"></path>
+                <path d="M14.75 8.5C14.75 6.98122 13.5188 5.75 12 5.75C10.4812 5.75 9.25 6.98122 9.25 8.5C9.25 10.0188 10.4812 11.25 12 11.25V12C10.067 12 8.5 10.433 8.5 8.5C8.5 6.567 10.067 5 12 5C13.933 5 15.5 6.567 15.5 8.5C15.5 10.433 13.933 12 12 12V11.25C13.5188 11.25 14.75 10.0188 14.75 8.5Z" fill="url(#1752500502811-9294189_user_existing_3_x5xjz4yjs)"></path>
+                <defs>
+                  <linearGradient id="1752500502811-9294189_user_existing_0_t4csz04ye" x1="12" y1="1" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502811-9294189_user_existing_1_bnqb6d6gm" x1="12" y1="5" x2="12" y2="23" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502811-9294189_user_existing_2_duz35xtpd" x1="12" y1="14" x2="12" y2="19.212" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502811-9294189_user_existing_3_x5xjz4yjs" x1="12" y1="5" x2="12" y2="9.054" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <filter id="1752500502811-9294189_user_filter_nsyh9isk4" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752500502811-9294189_user_clipPath_1jvvjoq1t">
+                    <path d="M12.4414 14C16.3397 14.0001 19.4999 17.1603 19.5 21.0586C19.5 22.1307 18.6307 23 17.5586 23H6.44141C5.36932 23 4.5 22.1307 4.5 21.0586C4.50012 17.1603 7.6603 14.0001 11.5586 14H12.4414ZM12 5C13.933 5 15.5 6.567 15.5 8.5C15.5 10.433 13.933 12 12 12C10.067 12 8.5 10.433 8.5 8.5C8.5 6.567 10.067 5 12 5Z" fill="url(#1752500502811-9294189_user_existing_1_bnqb6d6gm)"></path>
+                  </clipPath>
+                  <mask id="1752500502811-9294189_user_mask_s86i2afs5">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M12.4414 14C16.3397 14.0001 19.4999 17.1603 19.5 21.0586C19.5 22.1307 18.6307 23 17.5586 23H6.44141C5.36932 23 4.5 22.1307 4.5 21.0586C4.50012 17.1603 7.6603 14.0001 11.5586 14H12.4414ZM12 5C13.933 5 15.5 6.567 15.5 8.5C15.5 10.433 13.933 12 12 12C10.067 12 8.5 10.433 8.5 8.5C8.5 6.567 10.067 5 12 5Z" fill="#000"></path>
+                  </mask>
+                </defs>
               </g>
             </svg>
             {% else %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-              <title>contactless-card</title>
-              <g fill="#212121" stroke="#212121">
-                <path d="M24.865,16.814a6.976,6.976,0,0,0,0-7.628" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <path d="M21.34,14.856a2.94,2.94,0,0,0,0-3.712" fill="none" stroke="inherit" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <path d="M1,25V7A2,2,0,0,1,3,5H29a2,2,0,0,1,2,2V25a2,2,0,0,1-2,2H3A2,2,0,0,1,1,25Z" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></path>
-                <line x1="6" y1="22" x2="18" y2="22" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
-                <line x1="22" y1="22" x2="26" y2="22" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></line>
-                <rect x="6" y="10" width="5" height="4" fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" stroke-width="2"></rect>
-                <circle cx="18" cy="13" r="1" data-stroke="none" stroke="none"></circle>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <title>user</title>
+              <g fill="none">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M2 11C2 5.47723 6.47723 1 12 1C17.5228 1 22 5.47723 22 11C22 16.5228 17.5228 21 12 21C6.47723 21 2 16.5228 2 11Z" fill="url(#1752500502811-9294189_user_existing_0_t4csz04ye)" data-glass="origin" mask="url(#1752500502811-9294189_user_mask_s86i2afs5)"></path>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M2 11C2 5.47723 6.47723 1 12 1C17.5228 1 22 5.47723 22 11C22 16.5228 17.5228 21 12 21C6.47723 21 2 16.5228 2 11Z" fill="url(#1752500502811-9294189_user_existing_0_t4csz04ye)" data-glass="clone" filter="url(#1752500502811-9294189_user_filter_nsyh9isk4)" clip-path="url(#1752500502811-9294189_user_clipPath_1jvvjoq1t)"></path>
+                <path d="M12.4414 14C16.3397 14.0001 19.4999 17.1603 19.5 21.0586C19.5 22.1307 18.6307 23 17.5586 23H6.44141C5.36932 23 4.5 22.1307 4.5 21.0586C4.50012 17.1603 7.6603 14.0001 11.5586 14H12.4414ZM12 5C13.933 5 15.5 6.567 15.5 8.5C15.5 10.433 13.933 12 12 12C10.067 12 8.5 10.433 8.5 8.5C8.5 6.567 10.067 5 12 5Z" fill="url(#1752500502811-9294189_user_existing_1_bnqb6d6gm)" data-glass="blur"></path>
+                <path d="M17.5586 22.25V23H6.44141V22.25H17.5586ZM18.75 21.0586C18.7499 17.5745 15.9255 14.7501 12.4414 14.75H11.5586C8.07451 14.7501 5.25012 17.5745 5.25 21.0586C5.25 21.7165 5.78354 22.25 6.44141 22.25V23L6.24316 22.9902C5.26408 22.891 4.5 22.0638 4.5 21.0586C4.50012 17.1603 7.6603 14.0001 11.5586 14H12.4414L12.8047 14.0088C16.5342 14.198 19.4999 17.2821 19.5 21.0586C19.5 22.1307 18.6307 23 17.5586 23V22.25C18.2165 22.25 18.75 21.7165 18.75 21.0586Z" fill="url(#1752500502811-9294189_user_existing_2_duz35xtpd)"></path>
+                <path d="M14.75 8.5C14.75 6.98122 13.5188 5.75 12 5.75C10.4812 5.75 9.25 6.98122 9.25 8.5C9.25 10.0188 10.4812 11.25 12 11.25V12C10.067 12 8.5 10.433 8.5 8.5C8.5 6.567 10.067 5 12 5C13.933 5 15.5 6.567 15.5 8.5C15.5 10.433 13.933 12 12 12V11.25C13.5188 11.25 14.75 10.0188 14.75 8.5Z" fill="url(#1752500502811-9294189_user_existing_3_x5xjz4yjs)"></path>
+                <defs>
+                  <linearGradient id="1752500502811-9294189_user_existing_0_t4csz04ye" x1="12" y1="1" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502811-9294189_user_existing_1_bnqb6d6gm" x1="12" y1="5" x2="12" y2="23" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502811-9294189_user_existing_2_duz35xtpd" x1="12" y1="14" x2="12" y2="19.212" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502811-9294189_user_existing_3_x5xjz4yjs" x1="12" y1="5" x2="12" y2="9.054" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <filter id="1752500502811-9294189_user_filter_nsyh9isk4" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752500502811-9294189_user_clipPath_1jvvjoq1t">
+                    <path d="M12.4414 14C16.3397 14.0001 19.4999 17.1603 19.5 21.0586C19.5 22.1307 18.6307 23 17.5586 23H6.44141C5.36932 23 4.5 22.1307 4.5 21.0586C4.50012 17.1603 7.6603 14.0001 11.5586 14H12.4414ZM12 5C13.933 5 15.5 6.567 15.5 8.5C15.5 10.433 13.933 12 12 12C10.067 12 8.5 10.433 8.5 8.5C8.5 6.567 10.067 5 12 5Z" fill="url(#1752500502811-9294189_user_existing_1_bnqb6d6gm)"></path>
+                  </clipPath>
+                  <mask id="1752500502811-9294189_user_mask_s86i2afs5">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M12.4414 14C16.3397 14.0001 19.4999 17.1603 19.5 21.0586C19.5 22.1307 18.6307 23 17.5586 23H6.44141C5.36932 23 4.5 22.1307 4.5 21.0586C4.50012 17.1603 7.6603 14.0001 11.5586 14H12.4414ZM12 5C13.933 5 15.5 6.567 15.5 8.5C15.5 10.433 13.933 12 12 12C10.067 12 8.5 10.433 8.5 8.5C8.5 6.567 10.067 5 12 5Z" fill="#000"></path>
+                  </mask>
+                </defs>
               </g>
             </svg>
             {% endif %}
           </div>
-          <span class="nav-link-text ms-1">Transaksi{% if notif > 0 %}<span class="badge bg-gradient-danger rounded-pill p-1 ms-2"><span class="visually-hidden"></span></span>{% endif %}</span>
+          <span class="nav-link-text ms-1">Santri{% if notif > 0 %}<span class="badge bg-gradient-danger rounded-pill p-1 ms-2"><span class="visually-hidden"></span></span>{% endif %}</span>
         </a>
 
-        <div class="multi-level ms-5 collapse {% if 'transaction' in group_segment %}show{% endif %}" role="list" id="claim-menu" aria-expanded="{% if 'claim' in group_segment %}true{% else %}false{% endif %}">
+        <div class="multi-level ms-5 collapse {% if 'santri' in group_segment %}show{% endif %}" role="list" id="claim-menu" aria-expanded="{% if 'claim' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
-            <li class="nav-item {% if segment == 'order' %}active{% endif %} list-unstyled">
+            <!-- <li class="nav-item {% if segment == 'order' %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'order-index' 'all' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}">Pemesanan{% if notif > 0 %}<span class="badge bg-gradient-danger rounded-pill badge-notification ms-2">{{ notif }}</span>{% endif %}</span>
               </a>
@@ -76,39 +128,93 @@
               <a class="nav-link button cursor-pointer {% if 'FORM' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'form-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'FORM' not in role and not request.user.is_superuser %}disabled{% endif %}">Form</span>
               </a>
-            </li>
+            </li> -->
           </ul>
         </div>
       </li>
       <li class="nav-item">
-        <a class="nav-link {% if 'accounting' in group_segment %}active{% endif %} {% if 'accounting' not in group_segment %}collapsed{% endif %}" href="#accounting-menu" data-bs-toggle="collapse" data-bs-target="#accounting-menu" aria-controls="accounting-menu" role="button">
+        <a class="nav-link {% if 'kurikulum' in group_segment %}active{% endif %} {% if 'kurikulum' not in group_segment %}collapsed{% endif %}" href="#kurikulum-menu" data-bs-toggle="collapse" data-bs-target="#kurikulum-menu" aria-controls="kurikulum-menu" role="button">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-            {% if 'accounting' in group_segment %}
+            {% if 'kurikulum' in group_segment %}
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <title>Accounting</title>
+              <title>book-open</title>
               <g fill="none">
-                <path d="M11.5 17.1c-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79z" fill="#F7F7F7"></path>
+                <path d="M19.8 7C20.9201 7 21.4802 7 21.908 7.21799C22.2843 7.40973 22.5903 7.7157 22.782 8.09202C23 8.51984 23 9.0799 23 10.2V14.6C23 16.8402 23 17.9603 22.564 18.816C22.1805 19.5686 21.5686 20.1805 20.816 20.564C19.9603 21 18.8402 21 16.6 21C16.0003 21 15.3477 20.9253 14.7546 21.031C14.3513 21.1029 14.0296 21.3136 13.6938 21.5374C13.4363 21.7091 13.1783 21.93 12.8727 21.9845C12.7857 22 12.6956 22 12.5156 22H11.4844C11.3044 22 11.2143 22 11.1273 21.9845C10.8217 21.93 10.5637 21.7091 10.3062 21.5374C9.97044 21.3136 9.64872 21.1029 9.24542 21.031C8.65232 20.9253 7.99966 21 7.4 21C5.15979 21 4.03968 21 3.18404 20.564C2.43139 20.1805 1.81947 19.5686 1.43597 18.816C1 17.9603 1 16.8402 1 14.6L1 10.2C1 9.07989 1 8.51984 1.21799 8.09202C1.40973 7.71569 1.7157 7.40973 2.09202 7.21799C2.51984 7 3.0799 7 4.2 7L19.8 7Z" fill="url(#1752500502767-6164915_book-open_existing_0_icxw9y0nx)" data-glass="origin" mask="url(#1752500502767-6164915_book-open_mask_0lsha4amw)"></path>
+                <path d="M19.8 7C20.9201 7 21.4802 7 21.908 7.21799C22.2843 7.40973 22.5903 7.7157 22.782 8.09202C23 8.51984 23 9.0799 23 10.2V14.6C23 16.8402 23 17.9603 22.564 18.816C22.1805 19.5686 21.5686 20.1805 20.816 20.564C19.9603 21 18.8402 21 16.6 21C16.0003 21 15.3477 20.9253 14.7546 21.031C14.3513 21.1029 14.0296 21.3136 13.6938 21.5374C13.4363 21.7091 13.1783 21.93 12.8727 21.9845C12.7857 22 12.6956 22 12.5156 22H11.4844C11.3044 22 11.2143 22 11.1273 21.9845C10.8217 21.93 10.5637 21.7091 10.3062 21.5374C9.97044 21.3136 9.64872 21.1029 9.24542 21.031C8.65232 20.9253 7.99966 21 7.4 21C5.15979 21 4.03968 21 3.18404 20.564C2.43139 20.1805 1.81947 19.5686 1.43597 18.816C1 17.9603 1 16.8402 1 14.6L1 10.2C1 9.07989 1 8.51984 1.21799 8.09202C1.40973 7.71569 1.7157 7.40973 2.09202 7.21799C2.51984 7 3.0799 7 4.2 7L19.8 7Z" fill="url(#1752500502767-6164915_book-open_existing_0_icxw9y0nx)" data-glass="clone" filter="url(#1752500502767-6164915_book-open_filter_dric4oey8)" clip-path="url(#1752500502767-6164915_book-open_clipPath_99y0rffwb)"></path>
+                <path d="M17.1058 2.86537C18.4374 2.56947 19.1032 2.42152 19.6257 2.59361C20.0838 2.74451 20.472 3.05589 20.7187 3.47039C21 3.94312 21 4.62513 21 5.98917L21 14.4331C21 15.349 21 15.807 20.8377 16.1849C20.6945 16.5182 20.4634 16.8063 20.1691 17.0184C19.8354 17.2588 19.3883 17.3582 18.4942 17.5568L12.3471 18.9229C12.2176 18.9517 12.1528 18.966 12.0874 18.9718C12.0292 18.9769 11.9708 18.9769 11.9126 18.9718C11.8472 18.966 11.7824 18.9517 11.6529 18.9229L5.50582 17.5568C4.6117 17.3582 4.16464 17.2588 3.83093 17.0184C3.53658 16.8063 3.30545 16.5182 3.1623 16.1849C3 15.8069 3 15.349 3 14.4331L3 5.98917C3 4.62513 3 3.94312 3.28134 3.47039C3.52803 3.05589 3.9162 2.74451 4.37434 2.59361C4.89684 2.42152 5.56262 2.56947 6.89418 2.86537L11.6529 3.92287C11.7824 3.95165 11.8472 3.96604 11.9126 3.97178C11.9708 3.97688 12.0292 3.97688 12.0874 3.97178C12.1528 3.96604 12.2176 3.95165 12.3471 3.92287L17.1058 2.86537Z" fill="url(#1752500502767-6164915_book-open_existing_1_gwnxwxu1a)" data-glass="blur"></path>
+                <path d="M20.25 5.98921C20.25 5.29355 20.2494 4.82046 20.2178 4.46088C20.1867 4.10809 20.1309 3.94983 20.0742 3.85443C19.92 3.59536 19.677 3.3999 19.3906 3.3056C19.2852 3.27098 19.1185 3.25158 18.7676 3.29778C18.4097 3.34493 17.9476 3.44668 17.2686 3.59759L12.5098 4.65521C12.3988 4.67988 12.2789 4.70764 12.1533 4.71869C12.0516 4.72761 11.9484 4.72761 11.8467 4.71869C11.7211 4.70764 11.6012 4.67988 11.4902 4.65521L6.73145 3.59759C6.05237 3.44668 5.59029 3.34493 5.23242 3.29778C4.88146 3.25158 4.71479 3.27098 4.60938 3.3056C4.32304 3.3999 4.07996 3.59536 3.92578 3.85443C3.86911 3.94983 3.81326 4.10809 3.78223 4.46088C3.75062 4.82046 3.75 5.29355 3.75 5.98921V14.4336C3.75 14.9022 3.75076 15.2137 3.76855 15.4561C3.78565 15.6887 3.81605 15.8059 3.85156 15.8887C3.94103 16.097 4.08556 16.2776 4.26953 16.4102C4.34261 16.4628 4.45054 16.5178 4.67383 16.585C4.90661 16.6549 5.21124 16.7235 5.66895 16.8252L11.8154 18.1905C11.8836 18.2056 11.9214 18.2141 11.9502 18.2198C11.9732 18.2242 11.9794 18.2247 11.9785 18.2246C11.9928 18.2259 12.0072 18.2259 12.0215 18.2246C12.0206 18.2247 12.0268 18.2242 12.0498 18.2198C12.0786 18.2141 12.1164 18.2056 12.1846 18.1905L18.3311 16.8252C18.7888 16.7235 19.0934 16.6549 19.3262 16.585C19.5495 16.5178 19.6574 16.4628 19.7305 16.4102C19.9144 16.2776 20.059 16.097 20.1484 15.8887C20.1839 15.8059 20.2143 15.6887 20.2314 15.4561C20.2492 15.2137 20.25 14.9022 20.25 14.4336V5.98921ZM21 14.4336L20.9971 15.04C20.9895 15.5728 20.9595 15.9012 20.8379 16.1846L20.7803 16.3076C20.6361 16.5891 20.4266 16.833 20.1689 17.0186L20.0381 17.1026C19.7167 17.2854 19.2765 17.3828 18.4941 17.5567L12.3467 18.9229C12.2174 18.9516 12.1523 18.966 12.0869 18.9717C12.058 18.9742 12.029 18.9756 12 18.9756L11.9131 18.9717C11.8803 18.9688 11.8473 18.964 11.8066 18.9561L11.6533 18.9229L5.50586 17.5567C4.72347 17.3828 4.28327 17.2854 3.96191 17.1026L3.83105 17.0186C3.53671 16.8065 3.30526 16.5179 3.16211 16.1846C3.04052 15.9012 3.01053 15.5728 3.00293 15.04L3 14.4336V5.98921C3 4.71045 2.99965 4.0309 3.23145 3.56146L3.28125 3.47064C3.49715 3.10787 3.82136 2.82349 4.20605 2.65715L4.37402 2.59368C4.89653 2.42158 5.56298 2.56926 6.89453 2.86516L11.6533 3.92279C11.7826 3.95152 11.8477 3.96588 11.9131 3.97162C11.9709 3.97666 12.0291 3.97666 12.0869 3.97162C12.1523 3.96588 12.2174 3.95152 12.3467 3.92279L17.1055 2.86516C18.437 2.56926 19.1035 2.42158 19.626 2.59368C20.084 2.74461 20.4721 3.05623 20.7188 3.47064C21 3.94336 21 4.62538 21 5.98921V14.4336Z" fill="url(#1752500502767-6164915_book-open_existing_2_8znynyepl)"></path>
+                <defs>
+                  <linearGradient id="1752500502767-6164915_book-open_existing_0_icxw9y0nx" x1="12" y1="7" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502767-6164915_book-open_existing_1_gwnxwxu1a" x1="21" y1="10.5" x2="3" y2="10.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502767-6164915_book-open_existing_2_8znynyepl" x1="12" y1="2.52" x2="12" y2="12.05" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <filter id="1752500502767-6164915_book-open_filter_dric4oey8" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752500502767-6164915_book-open_clipPath_99y0rffwb">
+                    <path d="M17.1058 2.86537C18.4374 2.56947 19.1032 2.42152 19.6257 2.59361C20.0838 2.74451 20.472 3.05589 20.7187 3.47039C21 3.94312 21 4.62513 21 5.98917L21 14.4331C21 15.349 21 15.807 20.8377 16.1849C20.6945 16.5182 20.4634 16.8063 20.1691 17.0184C19.8354 17.2588 19.3883 17.3582 18.4942 17.5568L12.3471 18.9229C12.2176 18.9517 12.1528 18.966 12.0874 18.9718C12.0292 18.9769 11.9708 18.9769 11.9126 18.9718C11.8472 18.966 11.7824 18.9517 11.6529 18.9229L5.50582 17.5568C4.6117 17.3582 4.16464 17.2588 3.83093 17.0184C3.53658 16.8063 3.30545 16.5182 3.1623 16.1849C3 15.8069 3 15.349 3 14.4331L3 5.98917C3 4.62513 3 3.94312 3.28134 3.47039C3.52803 3.05589 3.9162 2.74451 4.37434 2.59361C4.89684 2.42152 5.56262 2.56947 6.89418 2.86537L11.6529 3.92287C11.7824 3.95165 11.8472 3.96604 11.9126 3.97178C11.9708 3.97688 12.0292 3.97688 12.0874 3.97178C12.1528 3.96604 12.2176 3.95165 12.3471 3.92287L17.1058 2.86537Z" fill="url(#1752500502767-6164915_book-open_existing_1_gwnxwxu1a)"></path>
+                  </clipPath>
+                  <mask id="1752500502767-6164915_book-open_mask_0lsha4amw">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M17.1058 2.86537C18.4374 2.56947 19.1032 2.42152 19.6257 2.59361C20.0838 2.74451 20.472 3.05589 20.7187 3.47039C21 3.94312 21 4.62513 21 5.98917L21 14.4331C21 15.349 21 15.807 20.8377 16.1849C20.6945 16.5182 20.4634 16.8063 20.1691 17.0184C19.8354 17.2588 19.3883 17.3582 18.4942 17.5568L12.3471 18.9229C12.2176 18.9517 12.1528 18.966 12.0874 18.9718C12.0292 18.9769 11.9708 18.9769 11.9126 18.9718C11.8472 18.966 11.7824 18.9517 11.6529 18.9229L5.50582 17.5568C4.6117 17.3582 4.16464 17.2588 3.83093 17.0184C3.53658 16.8063 3.30545 16.5182 3.1623 16.1849C3 15.8069 3 15.349 3 14.4331L3 5.98917C3 4.62513 3 3.94312 3.28134 3.47039C3.52803 3.05589 3.9162 2.74451 4.37434 2.59361C4.89684 2.42152 5.56262 2.56947 6.89418 2.86537L11.6529 3.92287C11.7824 3.95165 11.8472 3.96604 11.9126 3.97178C11.9708 3.97688 12.0292 3.97688 12.0874 3.97178C12.1528 3.96604 12.2176 3.95165 12.3471 3.92287L17.1058 2.86537Z" fill="#000"></path>
+                  </mask>
+                </defs>
               </g>
             </svg>
             {% else %}
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <title>Accounting</title>
+              <title>book-open</title>
               <g fill="none">
-                <path d="M11.5 17.1c-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79z" fill="#212121"></path>
+                <path d="M19.8 7C20.9201 7 21.4802 7 21.908 7.21799C22.2843 7.40973 22.5903 7.7157 22.782 8.09202C23 8.51984 23 9.0799 23 10.2V14.6C23 16.8402 23 17.9603 22.564 18.816C22.1805 19.5686 21.5686 20.1805 20.816 20.564C19.9603 21 18.8402 21 16.6 21C16.0003 21 15.3477 20.9253 14.7546 21.031C14.3513 21.1029 14.0296 21.3136 13.6938 21.5374C13.4363 21.7091 13.1783 21.93 12.8727 21.9845C12.7857 22 12.6956 22 12.5156 22H11.4844C11.3044 22 11.2143 22 11.1273 21.9845C10.8217 21.93 10.5637 21.7091 10.3062 21.5374C9.97044 21.3136 9.64872 21.1029 9.24542 21.031C8.65232 20.9253 7.99966 21 7.4 21C5.15979 21 4.03968 21 3.18404 20.564C2.43139 20.1805 1.81947 19.5686 1.43597 18.816C1 17.9603 1 16.8402 1 14.6L1 10.2C1 9.07989 1 8.51984 1.21799 8.09202C1.40973 7.71569 1.7157 7.40973 2.09202 7.21799C2.51984 7 3.0799 7 4.2 7L19.8 7Z" fill="url(#1752500502767-6164915_book-open_existing_0_icxw9y0nx)" data-glass="origin" mask="url(#1752500502767-6164915_book-open_mask_0lsha4amw)"></path>
+                <path d="M19.8 7C20.9201 7 21.4802 7 21.908 7.21799C22.2843 7.40973 22.5903 7.7157 22.782 8.09202C23 8.51984 23 9.0799 23 10.2V14.6C23 16.8402 23 17.9603 22.564 18.816C22.1805 19.5686 21.5686 20.1805 20.816 20.564C19.9603 21 18.8402 21 16.6 21C16.0003 21 15.3477 20.9253 14.7546 21.031C14.3513 21.1029 14.0296 21.3136 13.6938 21.5374C13.4363 21.7091 13.1783 21.93 12.8727 21.9845C12.7857 22 12.6956 22 12.5156 22H11.4844C11.3044 22 11.2143 22 11.1273 21.9845C10.8217 21.93 10.5637 21.7091 10.3062 21.5374C9.97044 21.3136 9.64872 21.1029 9.24542 21.031C8.65232 20.9253 7.99966 21 7.4 21C5.15979 21 4.03968 21 3.18404 20.564C2.43139 20.1805 1.81947 19.5686 1.43597 18.816C1 17.9603 1 16.8402 1 14.6L1 10.2C1 9.07989 1 8.51984 1.21799 8.09202C1.40973 7.71569 1.7157 7.40973 2.09202 7.21799C2.51984 7 3.0799 7 4.2 7L19.8 7Z" fill="url(#1752500502767-6164915_book-open_existing_0_icxw9y0nx)" data-glass="clone" filter="url(#1752500502767-6164915_book-open_filter_dric4oey8)" clip-path="url(#1752500502767-6164915_book-open_clipPath_99y0rffwb)"></path>
+                <path d="M17.1058 2.86537C18.4374 2.56947 19.1032 2.42152 19.6257 2.59361C20.0838 2.74451 20.472 3.05589 20.7187 3.47039C21 3.94312 21 4.62513 21 5.98917L21 14.4331C21 15.349 21 15.807 20.8377 16.1849C20.6945 16.5182 20.4634 16.8063 20.1691 17.0184C19.8354 17.2588 19.3883 17.3582 18.4942 17.5568L12.3471 18.9229C12.2176 18.9517 12.1528 18.966 12.0874 18.9718C12.0292 18.9769 11.9708 18.9769 11.9126 18.9718C11.8472 18.966 11.7824 18.9517 11.6529 18.9229L5.50582 17.5568C4.6117 17.3582 4.16464 17.2588 3.83093 17.0184C3.53658 16.8063 3.30545 16.5182 3.1623 16.1849C3 15.8069 3 15.349 3 14.4331L3 5.98917C3 4.62513 3 3.94312 3.28134 3.47039C3.52803 3.05589 3.9162 2.74451 4.37434 2.59361C4.89684 2.42152 5.56262 2.56947 6.89418 2.86537L11.6529 3.92287C11.7824 3.95165 11.8472 3.96604 11.9126 3.97178C11.9708 3.97688 12.0292 3.97688 12.0874 3.97178C12.1528 3.96604 12.2176 3.95165 12.3471 3.92287L17.1058 2.86537Z" fill="url(#1752500502767-6164915_book-open_existing_1_gwnxwxu1a)" data-glass="blur"></path>
+                <path d="M20.25 5.98921C20.25 5.29355 20.2494 4.82046 20.2178 4.46088C20.1867 4.10809 20.1309 3.94983 20.0742 3.85443C19.92 3.59536 19.677 3.3999 19.3906 3.3056C19.2852 3.27098 19.1185 3.25158 18.7676 3.29778C18.4097 3.34493 17.9476 3.44668 17.2686 3.59759L12.5098 4.65521C12.3988 4.67988 12.2789 4.70764 12.1533 4.71869C12.0516 4.72761 11.9484 4.72761 11.8467 4.71869C11.7211 4.70764 11.6012 4.67988 11.4902 4.65521L6.73145 3.59759C6.05237 3.44668 5.59029 3.34493 5.23242 3.29778C4.88146 3.25158 4.71479 3.27098 4.60938 3.3056C4.32304 3.3999 4.07996 3.59536 3.92578 3.85443C3.86911 3.94983 3.81326 4.10809 3.78223 4.46088C3.75062 4.82046 3.75 5.29355 3.75 5.98921V14.4336C3.75 14.9022 3.75076 15.2137 3.76855 15.4561C3.78565 15.6887 3.81605 15.8059 3.85156 15.8887C3.94103 16.097 4.08556 16.2776 4.26953 16.4102C4.34261 16.4628 4.45054 16.5178 4.67383 16.585C4.90661 16.6549 5.21124 16.7235 5.66895 16.8252L11.8154 18.1905C11.8836 18.2056 11.9214 18.2141 11.9502 18.2198C11.9732 18.2242 11.9794 18.2247 11.9785 18.2246C11.9928 18.2259 12.0072 18.2259 12.0215 18.2246C12.0206 18.2247 12.0268 18.2242 12.0498 18.2198C12.0786 18.2141 12.1164 18.2056 12.1846 18.1905L18.3311 16.8252C18.7888 16.7235 19.0934 16.6549 19.3262 16.585C19.5495 16.5178 19.6574 16.4628 19.7305 16.4102C19.9144 16.2776 20.059 16.097 20.1484 15.8887C20.1839 15.8059 20.2143 15.6887 20.2314 15.4561C20.2492 15.2137 20.25 14.9022 20.25 14.4336V5.98921ZM21 14.4336L20.9971 15.04C20.9895 15.5728 20.9595 15.9012 20.8379 16.1846L20.7803 16.3076C20.6361 16.5891 20.4266 16.833 20.1689 17.0186L20.0381 17.1026C19.7167 17.2854 19.2765 17.3828 18.4941 17.5567L12.3467 18.9229C12.2174 18.9516 12.1523 18.966 12.0869 18.9717C12.058 18.9742 12.029 18.9756 12 18.9756L11.9131 18.9717C11.8803 18.9688 11.8473 18.964 11.8066 18.9561L11.6533 18.9229L5.50586 17.5567C4.72347 17.3828 4.28327 17.2854 3.96191 17.1026L3.83105 17.0186C3.53671 16.8065 3.30526 16.5179 3.16211 16.1846C3.04052 15.9012 3.01053 15.5728 3.00293 15.04L3 14.4336V5.98921C3 4.71045 2.99965 4.0309 3.23145 3.56146L3.28125 3.47064C3.49715 3.10787 3.82136 2.82349 4.20605 2.65715L4.37402 2.59368C4.89653 2.42158 5.56298 2.56926 6.89453 2.86516L11.6533 3.92279C11.7826 3.95152 11.8477 3.96588 11.9131 3.97162C11.9709 3.97666 12.0291 3.97666 12.0869 3.97162C12.1523 3.96588 12.2174 3.95152 12.3467 3.92279L17.1055 2.86516C18.437 2.56926 19.1035 2.42158 19.626 2.59368C20.084 2.74461 20.4721 3.05623 20.7188 3.47064C21 3.94336 21 4.62538 21 5.98921V14.4336Z" fill="url(#1752500502767-6164915_book-open_existing_2_8znynyepl)"></path>
+                <defs>
+                  <linearGradient id="1752500502767-6164915_book-open_existing_0_icxw9y0nx" x1="12" y1="7" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502767-6164915_book-open_existing_1_gwnxwxu1a" x1="21" y1="10.5" x2="3" y2="10.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502767-6164915_book-open_existing_2_8znynyepl" x1="12" y1="2.52" x2="12" y2="12.05" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <filter id="1752500502767-6164915_book-open_filter_dric4oey8" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752500502767-6164915_book-open_clipPath_99y0rffwb">
+                    <path d="M17.1058 2.86537C18.4374 2.56947 19.1032 2.42152 19.6257 2.59361C20.0838 2.74451 20.472 3.05589 20.7187 3.47039C21 3.94312 21 4.62513 21 5.98917L21 14.4331C21 15.349 21 15.807 20.8377 16.1849C20.6945 16.5182 20.4634 16.8063 20.1691 17.0184C19.8354 17.2588 19.3883 17.3582 18.4942 17.5568L12.3471 18.9229C12.2176 18.9517 12.1528 18.966 12.0874 18.9718C12.0292 18.9769 11.9708 18.9769 11.9126 18.9718C11.8472 18.966 11.7824 18.9517 11.6529 18.9229L5.50582 17.5568C4.6117 17.3582 4.16464 17.2588 3.83093 17.0184C3.53658 16.8063 3.30545 16.5182 3.1623 16.1849C3 15.8069 3 15.349 3 14.4331L3 5.98917C3 4.62513 3 3.94312 3.28134 3.47039C3.52803 3.05589 3.9162 2.74451 4.37434 2.59361C4.89684 2.42152 5.56262 2.56947 6.89418 2.86537L11.6529 3.92287C11.7824 3.95165 11.8472 3.96604 11.9126 3.97178C11.9708 3.97688 12.0292 3.97688 12.0874 3.97178C12.1528 3.96604 12.2176 3.95165 12.3471 3.92287L17.1058 2.86537Z" fill="url(#1752500502767-6164915_book-open_existing_1_gwnxwxu1a)"></path>
+                  </clipPath>
+                  <mask id="1752500502767-6164915_book-open_mask_0lsha4amw">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M17.1058 2.86537C18.4374 2.56947 19.1032 2.42152 19.6257 2.59361C20.0838 2.74451 20.472 3.05589 20.7187 3.47039C21 3.94312 21 4.62513 21 5.98917L21 14.4331C21 15.349 21 15.807 20.8377 16.1849C20.6945 16.5182 20.4634 16.8063 20.1691 17.0184C19.8354 17.2588 19.3883 17.3582 18.4942 17.5568L12.3471 18.9229C12.2176 18.9517 12.1528 18.966 12.0874 18.9718C12.0292 18.9769 11.9708 18.9769 11.9126 18.9718C11.8472 18.966 11.7824 18.9517 11.6529 18.9229L5.50582 17.5568C4.6117 17.3582 4.16464 17.2588 3.83093 17.0184C3.53658 16.8063 3.30545 16.5182 3.1623 16.1849C3 15.8069 3 15.349 3 14.4331L3 5.98917C3 4.62513 3 3.94312 3.28134 3.47039C3.52803 3.05589 3.9162 2.74451 4.37434 2.59361C4.89684 2.42152 5.56262 2.56947 6.89418 2.86537L11.6529 3.92287C11.7824 3.95165 11.8472 3.96604 11.9126 3.97178C11.9708 3.97688 12.0292 3.97688 12.0874 3.97178C12.1528 3.96604 12.2176 3.95165 12.3471 3.92287L17.1058 2.86537Z" fill="#000"></path>
+                  </mask>
+                </defs>
               </g>
             </svg>
             {% endif %}
           </div>
-          <span class="nav-link-text ms-1">Keuangan</span>
+          <span class="nav-link-text ms-1">Kurikulum</span>
         </a>
 
-        <div class="multi-level ms-5 collapse {% if 'accounting' in group_segment %}show{% endif %}" role="list" id="accounting-menu" aria-expanded="{% if 'accounting' in group_segment %}true{% else %}false{% endif %}">
+        <div class="multi-level ms-5 collapse {% if 'kurikulum' in group_segment %}show{% endif %}" role="list" id="kurikulum-menu" aria-expanded="{% if 'kurikulum' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
-            <li class="nav-item {% if segment == 'cash-in' %}active{% endif %} list-unstyled">
+            <!-- <li class="nav-item {% if segment == 'cash-in' %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'CASH-IN' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'cashin-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'CASH-IN' not in role and not request.user.is_superuser %}disabled{% endif %}">Uang Masuk</span>
               </a>
-            </li>
+            </li> -->
           </ul>
         </div>
       </li>
@@ -117,20 +223,80 @@
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if 'master' in group_segment %}
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <title>Master Data</title>
-              <g stroke-width="2" fill="#F7F7F7" stroke="#F7F7F7">
-                <polygon fill="none" stroke="#F7F7F7" stroke-linecap="square" stroke-miterlimit="10" points="2,7 12,1 22,7 12,13 " stroke-linejoin="miter"></polygon>
-                <polyline fill="none" stroke-linecap="square" stroke-miterlimit="10" points=" 22,12 12,18 2,12 " stroke-linejoin="miter"></polyline>
-                <polyline fill="none" stroke-linecap="square" stroke-miterlimit="10" points=" 22,17 12,23 2,17 " stroke-linejoin="miter"></polyline>
+              <title>app-stack</title>
+              <g fill="none">
+                <path d="M1 8.34944C1 7.31285 1 6.79455 1.15365 6.33311C1.28957 5.92492 1.5117 5.55074 1.80496 5.23595C2.13648 4.8801 2.59149 4.63191 3.50151 4.13554L7.26767 2.08127C8.82638 1.23107 9.60573 0.805964 10.2428 0.883876C10.7987 0.951865 11.3007 1.24983 11.6265 1.70532C12 2.22728 12 3.11503 12 4.89053V12.6506C12 13.6872 12 14.2054 11.8463 14.6669C11.7104 15.0751 11.4883 15.4493 11.195 15.764C10.8635 16.1199 10.4085 16.3681 9.49849 16.8645L5.73233 18.9187C4.17362 19.7689 3.39427 20.194 2.75721 20.1161C2.20129 20.0481 1.69935 19.7502 1.37346 19.2947C1 18.7727 1 17.885 1 16.1095V8.34944Z" fill="url(#1752500502765-1629809_app-stack_existing_0_7rc9rg3ep)" data-glass="origin" mask="url(#1752500502765-1629809_app-stack_mask_r8fdhnnhy)"></path>
+                <path d="M1 8.34944C1 7.31285 1 6.79455 1.15365 6.33311C1.28957 5.92492 1.5117 5.55074 1.80496 5.23595C2.13648 4.8801 2.59149 4.63191 3.50151 4.13554L7.26767 2.08127C8.82638 1.23107 9.60573 0.805964 10.2428 0.883876C10.7987 0.951865 11.3007 1.24983 11.6265 1.70532C12 2.22728 12 3.11503 12 4.89053V12.6506C12 13.6872 12 14.2054 11.8463 14.6669C11.7104 15.0751 11.4883 15.4493 11.195 15.764C10.8635 16.1199 10.4085 16.3681 9.49849 16.8645L5.73233 18.9187C4.17362 19.7689 3.39427 20.194 2.75721 20.1161C2.20129 20.0481 1.69935 19.7502 1.37346 19.2947C1 18.7727 1 17.885 1 16.1095V8.34944Z" fill="url(#1752500502765-1629809_app-stack_existing_0_7rc9rg3ep)" data-glass="clone" filter="url(#1752500502765-1629809_app-stack_filter_fsjf1us0i)" clip-path="url(#1752500502765-1629809_app-stack_clipPath_fd5fidq46)"></path>
+                <path d="M6.5 9.84944C6.5 8.81285 6.5 8.29455 6.65365 7.83311C6.78957 7.42492 7.0117 7.05074 7.30496 6.73595C7.63648 6.3801 8.09149 6.13191 9.00151 5.63554L12.7677 3.58127C14.3264 2.73107 15.1057 2.30596 15.7428 2.38388C16.2987 2.45187 16.8007 2.74983 17.1265 3.20532C17.5 3.72728 17.5 4.61503 17.5 6.39053V14.1506C17.5 15.1872 17.5 15.7054 17.3463 16.1669C17.2104 16.5751 16.9883 16.9493 16.695 17.264C16.3635 17.6199 15.9085 17.8681 14.9985 18.3645L11.2323 20.4187C9.67362 21.2689 8.89427 21.694 8.25721 21.6161C7.70129 21.5481 7.19935 21.2502 6.87346 20.7947C6.5 20.2727 6.5 19.385 6.5 17.6095V9.84944Z" fill="url(#1752500502765-1629809_app-stack_existing_1_1zg495t0r)" data-glass="blur"></path>
+                <path d="M15.7432 2.38348C16.2989 2.45155 16.8011 2.7495 17.127 3.20477C17.5004 3.72671 17.5 4.61505 17.5 6.39032V14.1501C17.5 15.1865 17.5002 15.7053 17.3467 16.1667L17.291 16.3181C17.1535 16.6672 16.9517 16.9881 16.6953 17.2634L16.5645 17.3932C16.3449 17.5931 16.0654 17.7693 15.6572 17.9997H14.1006L14.6396 17.7057C15.5951 17.1846 15.9176 16.9983 16.1465 16.7526C16.3663 16.5166 16.5329 16.2354 16.6348 15.9294C16.7407 15.6109 16.75 15.2382 16.75 14.1501V6.39032C16.75 5.48807 16.7488 4.86287 16.7061 4.39618C16.663 3.92695 16.5853 3.73729 16.5166 3.6413C16.3129 3.35677 15.9987 3.1701 15.6514 3.12762C15.5341 3.11341 15.3305 3.13621 14.8984 3.32294C14.4683 3.50884 13.919 3.80693 13.127 4.23895L9.36035 6.29364C8.40497 6.81476 8.08241 7.00114 7.85352 7.24677C7.63365 7.48278 7.46718 7.76398 7.36523 8.07001C7.25922 8.38856 7.25 8.7611 7.25 9.8493V17.6091C7.25 17.7997 7.25147 17.9782 7.25195 18.1452C6.96284 18.2619 6.70849 18.445 6.50488 18.6745C6.50072 18.36 6.5 18.0067 6.5 17.6091V9.8493C6.5 8.81291 6.49969 8.2941 6.65332 7.8327C6.77227 7.47559 6.95742 7.14418 7.19824 6.85614L7.30469 6.73602C7.55334 6.46917 7.87195 6.2624 8.39941 5.96649L9.00195 5.63544L12.7676 3.58075C14.3262 2.73061 15.1061 2.30559 15.7432 2.38348Z" fill="url(#1752500502765-1629809_app-stack_existing_2_nu478vkuo)"></path>
+                <path d="M12 11.3494C12 10.3128 12 9.79455 12.1537 9.33311C12.2896 8.92492 12.5117 8.55074 12.805 8.23595C13.1365 7.8801 13.5915 7.63191 14.5015 7.13554L18.2677 5.08127C19.8264 4.23107 20.6057 3.80596 21.2428 3.88388C21.7987 3.95187 22.3007 4.24983 22.6265 4.70532C23 5.22728 23 6.11503 23 7.89053V15.6506C23 16.6872 23 17.2054 22.8463 17.6669C22.7104 18.0751 22.4883 18.4493 22.195 18.764C21.8635 19.1199 21.4085 19.3681 20.4985 19.8645L16.7323 21.9187C15.1736 22.7689 14.3943 23.194 13.7572 23.1161C13.2013 23.0481 12.6993 22.7502 12.3735 22.2947C12 21.7727 12 20.885 12 19.1095V11.3494Z" fill="url(#1752500502765-1629809_app-stack_existing_3_ufuzjtqyg)"></path>
+                <defs>
+                  <linearGradient id="1752500502765-1629809_app-stack_existing_0_7rc9rg3ep" x1="6.5" y1="-.5" x2="6.5" y2="21.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502765-1629809_app-stack_existing_1_1zg495t0r" x1="12" y1="1" x2="12" y2="23" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502765-1629809_app-stack_existing_2_nu478vkuo" x1="12" y1="2.375" x2="12" y2="17.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff" stop-opacity="1"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502765-1629809_app-stack_existing_3_ufuzjtqyg" x1="17.5" y1="2.5" x2="17.5" y2="24.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <filter id="1752500502765-1629809_app-stack_filter_fsjf1us0i" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752500502765-1629809_app-stack_clipPath_fd5fidq46">
+                    <path d="M6.5 9.84944C6.5 8.81285 6.5 8.29455 6.65365 7.83311C6.78957 7.42492 7.0117 7.05074 7.30496 6.73595C7.63648 6.3801 8.09149 6.13191 9.00151 5.63554L12.7677 3.58127C14.3264 2.73107 15.1057 2.30596 15.7428 2.38388C16.2987 2.45187 16.8007 2.74983 17.1265 3.20532C17.5 3.72728 17.5 4.61503 17.5 6.39053V14.1506C17.5 15.1872 17.5 15.7054 17.3463 16.1669C17.2104 16.5751 16.9883 16.9493 16.695 17.264C16.3635 17.6199 15.9085 17.8681 14.9985 18.3645L11.2323 20.4187C9.67362 21.2689 8.89427 21.694 8.25721 21.6161C7.70129 21.5481 7.19935 21.2502 6.87346 20.7947C6.5 20.2727 6.5 19.385 6.5 17.6095V9.84944Z" fill="url(#1752500502765-1629809_app-stack_existing_1_1zg495t0r)"></path>
+                  </clipPath>
+                  <mask id="1752500502765-1629809_app-stack_mask_r8fdhnnhy">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M6.5 9.84944C6.5 8.81285 6.5 8.29455 6.65365 7.83311C6.78957 7.42492 7.0117 7.05074 7.30496 6.73595C7.63648 6.3801 8.09149 6.13191 9.00151 5.63554L12.7677 3.58127C14.3264 2.73107 15.1057 2.30596 15.7428 2.38388C16.2987 2.45187 16.8007 2.74983 17.1265 3.20532C17.5 3.72728 17.5 4.61503 17.5 6.39053V14.1506C17.5 15.1872 17.5 15.7054 17.3463 16.1669C17.2104 16.5751 16.9883 16.9493 16.695 17.264C16.3635 17.6199 15.9085 17.8681 14.9985 18.3645L11.2323 20.4187C9.67362 21.2689 8.89427 21.694 8.25721 21.6161C7.70129 21.5481 7.19935 21.2502 6.87346 20.7947C6.5 20.2727 6.5 19.385 6.5 17.6095V9.84944Z" fill="#000"></path>
+                  </mask>
+                </defs>
               </g>
             </svg>
             {% else %}
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <title>Master Data</title>
-              <g stroke-width="2" fill="#212121" stroke="#212121">
-                <polygon fill="none" stroke="#212121" stroke-linecap="square" stroke-miterlimit="10" points="2,7 12,1 22,7 12,13 " stroke-linejoin="miter"></polygon>
-                <polyline fill="none" stroke-linecap="square" stroke-miterlimit="10" points=" 22,12 12,18 2,12 " stroke-linejoin="miter"></polyline>
-                <polyline fill="none" stroke-linecap="square" stroke-miterlimit="10" points=" 22,17 12,23 2,17 " stroke-linejoin="miter"></polyline>
+              <title>app-stack</title>
+              <g fill="none">
+                <path d="M1 8.34944C1 7.31285 1 6.79455 1.15365 6.33311C1.28957 5.92492 1.5117 5.55074 1.80496 5.23595C2.13648 4.8801 2.59149 4.63191 3.50151 4.13554L7.26767 2.08127C8.82638 1.23107 9.60573 0.805964 10.2428 0.883876C10.7987 0.951865 11.3007 1.24983 11.6265 1.70532C12 2.22728 12 3.11503 12 4.89053V12.6506C12 13.6872 12 14.2054 11.8463 14.6669C11.7104 15.0751 11.4883 15.4493 11.195 15.764C10.8635 16.1199 10.4085 16.3681 9.49849 16.8645L5.73233 18.9187C4.17362 19.7689 3.39427 20.194 2.75721 20.1161C2.20129 20.0481 1.69935 19.7502 1.37346 19.2947C1 18.7727 1 17.885 1 16.1095V8.34944Z" fill="url(#1752500502765-1629809_app-stack_existing_0_7rc9rg3ep)" data-glass="origin" mask="url(#1752500502765-1629809_app-stack_mask_r8fdhnnhy)"></path>
+                <path d="M1 8.34944C1 7.31285 1 6.79455 1.15365 6.33311C1.28957 5.92492 1.5117 5.55074 1.80496 5.23595C2.13648 4.8801 2.59149 4.63191 3.50151 4.13554L7.26767 2.08127C8.82638 1.23107 9.60573 0.805964 10.2428 0.883876C10.7987 0.951865 11.3007 1.24983 11.6265 1.70532C12 2.22728 12 3.11503 12 4.89053V12.6506C12 13.6872 12 14.2054 11.8463 14.6669C11.7104 15.0751 11.4883 15.4493 11.195 15.764C10.8635 16.1199 10.4085 16.3681 9.49849 16.8645L5.73233 18.9187C4.17362 19.7689 3.39427 20.194 2.75721 20.1161C2.20129 20.0481 1.69935 19.7502 1.37346 19.2947C1 18.7727 1 17.885 1 16.1095V8.34944Z" fill="url(#1752500502765-1629809_app-stack_existing_0_7rc9rg3ep)" data-glass="clone" filter="url(#1752500502765-1629809_app-stack_filter_fsjf1us0i)" clip-path="url(#1752500502765-1629809_app-stack_clipPath_fd5fidq46)"></path>
+                <path d="M6.5 9.84944C6.5 8.81285 6.5 8.29455 6.65365 7.83311C6.78957 7.42492 7.0117 7.05074 7.30496 6.73595C7.63648 6.3801 8.09149 6.13191 9.00151 5.63554L12.7677 3.58127C14.3264 2.73107 15.1057 2.30596 15.7428 2.38388C16.2987 2.45187 16.8007 2.74983 17.1265 3.20532C17.5 3.72728 17.5 4.61503 17.5 6.39053V14.1506C17.5 15.1872 17.5 15.7054 17.3463 16.1669C17.2104 16.5751 16.9883 16.9493 16.695 17.264C16.3635 17.6199 15.9085 17.8681 14.9985 18.3645L11.2323 20.4187C9.67362 21.2689 8.89427 21.694 8.25721 21.6161C7.70129 21.5481 7.19935 21.2502 6.87346 20.7947C6.5 20.2727 6.5 19.385 6.5 17.6095V9.84944Z" fill="url(#1752500502765-1629809_app-stack_existing_1_1zg495t0r)" data-glass="blur"></path>
+                <path d="M15.7432 2.38348C16.2989 2.45155 16.8011 2.7495 17.127 3.20477C17.5004 3.72671 17.5 4.61505 17.5 6.39032V14.1501C17.5 15.1865 17.5002 15.7053 17.3467 16.1667L17.291 16.3181C17.1535 16.6672 16.9517 16.9881 16.6953 17.2634L16.5645 17.3932C16.3449 17.5931 16.0654 17.7693 15.6572 17.9997H14.1006L14.6396 17.7057C15.5951 17.1846 15.9176 16.9983 16.1465 16.7526C16.3663 16.5166 16.5329 16.2354 16.6348 15.9294C16.7407 15.6109 16.75 15.2382 16.75 14.1501V6.39032C16.75 5.48807 16.7488 4.86287 16.7061 4.39618C16.663 3.92695 16.5853 3.73729 16.5166 3.6413C16.3129 3.35677 15.9987 3.1701 15.6514 3.12762C15.5341 3.11341 15.3305 3.13621 14.8984 3.32294C14.4683 3.50884 13.919 3.80693 13.127 4.23895L9.36035 6.29364C8.40497 6.81476 8.08241 7.00114 7.85352 7.24677C7.63365 7.48278 7.46718 7.76398 7.36523 8.07001C7.25922 8.38856 7.25 8.7611 7.25 9.8493V17.6091C7.25 17.7997 7.25147 17.9782 7.25195 18.1452C6.96284 18.2619 6.70849 18.445 6.50488 18.6745C6.50072 18.36 6.5 18.0067 6.5 17.6091V9.8493C6.5 8.81291 6.49969 8.2941 6.65332 7.8327C6.77227 7.47559 6.95742 7.14418 7.19824 6.85614L7.30469 6.73602C7.55334 6.46917 7.87195 6.2624 8.39941 5.96649L9.00195 5.63544L12.7676 3.58075C14.3262 2.73061 15.1061 2.30559 15.7432 2.38348Z" fill="url(#1752500502765-1629809_app-stack_existing_2_nu478vkuo)"></path>
+                <path d="M12 11.3494C12 10.3128 12 9.79455 12.1537 9.33311C12.2896 8.92492 12.5117 8.55074 12.805 8.23595C13.1365 7.8801 13.5915 7.63191 14.5015 7.13554L18.2677 5.08127C19.8264 4.23107 20.6057 3.80596 21.2428 3.88388C21.7987 3.95187 22.3007 4.24983 22.6265 4.70532C23 5.22728 23 6.11503 23 7.89053V15.6506C23 16.6872 23 17.2054 22.8463 17.6669C22.7104 18.0751 22.4883 18.4493 22.195 18.764C21.8635 19.1199 21.4085 19.3681 20.4985 19.8645L16.7323 21.9187C15.1736 22.7689 14.3943 23.194 13.7572 23.1161C13.2013 23.0481 12.6993 22.7502 12.3735 22.2947C12 21.7727 12 20.885 12 19.1095V11.3494Z" fill="url(#1752500502765-1629809_app-stack_existing_3_ufuzjtqyg)"></path>
+                <defs>
+                  <linearGradient id="1752500502765-1629809_app-stack_existing_0_7rc9rg3ep" x1="6.5" y1="-.5" x2="6.5" y2="21.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502765-1629809_app-stack_existing_1_1zg495t0r" x1="12" y1="1" x2="12" y2="23" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502765-1629809_app-stack_existing_2_nu478vkuo" x1="12" y1="2.375" x2="12" y2="17.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff" stop-opacity="1"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502765-1629809_app-stack_existing_3_ufuzjtqyg" x1="17.5" y1="2.5" x2="17.5" y2="24.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <filter id="1752500502765-1629809_app-stack_filter_fsjf1us0i" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752500502765-1629809_app-stack_clipPath_fd5fidq46">
+                    <path d="M6.5 9.84944C6.5 8.81285 6.5 8.29455 6.65365 7.83311C6.78957 7.42492 7.0117 7.05074 7.30496 6.73595C7.63648 6.3801 8.09149 6.13191 9.00151 5.63554L12.7677 3.58127C14.3264 2.73107 15.1057 2.30596 15.7428 2.38388C16.2987 2.45187 16.8007 2.74983 17.1265 3.20532C17.5 3.72728 17.5 4.61503 17.5 6.39053V14.1506C17.5 15.1872 17.5 15.7054 17.3463 16.1669C17.2104 16.5751 16.9883 16.9493 16.695 17.264C16.3635 17.6199 15.9085 17.8681 14.9985 18.3645L11.2323 20.4187C9.67362 21.2689 8.89427 21.694 8.25721 21.6161C7.70129 21.5481 7.19935 21.2502 6.87346 20.7947C6.5 20.2727 6.5 19.385 6.5 17.6095V9.84944Z" fill="url(#1752500502765-1629809_app-stack_existing_1_1zg495t0r)"></path>
+                  </clipPath>
+                  <mask id="1752500502765-1629809_app-stack_mask_r8fdhnnhy">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M6.5 9.84944C6.5 8.81285 6.5 8.29455 6.65365 7.83311C6.78957 7.42492 7.0117 7.05074 7.30496 6.73595C7.63648 6.3801 8.09149 6.13191 9.00151 5.63554L12.7677 3.58127C14.3264 2.73107 15.1057 2.30596 15.7428 2.38388C16.2987 2.45187 16.8007 2.74983 17.1265 3.20532C17.5 3.72728 17.5 4.61503 17.5 6.39053V14.1506C17.5 15.1872 17.5 15.7054 17.3463 16.1669C17.2104 16.5751 16.9883 16.9493 16.695 17.264C16.3635 17.6199 15.9085 17.8681 14.9985 18.3645L11.2323 20.4187C9.67362 21.2689 8.89427 21.694 8.25721 21.6161C7.70129 21.5481 7.19935 21.2502 6.87346 20.7947C6.5 20.2727 6.5 19.385 6.5 17.6095V9.84944Z" fill="#000"></path>
+                  </mask>
+                </defs>
               </g>
             </svg>
             {% endif %}
@@ -145,16 +311,16 @@
                 <span class="nav-link-text ms-1 {% if 'USER' not in role and not request.user.is_superuser %}d-none{% endif %}">Pengguna</span>
               </a>
             </li>
-            <li class="nav-item {% if 'customer' in segment %}active{% endif %} list-unstyled">
+            <!-- <li class="nav-item {% if 'customer' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'customer-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}">Pelanggan</span>
               </a>
-            </li>
-            <li class="nav-item {% if 'area_sales' in segment %}active{% endif %} list-unstyled">
+            </li> -->
+            <!-- <li class="nav-item {% if 'area_sales' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'area-sales-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}">Cabang</span>
               </a>
-            </li>
+            </li> -->
             <li class="nav-item {% if 'position' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'position-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}">Posisi</span>
@@ -165,31 +331,31 @@
                 <span class="nav-link-text ms-1 {% if 'MENU' not in role and not request.user.is_superuser %}disabled{% endif %}">Menu</span>
               </a>
             </li>
-            <li class="nav-item {% if 'cuisine' in segment %}active{% endif %} list-unstyled">
+            <!-- <li class="nav-item {% if 'cuisine' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'CUISINE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'cuisine-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'CUISINE' not in role and not request.user.is_superuser %}disabled{% endif %}">Masakan</span>
               </a>
-            </li>
-            <li class="nav-item {% if 'equipment' in segment %}active{% endif %} list-unstyled">
+            </li> -->
+            <!-- <li class="nav-item {% if 'equipment' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'EQUIPMENT' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'equipment-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'EQUIPMENT' not in role and not request.user.is_superuser %}disabled{% endif %}">Pelengkap</span>
               </a>
-            </li>
-            <li class="nav-item {% if 'category' in segment %}active{% endif %} list-unstyled">
+            </li> -->
+            <!-- <li class="nav-item {% if 'category' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'CATEGORY' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'category-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'CATEGORY' not in role and not request.user.is_superuser %}disabled{% endif %}">Kategori</span>
               </a>
-            </li>
-            <li class="nav-item {% if 'package' in segment %}active{% endif %} list-unstyled">
+            </li> -->
+            <!-- <li class="nav-item {% if 'package' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'PACKAGE' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'package-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'PACKAGE' not in role and not request.user.is_superuser %}disabled{% endif %}">Paket</span>
               </a>
-            </li>
-            <li class="nav-item {% if 'promo' in segment %}active{% endif %} list-unstyled">
+            </li> -->
+            <!-- <li class="nav-item {% if 'promo' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'PROMO' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'promo-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'PROMO' not in role and not request.user.is_superuser %}disabled{% endif %}">Promo</span>
               </a>
-            </li>
+            </li> -->
           </ul>
         </div>
       </li>
