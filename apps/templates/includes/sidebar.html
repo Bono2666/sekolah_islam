@@ -566,11 +566,6 @@
                 <span class="nav-link-text ms-1 {% if 'YEAR' not in role and not request.user.is_superuser %}disabled{% endif %}">Tahun Ajaran</span>
               </a>
             </li>
-            <li class="nav-item {% if 'tingkatan' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'LEVEL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'LEVEL' not in role and not request.user.is_superuser %}disabled{% endif %}">Tingkatan</span>
-              </a>
-            </li>
             <li class="nav-item {% if 'position' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'position-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}">Posisi</span>
@@ -579,6 +574,11 @@
             <li class="nav-item {% if 'menu' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'MENU' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'menu-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'MENU' not in role and not request.user.is_superuser %}disabled{% endif %}">Menu</span>
+              </a>
+            </li>
+            <li class="nav-item {% if 'tingkatan' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'LEVEL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'LEVEL' not in role and not request.user.is_superuser %}disabled{% endif %}">Tingkatan</span>
               </a>
             </li>
             <!-- <li class="nav-item {% if 'cuisine' in segment %}active{% endif %} list-unstyled">
