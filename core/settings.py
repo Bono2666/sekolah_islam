@@ -83,12 +83,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'sekolah',
-        # 'USER': 'root',
-        # 'PASSWORD': '',
-        'NAME': 'ksis8742_sekolah',
-        'USER': 'ksis8742_sekolah',
-        'PASSWORD': 'QAceafffqo%U,Tda',
+        'NAME': 'sekolah',
+        'USER': 'root',
+        'PASSWORD': '',
+        # 'NAME': 'ksis8742_sekolah',
+        # 'USER': 'ksis8742_sekolah',
+        # 'PASSWORD': 'QAceafffqo%U,Tda',
         'HOST': 'localhost',
         'PORT': '3306',
     }
