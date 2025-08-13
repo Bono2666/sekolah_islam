@@ -23,9 +23,9 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if not self.entry_date:
             self.entry_date = timezone.now()
-            # self.entry_by = get_current_user().user_id
+            self.entry_by = get_current_user().user_id
         self.update_date = timezone.now()
-        # self.update_by = get_current_user().user_id
+        self.update_by = get_current_user().user_id
         super(User, self).save(*args, **kwargs)
 
     USERNAME_FIELD = 'user_id'

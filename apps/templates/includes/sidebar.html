@@ -32,7 +32,7 @@
         </a>
       </li> -->
       <li class="nav-item">
-        <a class="nav-link {% if 'santri' in group_segment %}active{% endif %} {% if 'claim' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#claim-menu">
+        <a class="nav-link {% if 'santri' in group_segment %}active{% endif %} {% if 'santri' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#santri-menu">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             {% if 'santri' in group_segment %}
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -117,18 +117,45 @@
           <span class="nav-link-text ms-1">Santri{% if notif > 0 %}<span class="badge bg-gradient-danger rounded-pill p-1 ms-2"><span class="visually-hidden"></span></span>{% endif %}</span>
         </a>
 
-        <div class="multi-level ms-5 collapse {% if 'santri' in group_segment %}show{% endif %}" role="list" id="claim-menu" aria-expanded="{% if 'claim' in group_segment %}true{% else %}false{% endif %}">
+        <div class="multi-level ms-5 collapse {% if 'santri' in group_segment %}show{% endif %}" role="list" id="santri-menu" aria-expanded="{% if 'santri' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
-            <!-- <li class="nav-item {% if segment == 'order' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'order-index' 'all' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'ORDER' not in role and not request.user.is_superuser %}disabled{% endif %}">Pemesanan{% if notif > 0 %}<span class="badge bg-gradient-danger rounded-pill badge-notification ms-2">{{ notif }}</span>{% endif %}</span>
+            <li class="nav-item {% if segment == 'data-santri' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'DATA-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'DATA-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}">List{% if notif > 0 %}<span class="badge bg-gradient-danger rounded-pill badge-notification ms-2">{{ notif }}</span>{% endif %}</span>
               </a>
             </li>
-            <li class="nav-item {% if 'form' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'FORM' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'form-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'FORM' not in role and not request.user.is_superuser %}disabled{% endif %}">Form</span>
+            <hr class="horizontal default mt-2">
+            <li class="nav-item {% if 'kelas-santri' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'KELAS-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'KELAS-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}">Per Kelas</span>
               </a>
-            </li> -->
+            </li>
+            <li class="nav-item {% if 'kelompok-belajar' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'KELOMPOK-BELAJAR' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'KELOMPOK-BELAJAR' not in role and not request.user.is_superuser %}disabled{% endif %}">Kelompok Belajar</span>
+              </a>
+            </li>
+            <li class="nav-item {% if 'asrama-santri' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'ASRAMA-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'ASRAMA-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}">Per Asrama</span>
+              </a>
+            </li>
+            <hr class="horizontal default mt-2">
+            <li class="nav-item {% if 'santri-tahfidz' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'SANTRI-TAHFIDZ' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'SANTRI-TAHFIDZ' not in role and not request.user.is_superuser %}disabled{% endif %}">Per Halaqoh Tafidz</span>
+              </a>
+            </li>
+            <li class="nav-item {% if 'santri-lughoh' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'SANTRI-LUGHOH' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'SANTRI-LUGHOH' not in role and not request.user.is_superuser %}disabled{% endif %}">Per Halaqoh Lughoh</span>
+              </a>
+            </li>
+            <li class="nav-item {% if 'ekskul-santri' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'EKSKUL-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'EKSKUL-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}">Per Ekskul</span>
+              </a>
+            </li>
           </ul>
         </div>
       </li>
@@ -210,11 +237,234 @@
 
         <div class="multi-level ms-5 collapse {% if 'kurikulum' in group_segment %}show{% endif %}" role="list" id="kurikulum-menu" aria-expanded="{% if 'kurikulum' in group_segment %}true{% else %}false{% endif %}">
           <ul class="flex-column nav">
-            <!-- <li class="nav-item {% if segment == 'cash-in' %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CASH-IN' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'cashin-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CASH-IN' not in role and not request.user.is_superuser %}disabled{% endif %}">Uang Masuk</span>
+            <li class="nav-item {% if segment == 'guru' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'GURU' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'GURU' not in role and not request.user.is_superuser %}disabled{% endif %}">Guru</span>
               </a>
-            </li> -->
+            </li>
+            <li class="nav-item {% if segment == 'kelas' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'KELAS' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'KELAS' not in role and not request.user.is_superuser %}disabled{% endif %}">Kelas</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'mapel' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'MAPEL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'MAPEL' not in role and not request.user.is_superuser %}disabled{% endif %}">Mata Pelajaran</span>
+              </a>
+            </li>
+            <hr class="horizontal default mt-2">
+            <li class="nav-item {% if segment == 'guru-mapel' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'GURU-MAPEL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'GURU-MAPEL' not in role and not request.user.is_superuser %}disabled{% endif %}">Guru Per Mapel</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'mapel-kelas' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'MAPEL-KELAS' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'MAPEL-KELAS' not in role and not request.user.is_superuser %}disabled{% endif %}">Mapel Per Kelas</span>
+              </a>
+            </li>
+            <hr class="horizontal default mt-2">
+            <li class="nav-item {% if segment == 'jadwal' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'JADWAL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'JADWAL' not in role and not request.user.is_superuser %}disabled{% endif %}">Jadwal Pelajaran</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if 'keasramaan' in group_segment %}active{% endif %} {% if 'keasramaan' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#keasramaan-menu">
+          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <title>house</title>
+              <g fill="none">
+                <path d="M6.5 17V21.5L8 22H16L17.5 21.5V17C17.5 15.6044 17.5 14.9067 17.3278 14.3389C16.94 13.0605 15.9395 12.06 14.6611 11.6722C14.0933 11.5 13.3956 11.5 12 11.5C10.6044 11.5 9.90666 11.5 9.33886 11.6722C8.06046 12.06 7.06004 13.0605 6.67224 14.3389C6.5 14.9067 6.5 15.6044 6.5 17Z" fill="url(#1752671328338-9050610_house_existing_0_v2eav1cim)" data-glass="origin" mask="url(#1752671328338-9050610_house_mask_tg62ji6mp)"></path>
+                <path d="M6.5 17V21.5L8 22H16L17.5 21.5V17C17.5 15.6044 17.5 14.9067 17.3278 14.3389C16.94 13.0605 15.9395 12.06 14.6611 11.6722C14.0933 11.5 13.3956 11.5 12 11.5C10.6044 11.5 9.90666 11.5 9.33886 11.6722C8.06046 12.06 7.06004 13.0605 6.67224 14.3389C6.5 14.9067 6.5 15.6044 6.5 17Z" fill="url(#1752671328338-9050610_house_existing_0_v2eav1cim)" data-glass="clone" filter="url(#1752671328338-9050610_house_filter_dvnu6r4iw)" clip-path="url(#1752671328338-9050610_house_clipPath_vy87feemr)"></path>
+                <path d="M11.0322 1.50133C11.6675 1.34298 12.3325 1.34298 12.9678 1.50133C13.6868 1.68063 14.348 2.14335 15.6699 3.06871L19.2705 5.58922C20.2694 6.28846 20.7688 6.63837 21.1299 7.09215C21.4497 7.49408 21.6891 7.95418 21.835 8.44664C21.9997 9.00276 22 9.61276 22 10.8324V15.6C22 17.8399 22.0003 18.9602 21.5645 19.8158C21.181 20.5683 20.5689 21.1803 19.8164 21.5638C19.0133 21.973 17.9767 21.9969 16 21.9984V17.0004C16 15.6002 16 14.8994 15.7275 14.3646C15.4878 13.8943 15.1051 13.5124 14.6348 13.2728C14.1 13.0003 13.4001 13.0004 12 13.0004C10.5999 13.0004 9.90001 13.0003 9.36523 13.2728C8.89493 13.5124 8.51215 13.8943 8.27246 14.3646C7.99998 14.8994 8 15.6002 8 17.0004V21.9984C6.0233 21.9969 4.98673 21.973 4.18359 21.5638C3.43114 21.1803 2.81897 20.5683 2.43555 19.8158C1.99972 18.9602 2 17.8399 2 15.6V10.8324C2 9.61276 2.00032 9.00276 2.16504 8.44664C2.31093 7.95418 2.55034 7.49408 2.87012 7.09215C3.23121 6.63837 3.73058 6.28846 4.72949 5.58922L8.33008 3.06871C9.65203 2.14335 10.3132 1.68063 11.0322 1.50133Z" fill="url(#1752671328338-9050610_house_existing_1_hph1t9f95)" data-glass="blur"></path>
+                <path d="M21.25 10.8328C21.25 9.56845 21.2427 9.08718 21.1162 8.6599C20.9977 8.25971 20.8026 7.88575 20.543 7.55931C20.2655 7.21064 19.8764 6.92872 18.8408 6.20385L15.2402 3.68334C13.8675 2.72245 13.3378 2.36681 12.7861 2.22924C12.2701 2.10064 11.7299 2.10064 11.2139 2.22924C10.6622 2.36681 10.1325 2.72245 8.75977 3.68334L5.15918 6.20385C4.12365 6.92872 3.73448 7.21064 3.45703 7.55931C3.19735 7.88575 3.00235 8.25971 2.88379 8.6599C2.75731 9.08718 2.75 9.56845 2.75 10.8328V15.6003C2.75 16.7324 2.75044 17.5364 2.80176 18.1658C2.85238 18.7863 2.9485 19.1709 3.10352 19.4753L3.22949 19.699C3.54173 20.2079 3.98942 20.6226 4.52441 20.8953C4.60666 20.9371 4.83675 21.0033 5.23145 21.0632C5.5978 21.1189 6.02662 21.159 6.44336 21.1872C6.85801 21.2154 7.25018 21.2312 7.53906 21.24C7.68323 21.2443 7.80143 21.2463 7.88281 21.2478C7.92317 21.2485 7.95451 21.2495 7.97559 21.2497H16.0244C16.0455 21.2495 16.0768 21.2485 16.1172 21.2478C16.1986 21.2463 16.3168 21.2443 16.4609 21.24C16.7498 21.2312 17.142 21.2154 17.5566 21.1872C17.9734 21.159 18.4022 21.1189 18.7686 21.0632C19.1632 21.0033 19.3933 20.9371 19.4756 20.8953C20.087 20.5836 20.585 20.0867 20.8965 19.4753L20.9512 19.3572C21.0742 19.0712 21.1539 18.709 21.1982 18.1658C21.2496 17.5364 21.25 16.7324 21.25 15.6003V10.8328ZM22 15.6003L21.9932 17.0837C21.9728 18.3837 21.8913 19.1745 21.5645 19.8162L21.4102 20.0915C21.0258 20.7179 20.4747 21.2287 19.8164 21.5642L19.6416 21.6365C18.6495 21.9765 16.0027 21.9997 16 21.9997H8C7.99731 21.9997 5.35049 21.9765 4.3584 21.6365L4.18359 21.5642C3.52528 21.2287 2.97416 20.7179 2.58984 20.0915L2.43555 19.8162C2.10871 19.1745 2.0272 18.3837 2.00684 17.0837L2 15.6003V10.8328C2 9.76571 1.99998 9.16487 2.11035 8.65892L2.16504 8.44701C2.29267 8.0162 2.49195 7.60984 2.75391 7.24584L2.87012 7.09252C3.14092 6.7522 3.48961 6.47006 4.06836 6.05541L4.72949 5.58959L8.33008 3.06908C9.48674 2.25942 10.1374 1.80312 10.7637 1.58178L11.0322 1.5017C11.6675 1.34335 12.3325 1.34335 12.9678 1.5017C13.6867 1.68102 14.348 2.14376 15.6699 3.06908L19.2705 5.58959C20.2693 6.28875 20.7688 6.63876 21.1299 7.09252C21.4496 7.49439 21.6891 7.95465 21.835 8.44701C21.9996 9.00303 22 9.61338 22 10.8328V15.6003Z" fill="url(#1752671328338-9050610_house_existing_2_1bchqn222)"></path>
+                <defs>
+                  <linearGradient id="1752671328338-9050610_house_existing_0_v2eav1cim" x1="12" y1="11.5" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752671328338-9050610_house_existing_1_hph1t9f95" x1="12" y1="1.383" x2="12" y2="21.998" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752671328338-9050610_house_existing_2_1bchqn222" x1="12" y1="1.383" x2="12" y2="13.322" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <filter id="1752671328338-9050610_house_filter_dvnu6r4iw" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752671328338-9050610_house_clipPath_vy87feemr">
+                    <path d="M11.0322 1.50133C11.6675 1.34298 12.3325 1.34298 12.9678 1.50133C13.6868 1.68063 14.348 2.14335 15.6699 3.06871L19.2705 5.58922C20.2694 6.28846 20.7688 6.63837 21.1299 7.09215C21.4497 7.49408 21.6891 7.95418 21.835 8.44664C21.9997 9.00276 22 9.61276 22 10.8324V15.6C22 17.8399 22.0003 18.9602 21.5645 19.8158C21.181 20.5683 20.5689 21.1803 19.8164 21.5638C19.0133 21.973 17.9767 21.9969 16 21.9984V17.0004C16 15.6002 16 14.8994 15.7275 14.3646C15.4878 13.8943 15.1051 13.5124 14.6348 13.2728C14.1 13.0003 13.4001 13.0004 12 13.0004C10.5999 13.0004 9.90001 13.0003 9.36523 13.2728C8.89493 13.5124 8.51215 13.8943 8.27246 14.3646C7.99998 14.8994 8 15.6002 8 17.0004V21.9984C6.0233 21.9969 4.98673 21.973 4.18359 21.5638C3.43114 21.1803 2.81897 20.5683 2.43555 19.8158C1.99972 18.9602 2 17.8399 2 15.6V10.8324C2 9.61276 2.00032 9.00276 2.16504 8.44664C2.31093 7.95418 2.55034 7.49408 2.87012 7.09215C3.23121 6.63837 3.73058 6.28846 4.72949 5.58922L8.33008 3.06871C9.65203 2.14335 10.3132 1.68063 11.0322 1.50133Z" fill="url(#1752671328338-9050610_house_existing_1_hph1t9f95)"></path>
+                  </clipPath>
+                  <mask id="1752671328338-9050610_house_mask_tg62ji6mp">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M11.0322 1.50133C11.6675 1.34298 12.3325 1.34298 12.9678 1.50133C13.6868 1.68063 14.348 2.14335 15.6699 3.06871L19.2705 5.58922C20.2694 6.28846 20.7688 6.63837 21.1299 7.09215C21.4497 7.49408 21.6891 7.95418 21.835 8.44664C21.9997 9.00276 22 9.61276 22 10.8324V15.6C22 17.8399 22.0003 18.9602 21.5645 19.8158C21.181 20.5683 20.5689 21.1803 19.8164 21.5638C19.0133 21.973 17.9767 21.9969 16 21.9984V17.0004C16 15.6002 16 14.8994 15.7275 14.3646C15.4878 13.8943 15.1051 13.5124 14.6348 13.2728C14.1 13.0003 13.4001 13.0004 12 13.0004C10.5999 13.0004 9.90001 13.0003 9.36523 13.2728C8.89493 13.5124 8.51215 13.8943 8.27246 14.3646C7.99998 14.8994 8 15.6002 8 17.0004V21.9984C6.0233 21.9969 4.98673 21.973 4.18359 21.5638C3.43114 21.1803 2.81897 20.5683 2.43555 19.8158C1.99972 18.9602 2 17.8399 2 15.6V10.8324C2 9.61276 2.00032 9.00276 2.16504 8.44664C2.31093 7.95418 2.55034 7.49408 2.87012 7.09215C3.23121 6.63837 3.73058 6.28846 4.72949 5.58922L8.33008 3.06871C9.65203 2.14335 10.3132 1.68063 11.0322 1.50133Z" fill="#000"></path>
+                  </mask>
+                </defs>
+              </g>
+            </svg>
+          </div>
+          <span class="nav-link-text ms-1">Keasramaan</span>
+        </a>
+
+        <div class="multi-level ms-5 collapse {% if 'keasramaan' in group_segment %}show{% endif %}" role="list" id="keasramaan-menu" aria-expanded="{% if 'asrama' in group_segment %}true{% else %}false{% endif %}">
+          <ul class="flex-column nav">
+            <li class="nav-item {% if segment == 'asrama' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'ASRAMA' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'ASRAMA' not in role and not request.user.is_superuser %}disabled{% endif %}">Asrama</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'halaqoh-tahfidz' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'HALAQOH-TAHFIDZ' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'HALAQOH-TAHFIDZ' not in role and not request.user.is_superuser %}disabled{% endif %}">Halaqoh Tahfidz</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'halaqoh-lughoh' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'HALAQOH-LUGHOH' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'HALAQOH-LUGHOH' not in role and not request.user.is_superuser %}disabled{% endif %}">Halaqoh Lughoh</span>
+              </a>
+            </li>
+            <hr class="horizontal default mt-2">
+            <li class="nav-item {% if segment == 'kegiatan-asrama' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'KEGIATAN-ASRAMA' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'KEGIATAN-ASRAMA' not in role and not request.user.is_superuser %}disabled{% endif %}">Kegiatan Asrama</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'ekskul' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'EKSKUL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'EKSKUL' not in role and not request.user.is_superuser %}disabled{% endif %}">Ekstrakurikuler</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if 'penilaian' in group_segment %}active{% endif %} {% if 'penilaian' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#penilaian-menu">
+          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <title>pen</title>
+              <g fill="none">
+                <path d="M15.707 4.29297L20.5859 9.17188C22.1477 10.7339 22.1477 13.2661 20.5859 14.8281L16.707 18.707C16.3165 19.0976 15.6835 19.0976 15.293 18.707C14.9024 18.3165 14.9024 17.6835 15.293 17.293L19.1719 13.4141C19.9526 12.6331 19.9526 11.3669 19.1719 10.5859L14.293 5.70703L15.707 4.29297Z" fill="url(#1752500502798-5349973_pen_existing_0_w5fseputu)" data-glass="origin" mask="url(#1752500502798-5349973_pen_mask_q3byylvrh)"></path>
+                <path d="M15.707 4.29297L20.5859 9.17188C22.1477 10.7339 22.1477 13.2661 20.5859 14.8281L16.707 18.707C16.3165 19.0976 15.6835 19.0976 15.293 18.707C14.9024 18.3165 14.9024 17.6835 15.293 17.293L19.1719 13.4141C19.9526 12.6331 19.9526 11.3669 19.1719 10.5859L14.293 5.70703L15.707 4.29297Z" fill="url(#1752500502798-5349973_pen_existing_0_w5fseputu)" data-glass="clone" filter="url(#1752500502798-5349973_pen_filter_2icnyimpu)" clip-path="url(#1752500502798-5349973_pen_clipPath_5m15p9cgc)"></path>
+                <path d="M16.0776 3.07465C17.4163 1.73635 19.5848 1.73807 20.9233 3.0766C22.2619 4.41514 22.2636 6.58361 20.9253 7.9223L9.27197 19.5766C8.65706 20.1915 7.3426 20.7051 5.99854 21.1L5.99951 21.101C5.97617 21.1079 5.95255 21.1138 5.9292 21.1205C5.78619 21.1621 5.64312 21.2028 5.50049 21.2416L5.49854 21.2397C4.72125 21.4511 3.96207 21.6243 3.3501 21.7495C2.685 21.8854 2.11345 21.3139 2.24951 20.6489C2.3748 20.0373 2.54687 19.2783 2.7583 18.5014L2.75732 18.5004C2.77768 18.4257 2.79969 18.3508 2.8208 18.2758C2.8466 18.1842 2.87102 18.092 2.89795 18.0004L2.89893 18.0014C3.2942 16.6574 3.80932 15.343 4.42432 14.728L16.0776 3.07465Z" fill="url(#1752500502798-5349973_pen_existing_1_qcrb5tcqa)" data-glass="blur"></path>
+                <path d="M16.0773 3.07516C17.416 1.73651 19.5853 1.73748 20.924 3.07613C22.2625 4.4148 22.2636 6.58419 20.925 7.92281L9.27166 19.5761L9.16716 19.6738C8.03254 20.6708 5.09211 21.3926 3.34978 21.749L3.22576 21.7666C2.65619 21.8102 2.18769 21.342 2.23162 20.7724L2.2492 20.6494C2.60603 18.9075 3.32933 15.9676 4.32634 14.833L4.424 14.7285L16.0773 3.07516ZM20.3937 3.60641C19.3476 2.56032 17.653 2.56 16.6076 3.60543L4.95427 15.2588C4.77867 15.4344 4.57826 15.7367 4.36931 16.1689C4.16481 16.5919 3.97213 17.0966 3.79509 17.6396C3.44104 18.7256 3.16617 19.9132 2.98455 20.7998C2.96887 20.8767 2.99238 20.9326 3.02947 20.9697C3.0666 21.0067 3.12251 21.0303 3.19939 21.0146C4.08614 20.8332 5.27338 20.5578 6.35955 20.2041C6.90273 20.0271 7.40813 19.8353 7.83123 19.6308C8.26345 19.422 8.56583 19.2214 8.74138 19.0459L20.3947 7.39254C21.4401 6.34714 21.4397 4.6525 20.3937 3.60641Z" fill="url(#1752500502798-5349973_pen_existing_2_uuhn4zfgp)"></path>
+                <defs>
+                  <linearGradient id="1752500502798-5349973_pen_existing_0_w5fseputu" x1="18.025" y1="4.293" x2="18.025" y2="19" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502798-5349973_pen_existing_1_qcrb5tcqa" x1="12.079" y1="2.072" x2="12.079" y2="21.77" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502798-5349973_pen_existing_2_uuhn4zfgp" x1="12.079" y1="2.072" x2="12.079" y2="13.479" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <filter id="1752500502798-5349973_pen_filter_2icnyimpu" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752500502798-5349973_pen_clipPath_5m15p9cgc">
+                    <path d="M16.0776 3.07465C17.4163 1.73635 19.5848 1.73807 20.9233 3.0766C22.2619 4.41514 22.2636 6.58361 20.9253 7.9223L9.27197 19.5766C8.65706 20.1915 7.3426 20.7051 5.99854 21.1L5.99951 21.101C5.97617 21.1079 5.95255 21.1138 5.9292 21.1205C5.78619 21.1621 5.64312 21.2028 5.50049 21.2416L5.49854 21.2397C4.72125 21.4511 3.96207 21.6243 3.3501 21.7495C2.685 21.8854 2.11345 21.3139 2.24951 20.6489C2.3748 20.0373 2.54687 19.2783 2.7583 18.5014L2.75732 18.5004C2.77768 18.4257 2.79969 18.3508 2.8208 18.2758C2.8466 18.1842 2.87102 18.092 2.89795 18.0004L2.89893 18.0014C3.2942 16.6574 3.80932 15.343 4.42432 14.728L16.0776 3.07465Z" fill="url(#1752500502798-5349973_pen_existing_1_qcrb5tcqa)"></path>
+                  </clipPath>
+                  <mask id="1752500502798-5349973_pen_mask_q3byylvrh">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M16.0776 3.07465C17.4163 1.73635 19.5848 1.73807 20.9233 3.0766C22.2619 4.41514 22.2636 6.58361 20.9253 7.9223L9.27197 19.5766C8.65706 20.1915 7.3426 20.7051 5.99854 21.1L5.99951 21.101C5.97617 21.1079 5.95255 21.1138 5.9292 21.1205C5.78619 21.1621 5.64312 21.2028 5.50049 21.2416L5.49854 21.2397C4.72125 21.4511 3.96207 21.6243 3.3501 21.7495C2.685 21.8854 2.11345 21.3139 2.24951 20.6489C2.3748 20.0373 2.54687 19.2783 2.7583 18.5014L2.75732 18.5004C2.77768 18.4257 2.79969 18.3508 2.8208 18.2758C2.8466 18.1842 2.87102 18.092 2.89795 18.0004L2.89893 18.0014C3.2942 16.6574 3.80932 15.343 4.42432 14.728L16.0776 3.07465Z" fill="#000"></path>
+                  </mask>
+                </defs>
+              </g>
+            </svg>
+          </div>
+          <span class="nav-link-text ms-1">Penilaian</span>
+        </a>
+
+        <div class="multi-level ms-5 collapse {% if 'penilaian' in group_segment %}show{% endif %}" role="list" id="penilaian-menu" aria-expanded="{% if 'penilaian' in group_segment %}true{% else %}false{% endif %}">
+          <ul class="flex-column nav">
+            <li class="nav-item {% if segment == 'nilai-kelas' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'NILAI-KELAS' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'NILAI-KELAS' not in role and not request.user.is_superuser %}disabled{% endif %}">Nilai Per Kelas</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'nilai-asrama' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'NILAI-ASRAMA' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'NILAI-ASRAMA' not in role and not request.user.is_superuser %}disabled{% endif %}">Nilai Per Asrama</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'nilai-ekskul' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'NILAI-EKSKUL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'NILAI-EKSKUL' not in role and not request.user.is_superuser %}disabled{% endif %}">Nilai Per Ekskul</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if 'keuangan' in group_segment %}active{% endif %} {% if 'keuangan' not in group_segment %}collapsed{% endif %}" href="" data-bs-toggle="collapse" data-bs-target="#keuangan-menu">
+          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <title>money-bill</title>
+              <g fill="none">
+                <path d="M13.5996 2C15.8398 2 16.9608 1.99957 17.8164 2.43555C18.5689 2.81902 19.181 3.43109 19.5645 4.18359C20.0004 5.03924 20 6.16018 20 8.40039V10.5996C20 11.4695 19.9982 12.1707 19.9727 12.7529C20.5853 13.0947 21 13.7486 21 14.5C21 15.6046 20.1046 16.5 19 16.5C18.7169 16.5 18.4481 16.44 18.2041 16.334C18.079 16.4167 17.951 16.4959 17.8164 16.5645C16.9608 17.0004 15.8398 17 13.5996 17H7.40039C5.16018 17 4.03924 17.0004 3.18359 16.5645C2.43109 16.181 1.81902 15.5689 1.43555 14.8164C0.999573 13.9608 1 12.8398 1 10.5996V8.40039C1 6.16018 0.999573 5.03924 1.43555 4.18359C1.81902 3.43109 2.43109 2.81902 3.18359 2.43555C4.03924 1.99957 5.16018 2 7.40039 2H13.5996Z" fill="url(#1752500502796-9021023_money-bill_existing_0_r3y6h6ipg)" data-glass="origin" mask="url(#1752500502796-9021023_money-bill_mask_eixc8vhgm)"></path>
+                <path d="M13.5996 2C15.8398 2 16.9608 1.99957 17.8164 2.43555C18.5689 2.81902 19.181 3.43109 19.5645 4.18359C20.0004 5.03924 20 6.16018 20 8.40039V10.5996C20 11.4695 19.9982 12.1707 19.9727 12.7529C20.5853 13.0947 21 13.7486 21 14.5C21 15.6046 20.1046 16.5 19 16.5C18.7169 16.5 18.4481 16.44 18.2041 16.334C18.079 16.4167 17.951 16.4959 17.8164 16.5645C16.9608 17.0004 15.8398 17 13.5996 17H7.40039C5.16018 17 4.03924 17.0004 3.18359 16.5645C2.43109 16.181 1.81902 15.5689 1.43555 14.8164C0.999573 13.9608 1 12.8398 1 10.5996V8.40039C1 6.16018 0.999573 5.03924 1.43555 4.18359C1.81902 3.43109 2.43109 2.81902 3.18359 2.43555C4.03924 1.99957 5.16018 2 7.40039 2H13.5996Z" fill="url(#1752500502796-9021023_money-bill_existing_0_r3y6h6ipg)" data-glass="clone" filter="url(#1752500502796-9021023_money-bill_filter_ujbe1nhgm)" clip-path="url(#1752500502796-9021023_money-bill_clipPath_w3hwgwzi0)"></path>
+                <path d="M16.5996 7C18.8398 7 19.9608 6.99957 20.8164 7.43555C21.5689 7.81902 22.181 8.43109 22.5645 9.18359C23.0004 10.0392 23 11.1602 23 13.4004V15.5996C23 17.8398 23.0004 18.9608 22.5645 19.8164C22.181 20.5689 21.5689 21.181 20.8164 21.5645C19.9608 22.0004 18.8398 22 16.5996 22H10.4004C8.16018 22 7.03924 22.0004 6.18359 21.5645C5.43109 21.181 4.81902 20.5689 4.43555 19.8164C3.99957 18.9608 4 17.8398 4 15.5996V13.4004C4 11.1602 3.99957 10.0392 4.43555 9.18359C4.81902 8.43109 5.43109 7.81902 6.18359 7.43555C7.03924 6.99957 8.16018 7 10.4004 7H16.5996ZM13.5 12C12.1193 12 11 13.1193 11 14.5C11 15.8807 12.1193 17 13.5 17C14.8807 17 16 15.8807 16 14.5C16 13.1193 14.8807 12 13.5 12ZM8.25 13.25C7.55964 13.25 7 13.8096 7 14.5C7 15.1904 7.55964 15.75 8.25 15.75C8.94036 15.75 9.5 15.1904 9.5 14.5C9.5 13.8096 8.94036 13.25 8.25 13.25ZM18.75 13.25C18.0596 13.25 17.5 13.8096 17.5 14.5C17.5 15.1904 18.0596 15.75 18.75 15.75C19.4404 15.75 20 15.1904 20 14.5C20 13.8096 19.4404 13.25 18.75 13.25Z" fill="url(#1752500502796-9021023_money-bill_existing_1_ele0nzcpm)" data-glass="blur"></path>
+                <path d="M16.5996 21.25V22H10.4004V21.25H16.5996ZM22.25 15.5996V13.4004C22.25 12.268 22.2497 11.4634 22.1982 10.834C22.1475 10.2134 22.0506 9.82889 21.8955 9.52441C21.5839 8.91305 21.087 8.41605 20.4756 8.10449C20.1711 7.94936 19.7866 7.85247 19.166 7.80176C18.5367 7.75035 17.732 7.75 16.5996 7.75H10.4004C9.26798 7.75 8.46335 7.75035 7.83398 7.80176C7.21336 7.85247 6.82889 7.94936 6.52441 8.10449C5.91304 8.41605 5.41605 8.91305 5.10449 9.52441C4.94936 9.82889 4.85247 10.2134 4.80176 10.834C4.75035 11.4633 4.75 12.268 4.75 13.4004V15.5996C4.75 16.732 4.75035 17.5367 4.80176 18.166C4.85247 18.7866 4.94936 19.1711 5.10449 19.4756C5.41605 20.087 5.91304 20.5839 6.52441 20.8955C6.82889 21.0506 7.21336 21.1475 7.83398 21.1982C8.46335 21.2497 9.26798 21.25 10.4004 21.25V22L8.91602 21.9932C7.72431 21.9744 6.96088 21.9041 6.34766 21.6406L6.18359 21.5645C5.52512 21.2289 4.97413 20.7183 4.58984 20.0918L4.43555 19.8164C3.99957 18.9608 4 17.8398 4 15.5996V13.4004C4 11.1602 3.99957 10.0392 4.43555 9.18359C4.81902 8.43109 5.43109 7.81902 6.18359 7.43555C6.82525 7.10861 7.61607 7.02728 8.91602 7.00684L10.4004 7H16.5996C18.8398 7 19.9608 6.99957 20.8164 7.43555C21.5689 7.81902 22.181 8.43109 22.5645 9.18359C23.0004 10.0392 23 11.1602 23 13.4004V15.5996C23 17.8398 23.0004 18.9608 22.5645 19.8164L22.4102 20.0918C22.0259 20.7183 21.4749 21.2289 20.8164 21.5645L20.6523 21.6406C19.816 21.9999 18.6999 22 16.5996 22V21.25C17.732 21.25 18.5367 21.2497 19.166 21.1982C19.7866 21.1475 20.1711 21.0506 20.4756 20.8955C21.087 20.5839 21.5839 20.087 21.8955 19.4756C22.0506 19.1711 22.1475 18.7866 22.1982 18.166C22.2497 17.5367 22.25 16.732 22.25 15.5996Z" fill="url(#1752500502796-9021023_money-bill_existing_2_0yl733a2m)"></path>
+                <defs>
+                  <linearGradient id="1752500502796-9021023_money-bill_existing_0_r3y6h6ipg" x1="11" y1="2" x2="11" y2="17" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#575757"></stop>
+                    <stop offset="1" stop-color="#151515"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502796-9021023_money-bill_existing_1_ele0nzcpm" x1="13.5" y1="7" x2="13.5" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#E3E3E5" stop-opacity=".6"></stop>
+                    <stop offset="1" stop-color="#BBBBC0" stop-opacity=".6"></stop>
+                  </linearGradient>
+                  <linearGradient id="1752500502796-9021023_money-bill_existing_2_0yl733a2m" x1="13.5" y1="7" x2="13.5" y2="15.687" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#fff"></stop>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <filter id="1752500502796-9021023_money-bill_filter_ujbe1nhgm" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                    <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+                  </filter>
+                  <clipPath id="1752500502796-9021023_money-bill_clipPath_w3hwgwzi0">
+                    <path d="M16.5996 7C18.8398 7 19.9608 6.99957 20.8164 7.43555C21.5689 7.81902 22.181 8.43109 22.5645 9.18359C23.0004 10.0392 23 11.1602 23 13.4004V15.5996C23 17.8398 23.0004 18.9608 22.5645 19.8164C22.181 20.5689 21.5689 21.181 20.8164 21.5645C19.9608 22.0004 18.8398 22 16.5996 22H10.4004C8.16018 22 7.03924 22.0004 6.18359 21.5645C5.43109 21.181 4.81902 20.5689 4.43555 19.8164C3.99957 18.9608 4 17.8398 4 15.5996V13.4004C4 11.1602 3.99957 10.0392 4.43555 9.18359C4.81902 8.43109 5.43109 7.81902 6.18359 7.43555C7.03924 6.99957 8.16018 7 10.4004 7H16.5996ZM13.5 12C12.1193 12 11 13.1193 11 14.5C11 15.8807 12.1193 17 13.5 17C14.8807 17 16 15.8807 16 14.5C16 13.1193 14.8807 12 13.5 12ZM8.25 13.25C7.55964 13.25 7 13.8096 7 14.5C7 15.1904 7.55964 15.75 8.25 15.75C8.94036 15.75 9.5 15.1904 9.5 14.5C9.5 13.8096 8.94036 13.25 8.25 13.25ZM18.75 13.25C18.0596 13.25 17.5 13.8096 17.5 14.5C17.5 15.1904 18.0596 15.75 18.75 15.75C19.4404 15.75 20 15.1904 20 14.5C20 13.8096 19.4404 13.25 18.75 13.25Z" fill="url(#1752500502796-9021023_money-bill_existing_1_ele0nzcpm)"></path>
+                  </clipPath>
+                  <mask id="1752500502796-9021023_money-bill_mask_eixc8vhgm">
+                    <rect width="100%" height="100%" fill="#FFF"></rect>
+                    <path d="M16.5996 7C18.8398 7 19.9608 6.99957 20.8164 7.43555C21.5689 7.81902 22.181 8.43109 22.5645 9.18359C23.0004 10.0392 23 11.1602 23 13.4004V15.5996C23 17.8398 23.0004 18.9608 22.5645 19.8164C22.181 20.5689 21.5689 21.181 20.8164 21.5645C19.9608 22.0004 18.8398 22 16.5996 22H10.4004C8.16018 22 7.03924 22.0004 6.18359 21.5645C5.43109 21.181 4.81902 20.5689 4.43555 19.8164C3.99957 18.9608 4 17.8398 4 15.5996V13.4004C4 11.1602 3.99957 10.0392 4.43555 9.18359C4.81902 8.43109 5.43109 7.81902 6.18359 7.43555C7.03924 6.99957 8.16018 7 10.4004 7H16.5996ZM13.5 12C12.1193 12 11 13.1193 11 14.5C11 15.8807 12.1193 17 13.5 17C14.8807 17 16 15.8807 16 14.5C16 13.1193 14.8807 12 13.5 12ZM8.25 13.25C7.55964 13.25 7 13.8096 7 14.5C7 15.1904 7.55964 15.75 8.25 15.75C8.94036 15.75 9.5 15.1904 9.5 14.5C9.5 13.8096 8.94036 13.25 8.25 13.25ZM18.75 13.25C18.0596 13.25 17.5 13.8096 17.5 14.5C17.5 15.1904 18.0596 15.75 18.75 15.75C19.4404 15.75 20 15.1904 20 14.5C20 13.8096 19.4404 13.25 18.75 13.25Z" fill="#000"></path>
+                  </mask>
+                </defs>
+              </g>
+            </svg>
+          </div>
+          <span class="nav-link-text ms-1">Keuangan</span>
+        </a>
+
+        <div class="multi-level ms-5 collapse {% if 'keuangan' in group_segment %}show{% endif %}" role="list" id="keuangan-menu" aria-expanded="{% if 'keuangan' in group_segment %}true{% else %}false{% endif %}">
+          <ul class="flex-column nav">
+            <li class="nav-item {% if segment == 'tagihan' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'TAGIHAN' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'TAGIHAN' not in role and not request.user.is_superuser %}disabled{% endif %}">Tagihan</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'closing-tagihan' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'CLOSING-TAGIHAN' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'CLOSING-TAGIHAN' not in role and not request.user.is_superuser %}disabled{% endif %}">Closing Tagihan</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'pembayaran' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'PEMBAYARAN' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'PEMBAYARAN' not in role and not request.user.is_superuser %}disabled{% endif %}">Pembayaran</span>
+              </a>
+            </li>
+            <li class="nav-item {% if segment == 'master-jemputan' %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'MASTER-JEMPUTAN' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'MASTER-JEMPUTAN' not in role and not request.user.is_superuser %}disabled{% endif %}">Master Jemputan</span>
+              </a>
+            </li>
           </ul>
         </div>
       </li>
@@ -311,16 +561,16 @@
                 <span class="nav-link-text ms-1 {% if 'USER' not in role and not request.user.is_superuser %}d-none{% endif %}">Pengguna</span>
               </a>
             </li>
-            <!-- <li class="nav-item {% if 'customer' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'customer-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'CUSTOMER' not in role and not request.user.is_superuser %}disabled{% endif %}">Pelanggan</span>
+            <li class="nav-item {% if 'tahun-ajaran' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'YEAR' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'YEAR' not in role and not request.user.is_superuser %}disabled{% endif %}">Tahun Ajaran</span>
               </a>
-            </li> -->
-            <!-- <li class="nav-item {% if 'area_sales' in segment %}active{% endif %} list-unstyled">
-              <a class="nav-link button cursor-pointer {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'area-sales-index' %}"{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'AREA' not in role and not request.user.is_superuser %}disabled{% endif %}">Cabang</span>
+            </li>
+            <li class="nav-item {% if 'tingkatan' in segment %}active{% endif %} list-unstyled">
+              <a class="nav-link button cursor-pointer {% if 'LEVEL' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
+                <span class="nav-link-text ms-1 {% if 'LEVEL' not in role and not request.user.is_superuser %}disabled{% endif %}">Tingkatan</span>
               </a>
-            </li> -->
+            </li>
             <li class="nav-item {% if 'position' in segment %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href="{% url 'position-index' %}"{% endif %}>
                 <span class="nav-link-text ms-1 {% if 'POSITION' not in role and not request.user.is_superuser %}disabled{% endif %}">Posisi</span>
