@@ -121,7 +121,7 @@
           <ul class="flex-column nav">
             <li class="nav-item {% if segment == 'data-santri' %}active{% endif %} list-unstyled">
               <a class="nav-link button cursor-pointer {% if 'DATA-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}" {% if crud != 'add' and crud != 'update' %}href=""{% endif %}>
-                <span class="nav-link-text ms-1 {% if 'DATA-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}">List{% if notif > 0 %}<span class="badge bg-gradient-danger rounded-pill badge-notification ms-2">{{ notif }}</span>{% endif %}</span>
+                <span class="nav-link-text ms-1 {% if 'DATA-SANTRI' not in role and not request.user.is_superuser %}disabled{% endif %}">List Santri{% if notif > 0 %}<span class="badge bg-gradient-danger rounded-pill badge-notification ms-2">{{ notif }}</span>{% endif %}</span>
               </a>
             </li>
             <hr class="horizontal default mt-2">
