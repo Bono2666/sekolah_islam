@@ -189,32 +189,11 @@ class Level(models.Model):
 
 
 class Grade(models.Model):
-    grade_id = models.CharField(max_length=1, primary_key=True)
+    grade_id = models.CharField(max_length=7, primary_key=True, default='')
+    grade = models.CharField(max_length=2, default='')
+    sub_grade = models.CharField(max_length=50, null=True, blank=True)
     grade_name = models.CharField(max_length=50)
-    entry_date = models.DateTimeField(null=True)
-    entry_by = models.CharField(max_length=50, null=True)
-    update_date = models.DateTimeField(null=True, blank=True)
-    update_by = models.CharField(max_length=50, null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        self.grade_id = self.grade_id.upper()
-        if not self.entry_date:
-            self.entry_date = timezone.now()
-            self.entry_by = get_current_user().user_id
-        self.update_date = timezone.now()
-        self.update_by = get_current_user().user_id
-        super(Grade, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.grade_name
-
-
-class Teaching_Class(models.Model):
-    class_code = models.CharField(max_length=7, primary_key=True)
-    grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
-    sub_grade = models.CharField(max_length=50)
-    class_name = models.CharField(max_length=50)
-    school_year = models.CharField(max_length=9)
+    school_year = models.CharField(max_length=9, null=True, blank=True)
     homeroom_teacher_1 = models.CharField(
         max_length=100, null=True, blank=True)
     homeroom_teacher_2 = models.CharField(
@@ -233,13 +212,13 @@ class Teaching_Class(models.Model):
         super(Grade, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.class_name
+        return self.grade_name
 
 
 class Student(models.Model):
     student_id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    class_code = models.ForeignKey(Teaching_Class, on_delete=models.CASCADE)
+    grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
     hostel = models.CharField(max_length=50)
     sex = models.CharField(max_length=1)
     birth_place = models.CharField(max_length=50)
