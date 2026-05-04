@@ -1,0 +1,73 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Ekstrakurikuler {% endblock title %}
+{% block content %}
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'extracurricular-update' data.extracurricular_id %}" method="post">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">{{ data.name }}</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% if crud == 'view' %}{% url 'extracurricular-index' %}{% else %}{% url 'extracurricular-view' data.extracurricular_id %}{% endif %}"
+                                   class="btn btn-sm bg-gradient-dark mb-0">
+                                    <i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}
+                                </a>
+                                <a href="{% url 'extracurricular-update' data.extracurricular_id %}"
+                                   class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}"
+                                   {% if crud == 'update' %}hidden{% endif %}>
+                                    <i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah
+                                </a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}>
+                                    <i class="fas fa-save"></i>&nbsp;&nbsp;Simpan
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm bg-gradient-danger mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-{{ data.extracurricular_id }}">
+                                    <i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirm-{{ data.extracurricular_id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header"><h5 class="modal-title">Konfirmasi</h5></div>
+                                <div class="modal-body border-bottom-0">
+                                    Anda yakin ingin menghapus ekstrakurikuler <strong>{{ data.name }}</strong>?
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'extracurricular-delete' data.extracurricular_id %}"
+                                       class="btn btn-sm bg-gradient-danger text-white">Hapus</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row gx-3">
+                            <div class="col-md-6 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.name.label_tag }}{{ form.name }}
+                                    <div class="text-sm text-danger">{{ form.name.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.teacher.label_tag }}{{ form.teacher }}
+                                    <div class="text-sm text-danger">{{ form.teacher.errors }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block javascripts %}{% endblock javascripts %}

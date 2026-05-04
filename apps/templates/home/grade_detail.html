@@ -1,0 +1,357 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Kelas {{ data.grade_id }} {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'grade-detail-update' data.grade_id %}" method="post">
+                {% csrf_token %}
+
+                <!-- Bagian Atas: Informasi Kelas -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">{{ data.grade }}{% if data.sub_grade %} - {{ data.sub_grade }}{% endif %} | {{ data.grade_name }}</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% url 'student-by-grade' %}" class="btn btn-sm bg-gradient-dark mb-0">
+                                    <i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}
+                                </a>
+                                <a href="{% url 'grade-detail-update' data.grade_id %}"
+                                   class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}"
+                                   {% if crud == 'update' %}hidden{% endif %}>
+                                    <i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah
+                                </a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0"
+                                        {% if crud == 'view' %}hidden{% endif %}>
+                                    <i class="fas fa-save"></i>&nbsp;&nbsp;Simpan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-2 pb-3">
+                        <div class="row gx-3">
+                            <!-- Kolom Kiri -->
+                            <div class="col-lg-6">
+                                <div class="row gx-3">
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {% if crud == 'view' %}
+                                                <label class="form-label">Tahun Ajaran</label>
+                                                <input type="text" class="form-control-sm" value="{{ data.school_year.school_year_name|default:'-' }}" readonly>
+                                            {% else %}
+                                                {{ form.school_year.label_tag }}{{ form.school_year }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.semester.label_tag }}{{ form.semester }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.level.label_tag }}{{ form.level }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.grade.label_tag }}{{ form.grade }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.sub_grade.label_tag }}{{ form.sub_grade }}
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.grade_name.label_tag }}{{ form.grade_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {% if crud == 'view' %}
+                                                <label class="form-label">Wali Kelas 1</label>
+                                                <input type="text" class="form-control-sm" value="{{ data.homeroom_teacher_1.user.username|default:'-' }}" readonly>
+                                            {% else %}
+                                                {{ form.homeroom_teacher_1.label_tag }}{{ form.homeroom_teacher_1 }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {% if crud == 'view' %}
+                                                <label class="form-label">Wali Kelas 2</label>
+                                                <input type="text" class="form-control-sm" value="{{ data.homeroom_teacher_2.user.username|default:'-' }}" readonly>
+                                            {% else %}
+                                                {{ form.homeroom_teacher_2.label_tag }}{{ form.homeroom_teacher_2 }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Kolom Kanan: Pengurus Kelas -->
+                            <div class="col-lg-6">
+                                <div class="row gx-3">
+                                    <div class="col-12 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.class_leader.label_tag }}{{ form.class_leader }}
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.vice_class_leader.label_tag }}{{ form.vice_class_leader }}
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.secretary.label_tag }}{{ form.secretary }}
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.treasurer.label_tag }}{{ form.treasurer }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Bagian Bawah: List Santri -->
+            <div class="card mb-5 p-4">
+                <div class="row mb-3">
+                    <div class="col-6 d-flex align-items-center">
+                        <h5 class="mb-0">Daftar Santri</h5>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button type="button"
+                                class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}"
+                                {% if btn.add or request.user.is_superuser %}data-bs-toggle="modal" data-bs-target="#addStudentModal"{% endif %}>
+                            <i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Santri
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="studentTable" data-no-auto="true">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">NIPD</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Santri</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelamin</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tempat Lahir</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal Lahir</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Alamat</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr data-href="{% url 'student-view' student.student_id %}" class="cursor-pointer">
+                                    <td><h6 class="mb-0 text-sm">{{ student.nipd|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ student.name }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ student.sex }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ student.birth_place }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ student.birth_date|date:"d/m/Y" }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ student.address }}</h6></td>
+                                    <td>
+                                        {% if btn.delete or request.user.is_superuser %}
+                                        <button class="btn-icon-only text-dark bg-transparent border-0"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#remove-{{ student.student_id }}">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-sm py-3">Belum ada santri di kelas ini.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modals konfirmasi lepas santri (di luar table agar tidak merusak struktur DOM) -->
+            {% for student in students %}
+            <div class="modal fade" id="remove-{{ student.student_id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Konfirmasi</h5>
+                        </div>
+                        <div class="modal-body border-bottom-0">
+                            Anda yakin ingin mengeluarkan santri <strong>{{ student.name }}</strong> dari kelas ini? Data santri tidak akan dihapus.
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                            <a href="{% url 'grade-remove-student' data.grade_id student.student_id %}"
+                               class="btn btn-sm bg-gradient-danger text-white">Keluarkan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Modal: Pilih Santri untuk dimasukkan ke kelas -->
+            <div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addStudentModalLabel">Pilih Santri</h5>
+                            <button type="button" class="btn btn-link text-dark p-0 ms-auto" data-bs-dismiss="modal" style="font-size:1.25rem;line-height:1;"><i class="fas fa-times"></i></button>
+                        </div>
+                        <form method="post" action="{% url 'grade-add-student' data.grade_id %}">
+                            {% csrf_token %}
+                            <div class="modal-body border-bottom-0">
+                                {% if unassigned_students %}
+                                <table class="table align-items-center mb-0" id="unassignedTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">NIPD</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Santri</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelamin</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="unassignedBody">
+                                        {% for s in unassigned_students %}
+                                        <tr class="student-row">
+                                            <td>
+                                                <input type="checkbox" name="student_ids" value="{{ s.student_id }}" class="cursor-pointer border student-check">
+                                            </td>
+                                            <td><h6 class="mb-0 text-sm">{{ s.nipd|default:'-' }}</h6></td>
+                                            <td><h6 class="mb-0 text-sm student-name">{{ s.name }}</h6></td>
+                                            <td><h6 class="mb-0 text-sm">{{ s.sex }}</h6></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                <p class="text-sm text-center py-3 mb-0">Tidak ada santri yang belum memiliki kelas.</p>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                {% if unassigned_students %}
+                                <button type="submit" class="btn btn-sm bg-gradient-primary">Masukkan ke Kelas</button>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+
+        $.fn.dataTable.ext.errMode = 'none';
+
+        // ── studentTable ──────────────────────────────────────────
+        if ($.fn.DataTable.isDataTable('#studentTable')) {
+            $('#studentTable').DataTable().destroy();
+        }
+        $('#studentTable').DataTable({
+            'pageLength': 25,
+            'pagingType': 'numbers',
+            'autoWidth': false,
+            'columnDefs': [{ 'orderable': false, 'targets': -1 }],
+            'language': {
+                'search': 'Cari:',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'infoEmpty': 'Tidak ada data',
+                'infoFiltered': '(disaring dari _MAX_ total data)',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'previous': "<i class='fas fa-angle-left'>",
+                    'next': "<i class='fas fa-angle-right'>"
+                }
+            },
+            'order': [[1, 'asc']],
+        });
+
+        $(document).on('click', '#studentTable tbody tr', function () {
+            var href = $(this).data('href');
+            if (href) window.location = href;
+        });
+
+        $(document).on('click', '#studentTable .btn-icon-only', function (e) {
+            e.stopPropagation();
+        });
+
+        // Validasi Wali Kelas 1 dan 2 tidak boleh sama
+        function syncHomeroomDropdowns() {
+            var val1 = $('#id_homeroom_teacher_1').val();
+            var val2 = $('#id_homeroom_teacher_2').val();
+            $('#id_homeroom_teacher_1 option').prop('disabled', false);
+            $('#id_homeroom_teacher_2 option').prop('disabled', false);
+            if (val1) $('#id_homeroom_teacher_2 option[value="' + val1 + '"]').prop('disabled', true);
+            if (val2) $('#id_homeroom_teacher_1 option[value="' + val2 + '"]').prop('disabled', true);
+        }
+        syncHomeroomDropdowns();
+        $('#id_homeroom_teacher_1, #id_homeroom_teacher_2').on('change', syncHomeroomDropdowns);
+
+    });
+
+    // ── unassignedTable: diinisialisasi setelah semua JS selesai load ──
+    // Menggunakan window.onload agar argon.js sudah selesai menginisialisasi Bootstrap
+    window.addEventListener('load', function () {
+        var unassignedTableInit = false;
+
+        function initUnassignedTable() {
+            if (!unassignedTableInit && document.getElementById('unassignedTable')) {
+                $('#unassignedTable').DataTable({
+                    'info': false,
+                    'pageLength': 10,
+                    'lengthChange': false,
+                    'columnDefs': [{ 'orderable': false, 'targets': 0 }],
+                    'order': [[2, 'asc']],
+                    'language': {
+                        'search': 'Cari:',
+                        'zeroRecords': 'Tidak ada data',
+                        'paginate': {
+                            'previous': "<i class='fas fa-angle-left'>",
+                            'next': "<i class='fas fa-angle-right'>"
+                        }
+                    },
+                });
+                unassignedTableInit = true;
+            }
+        }
+
+        // Coba semua kemungkinan event nama modal Bootstrap
+        var modalEl = document.getElementById('addStudentModal');
+        if (modalEl) {
+            // Bootstrap 5
+            modalEl.addEventListener('shown.bs.modal', initUnassignedTable);
+            // Bootstrap 4 / jQuery
+            $(modalEl).on('shown.bs.modal', initUnassignedTable);
+        }
+
+        // Fallback: jika tombol diklik, tunggu animasi selesai lalu init
+        $('[data-bs-target="#addStudentModal"], [data-target="#addStudentModal"]').on('click', function () {
+            setTimeout(initUnassignedTable, 400);
+        });
+    });
+</script>
+{% endblock javascripts %}

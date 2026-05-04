@@ -409,7 +409,11 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .dataTables_wrapper .dataTables_filter input {
+        min-width: 150px;
+    }
+</style>
 <script>
     $(document).ready( function () {
         $('#tabTable').DataTable({
@@ -444,8 +448,8 @@
                 }
             }
         });
-        
-        $('#menuTable').DataTable({
+
+        $('#areaTable').DataTable({
             'language': {
                 'search': 'Cari: ',
                 'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
@@ -458,17 +462,26 @@
                 }
             }
         });
-        $('#areaTable').DataTable({
-            'language': {
-                'search': 'Cari: ',
-                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
-                'lengthMenu': 'Tampilkan _MENU_ data',
-                'infoEmpty': '',
-                'zeroRecords': 'Tidak ada data',
-                'paginate': {
-                    'next': 'Selanjutnya',
-                    'previous': 'Sebelumnya'
-                }
+
+        // Inisialisasi menuTable saat modal pertama kali ditampilkan
+        // (DataTable di dalam modal harus diinisialisasi setelah modal visible)
+        var menuTableInit = false;
+        $('#dialog-popup').on('shown.bs.modal', function () {
+            if (!menuTableInit) {
+                $('#menuTable').DataTable({
+                    'info': false,
+                    'language': {
+                        'search': 'Cari: ',
+                        'lengthMenu': 'Tampilkan _MENU_ data',
+                        'infoEmpty': '',
+                        'zeroRecords': 'Tidak ada data',
+                        'paginate': {
+                            'next': 'Selanjutnya',
+                            'previous': 'Sebelumnya'
+                        }
+                    }
+                });
+                menuTableInit = true;
             }
         });
 

@@ -1,0 +1,95 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Daftar Santri {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Daftar Santri</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="/santri/add/"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Santri</a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">NIPD</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelas</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Asrama</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Alamat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr data-href="{% url 'student-view' item.student_id %}" class="cursor-pointer">
+                                    <td>
+                                        <div class="d-flex pe-2 py-0">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ item.nipd|default:'-' }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.name }}</h6></td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">
+                                            {% if item.grade %}{{ item.grade.grade }}{% if item.grade.sub_grade %}-{{ item.grade.sub_grade }}{% endif %} | {{ item.grade.grade_name }}{% else %}-{% endif %}
+                                        </h6>
+                                    </td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.hostel|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.address }}</h6></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+        $('#myTable').DataTable({
+            "pagingType": "numbers",
+            "language": {
+                "search": "Cari:",
+                "zeroRecords": "Tidak ada data",
+                "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+                "infoEmpty": "Tidak ada data tersedia",
+                "infoFiltered": "(disaring dari _MAX_ total data)",
+                "lengthMenu": "Tampilkan _MENU_ data",
+                "paginate": {
+                    "previous": "<i class='fas fa-angle-left'></i>",
+                    "next": "<i class='fas fa-angle-right'></i>"
+                }
+            },
+        });
+
+        btn = document.getElementsByClassName('paginate_button');
+        for (var i = 0; i < btn.length; i++) {
+            // Square buttons - no border radius
+        }
+
+        $(document).on('click', 'tbody tr', function() {
+            var href = $(this).attr('data-href');
+            if (href) {
+                window.location = href;
+            }
+        });
+    });
+</script>
+
+{% endblock javascripts %}

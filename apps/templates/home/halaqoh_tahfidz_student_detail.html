@@ -1,0 +1,189 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Santri Per Halaqoh Tahfidz {% endblock title %}
+{% block content %}
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+
+            <!-- Bagian Atas: Informasi Halaqoh (readonly) -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-6 d-flex align-items-center">
+                            <h4 class="mb-2">Halaqoh Tahfidz: {{ data.teacher.user.username|default:'-' }} &mdash; {% if data.grade %}{{ data.grade.grade }}{% if data.grade.sub_grade %} - {{ data.grade.sub_grade }}{% endif %} | {{ data.grade.grade_name }}{% else %}-{% endif %}</h4>
+                        </div>
+                        <div class="col-6 text-end">
+                            <a href="{% url 'student-by-halaqoh-tahfidz' %}" class="btn btn-sm bg-gradient-dark mb-0">
+                                <i class="fas fa-reply"></i>&nbsp;&nbsp;Kembali
+                            </a>
+                            <a href="{% url 'halaqoh-tahfidz-detail' data.halaqoh_id %}"
+                               class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}">
+                                <i class="fas fa-edit"></i>&nbsp;&nbsp;Edit Halaqoh Tahfidz
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body pt-2 pb-3">
+                    <div class="row gx-3">
+                        <div class="col-md-4 mb-0">
+                            <label class="form-label">Halaqoh (Guru)</label>
+                            <input type="text" class="form-control-sm" value="{{ data.teacher.user.username|default:'-' }}" readonly>
+                        </div>
+                        <div class="col-md-5 mb-0">
+                            <label class="form-label">Kelas</label>
+                            <input type="text" class="form-control-sm" value="{% if data.grade %}{{ data.grade.grade }}{% if data.grade.sub_grade %} - {{ data.grade.sub_grade }}{% endif %} | {{ data.grade.grade_name }}{% else %}-{% endif %}" readonly>
+                        </div>
+                        <div class="col-md-3 mb-0">
+                            <label class="form-label">Tahun Ajaran</label>
+                            <input type="text" class="form-control-sm" value="{{ data.grade.school_year.school_year_name|default:'-' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian Bawah: Daftar Santri -->
+            <div class="card mb-5 p-4">
+                <div class="row mb-3">
+                    <div class="col-6 d-flex align-items-center"><h5 class="mb-0">Daftar Santri</h5></div>
+                    <div class="col-6 text-end">
+                        <button type="button"
+                                class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}"
+                                {% if btn.add or request.user.is_superuser %}data-bs-toggle="modal" data-bs-target="#addMemberModal"{% endif %}>
+                            <i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Santri
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="memberTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">NIPD</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Santri</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelamin</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelas</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in members %}
+                                <tr data-href="{% url 'student-view' m.student.student_id %}" class="cursor-pointer">
+                                    <td><h6 class="mb-0 text-sm">{{ m.student.nipd|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ m.student.name }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ m.student.sex }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{% if m.student.grade %}{{ m.student.grade.grade }}{% if m.student.grade.sub_grade %} - {{ m.student.grade.sub_grade }}{% endif %} | {{ m.student.grade.grade_name }}{% else %}-{% endif %}</h6></td>
+                                    <td>
+                                        {% if btn.delete or request.user.is_superuser %}
+                                        <button class="btn-icon-only text-dark bg-transparent border-0" type="button"
+                                                data-bs-toggle="modal" data-bs-target="#remove-{{ m.student.student_id }}">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center text-sm py-3">Belum ada santri.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {% for m in members %}
+            <div class="modal fade" id="remove-{{ m.student.student_id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header"><h5 class="modal-title">Konfirmasi</h5></div>
+                        <div class="modal-body border-bottom-0">Keluarkan <strong>{{ m.student.name }}</strong> dari halaqoh ini?</div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                            <a href="{% url 'halaqoh-tahfidz-student-remove-student' data.halaqoh_id m.student.student_id %}" class="btn btn-sm bg-gradient-danger text-white">Keluarkan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="modal fade" id="addMemberModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Pilih Santri</h5>
+                            <button type="button" class="btn btn-link text-dark p-0 ms-auto" data-bs-dismiss="modal" style="font-size:1.25rem;line-height:1;"><i class="fas fa-times"></i></button>
+                        </div>
+                        <form method="post" action="{% url 'halaqoh-tahfidz-student-add-student' data.halaqoh_id %}">
+                            {% csrf_token %}
+                            <div class="modal-body border-bottom-0">
+                                {% if non_members %}
+                                <table class="table align-items-center mb-0" id="nonMemberTable">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">NIPD</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Santri</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for s in non_members %}
+                                        <tr>
+                                            <td><input type="checkbox" name="student_ids" value="{{ s.student_id }}" class="cursor-pointer border"></td>
+                                            <td><h6 class="mb-0 text-sm">{{ s.nipd|default:'-' }}</h6></td>
+                                            <td><h6 class="mb-0 text-sm">{{ s.name }}</h6></td>
+                                            <td><h6 class="mb-0 text-sm">{% if s.grade %}{{ s.grade.grade_name }}{% else %}-{% endif %}</h6></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                <p class="text-sm text-center py-3 mb-0">Semua santri sudah menjadi anggota.</p>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                {% if non_members %}<button type="submit" class="btn btn-sm bg-gradient-primary">Masukkan ke Halaqoh</button>{% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+        $.fn.dataTable.ext.errMode = 'none';
+        if ($.fn.DataTable.isDataTable('#memberTable')) $('#memberTable').DataTable().destroy();
+        $('#memberTable').DataTable({
+            'pageLength': 25, 'pagingType': 'numbers', 'autoWidth': false,
+            'columnDefs': [{ 'orderable': false, 'targets': -1 }],
+            'language': { 'search': 'Cari:', 'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'infoEmpty': 'Tidak ada data', 'lengthMenu': 'Tampilkan _MENU_ data', 'zeroRecords': 'Tidak ada data',
+                'paginate': { 'previous': "<i class='fas fa-angle-left'>", 'next': "<i class='fas fa-angle-right'>" }
+            }, 'order': [[1, 'asc']],
+        });
+        $(document).on('click', '#memberTable tbody tr', function () { var href = $(this).data('href'); if (href) window.location = href; });
+        $(document).on('click', '#memberTable .btn-icon-only', function (e) { e.stopPropagation(); });
+    });
+    window.addEventListener('load', function () {
+        var init = false;
+        function initTable() {
+            if (!init && document.getElementById('nonMemberTable')) {
+                $('#nonMemberTable').DataTable({ 'info': false, 'pageLength': 10, 'lengthChange': false,
+                    'columnDefs': [{ 'orderable': false, 'targets': 0 }], 'order': [[2, 'asc']],
+                    'language': { 'search': 'Cari:', 'zeroRecords': 'Tidak ada data',
+                        'paginate': { 'previous': "<i class='fas fa-angle-left'>", 'next': "<i class='fas fa-angle-right'>" }
+                    },
+                });
+                init = true;
+            }
+        }
+        var modalEl = document.getElementById('addMemberModal');
+        if (modalEl) { modalEl.addEventListener('shown.bs.modal', initTable); $(modalEl).on('shown.bs.modal', initTable); }
+        $('[data-bs-target="#addMemberModal"]').on('click', function () { setTimeout(initTable, 400); });
+    });
+</script>
+{% endblock javascripts %}

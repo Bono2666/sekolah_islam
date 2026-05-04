@@ -1,0 +1,72 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Halaqoh Lughoh {% endblock title %}
+{% block content %}
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Halaqoh Lughoh</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}"
+                           href="{% url 'halaqoh-lughoh-add' %}">
+                            <i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Halaqoh
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Halaqoh (Guru)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelas</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tahun Ajaran</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Anggota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr data-href="{% url 'halaqoh-lughoh-detail' item.halaqoh_id %}" class="cursor-pointer">
+                                    <td>
+                                        <div class="d-flex pe-2 py-0">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ item.teacher.user.username|default:'-' }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><h6 class="mb-0 text-sm">{% if item.grade %}{{ item.grade.grade }}{% if item.grade.sub_grade %} - {{ item.grade.sub_grade }}{% endif %} | {{ item.grade.grade_name }}{% else %}-{% endif %}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.grade.school_year.school_year_name|default:'-' }}</h6></td>
+                                    <td class="text-center"><span class="badge badge-sm bg-gradient-primary">{{ item.member_count }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-sm py-3">Tidak ada data.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+        $.fn.dataTable.ext.errMode = 'none';
+        $('#myTable').DataTable({
+            'pageLength': 25, 'pagingType': 'numbers',
+            'language': { 'search': 'Cari:', 'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'infoEmpty': 'Tidak ada data', 'lengthMenu': 'Tampilkan _MENU_ data', 'zeroRecords': 'Tidak ada data',
+                'paginate': { 'previous': "<i class='fas fa-angle-left'>", 'next': "<i class='fas fa-angle-right'>" }
+            }, 'order': [[2, 'desc'], [0, 'asc']],
+        });
+        $(document).on('click', '#myTable tbody tr', function () {
+            var href = $(this).data('href'); if (href) window.location = href;
+        });
+    });
+</script>
+{% endblock javascripts %}

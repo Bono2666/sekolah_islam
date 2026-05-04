@@ -1,0 +1,83 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Daftar Desa/Kelurahan {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Daftar Desa/Kelurahan</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'village-import' %}"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Import</a>
+                        <a class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'village-add' %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Desa/Kelurahan</a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Desa/Kelurahan</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+    $(document).ready(function() {
+        var table = $('#myTable').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                url: '{% url "village-data" %}',
+                type: 'GET'
+            },
+            columns: [
+                { data: 'id' },
+                { data: 'name' }
+            ],
+            order: [[0, 'asc']],
+            pagingType: 'numbers',
+            language: {
+                search: 'Cari:',
+                zeroRecords: 'Tidak ada data',
+                info: 'Menampilkan halaman _PAGE_ dari _PAGES_',
+                infoEmpty: 'Tidak ada data tersedia',
+                infoFiltered: '(disaring dari _MAX_ total data)',
+                lengthMenu: 'Tampilkan _MENU_ data',
+                paginate: {
+                    previous: "<i class='fas fa-angle-left'>",
+                    next: "<i class='fas fa-angle-right'>"
+                }
+            },
+            createdRow: function(row, data) {
+                $(row).attr('data-href', data.url);
+            }
+        });
+
+        $('#myTable tbody').on('click', 'tr', function() {
+            var href = $(this).attr('data-href');
+            if (href) {
+                window.location = href;
+            }
+        });
+    });
+</script>
+
+{% endblock javascripts %}

@@ -3,5 +3,6 @@
     "editor.defaultFormatter": "ms-python.autopep8"
   },
   "python.formatting.provider": "none",
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "kiroAgent.configureMCP": "Disabled"
 }

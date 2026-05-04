@@ -1,0 +1,85 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Halaqoh Lughoh {% endblock title %}
+{% block content %}
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'halaqoh-lughoh-update' data.halaqoh_id %}" method="post">
+                {% csrf_token %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Halaqoh Lughoh: {{ data.teacher.user.username|default:'-' }} &mdash; {% if data.grade %}{{ data.grade.grade }}{% if data.grade.sub_grade %} - {{ data.grade.sub_grade }}{% endif %} | {{ data.grade.grade_name }}{% else %}-{% endif %}</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% url 'halaqoh-lughoh-index' %}" class="btn btn-sm bg-gradient-dark mb-0">
+                                    <i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}
+                                </a>
+                                <a href="{% url 'halaqoh-lughoh-update' data.halaqoh_id %}"
+                                   class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}"
+                                   {% if crud == 'update' %}hidden{% endif %}>
+                                    <i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah
+                                </a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}>
+                                    <i class="fas fa-save"></i>&nbsp;&nbsp;Simpan
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm bg-gradient-danger mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete">
+                                    <i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header"><h5 class="modal-title">Konfirmasi</h5></div>
+                                <div class="modal-body border-bottom-0">Anda yakin ingin menghapus halaqoh ini?</div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'halaqoh-lughoh-delete' data.halaqoh_id %}" class="btn btn-sm bg-gradient-danger text-white">Hapus</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-2 pb-3">
+                        <div class="row gx-3">
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {% if crud == 'view' %}
+                                        <label class="form-label">Halaqoh (Guru)</label>
+                                        <input type="text" class="form-control-sm" value="{{ data.teacher.user.username|default:'-' }}" readonly>
+                                    {% else %}
+                                        {{ form.teacher.label_tag }}{{ form.teacher }}
+                                        <div class="text-sm text-danger">{{ form.teacher.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-5 mb-0">
+                                <div class="shadow-none">
+                                    {% if crud == 'view' %}
+                                        <label class="form-label">Kelas</label>
+                                        <input type="text" class="form-control-sm" value="{% if data.grade %}{{ data.grade.grade }}{% if data.grade.sub_grade %} - {{ data.grade.sub_grade }}{% endif %} | {{ data.grade.grade_name }}{% else %}-{% endif %}" readonly>
+                                    {% else %}
+                                        {{ form.grade.label_tag }}{{ form.grade }}
+                                        <div class="text-sm text-danger">{{ form.grade.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-0">
+                                <div class="shadow-none">
+                                    <label class="form-label">Tahun Ajaran</label>
+                                    <input type="text" class="form-control-sm" value="{{ data.grade.school_year.school_year_name|default:'-' }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block javascripts %}{% endblock javascripts %}

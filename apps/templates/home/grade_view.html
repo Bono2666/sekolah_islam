@@ -1,0 +1,141 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Kelas {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'grade-update' data.grade_id %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Kelas: {{ data.grade_id }}</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% if crud == 'view' %}{% url 'grade-index' %}{% else %}{% url 'grade-view' data.grade_id %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a>
+                                <a href="{% url 'grade-update' data.grade_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah</a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <button type="button" class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.grade_id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirm-{{ data.grade_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                </div>
+                                <div class="modal-body border-bottom-0">
+                                    Anda yakin ingin menghapus kelas <strong>{{ data.grade_name }}</strong>?
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-sm bg-gradient-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'grade-delete' data.grade_id %}" role="button" class="btn btn-sm bg-gradient-danger text-white">Hapus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.grade.label_tag }}{{ form.grade }}
+                                        <div class="text-sm text-danger">{{ form.grade.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.sub_grade.label_tag }}{{ form.sub_grade }}
+                                        <div class="text-sm text-danger">{{ form.sub_grade.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {% if crud == 'view' %}
+                                            <label class="form-label">Tahun Ajaran</label>
+                                            <input type="text" class="form-control-sm" value="{{ data.school_year.school_year_name|default:'-' }}" readonly>
+                                        {% else %}
+                                            {{ form.school_year.label_tag }}{{ form.school_year }}
+                                            <div class="text-sm text-danger">{{ form.school_year.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {% if crud == 'view' %}
+                                            <label class="form-label">Tingkatan</label>
+                                            <input type="text" class="form-control-sm" value="{{ data.level.level_name|default:'-' }}" readonly>
+                                        {% else %}
+                                            {{ form.level.label_tag }}{{ form.level }}
+                                            <div class="text-sm text-danger">{{ form.level.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.grade_name.label_tag }}{{ form.grade_name }}
+                                        <div class="text-sm text-danger">{{ form.grade_name.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {% if crud == 'view' %}
+                                            <label class="form-label">Wali Kelas 1</label>
+                                            <input type="text" class="form-control-sm" value="{{ data.homeroom_teacher_1.user.username|default:'-' }}" readonly>
+                                        {% else %}
+                                            {{ form.homeroom_teacher_1.label_tag }}{{ form.homeroom_teacher_1 }}
+                                            <div class="text-sm text-danger">{{ form.homeroom_teacher_1.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {% if crud == 'view' %}
+                                            <label class="form-label">Wali Kelas 2</label>
+                                            <input type="text" class="form-control-sm" value="{{ data.homeroom_teacher_2.user.username|default:'-' }}" readonly>
+                                        {% else %}
+                                            {{ form.homeroom_teacher_2.label_tag }}{{ form.homeroom_teacher_2 }}
+                                            <div class="text-sm text-danger">{{ form.homeroom_teacher_2.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+    $(document).ready(function () {
+        function syncHomeroomDropdowns() {
+            var val1 = $('#id_homeroom_teacher_1').val();
+            var val2 = $('#id_homeroom_teacher_2').val();
+            $('#id_homeroom_teacher_1 option').prop('disabled', false);
+            $('#id_homeroom_teacher_2 option').prop('disabled', false);
+            if (val1) $('#id_homeroom_teacher_2 option[value="' + val1 + '"]').prop('disabled', true);
+            if (val2) $('#id_homeroom_teacher_1 option[value="' + val2 + '"]').prop('disabled', true);
+        }
+        syncHomeroomDropdowns();
+        $('#id_homeroom_teacher_1, #id_homeroom_teacher_2').on('change', syncHomeroomDropdowns);
+    });
+</script>
+
+{% endblock javascripts %}

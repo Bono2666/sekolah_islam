@@ -1,0 +1,179 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} {{ title }} {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">{{ title }}</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-dark mb-0" href="{% url index_url %}">
+                            <i class="fas fa-reply"></i>&nbsp;&nbsp;Kembali
+                        </a>
+                    </div>
+                </div>
+
+                {% if message %}
+                <div class="alert text-{{ message_type|default:'info' }} text-bg-light text-sm py-2" role="alert">
+                    {{ message }}
+                </div>
+                {% endif %}
+
+                {% if import_errors %}
+                <div class="alert alert-warning text-white" role="alert">
+                    <strong>Beberapa baris gagal diproses:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for item in import_errors %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if step == 'mapping' %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="import">
+
+                    <div class="row">
+                        <div class="col-lg-4 mb-4">
+                            <div class="border rounded p-3 h-100">
+                                <h6 class="mb-3">File</h6>
+                                <p class="text-sm mb-2"><strong>Nama file:</strong> {{ file_name }}</p>
+                                <p class="text-sm mb-0"><strong>Total baris data:</strong> {{ total_rows }}</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 mb-4">
+                            <div class="border rounded p-3 h-100">
+                                <h6 class="mb-3">Mapping Kolom</h6>
+                                <p class="text-sm text-muted mb-3">Kolom yang namanya paling cocok akan dipilih otomatis. Tetap bisa Anda ubah manual.</p>
+                                <div class="row">
+                                    {% for field in mapping_fields %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <label for="map_{{ field.name }}" class="form-label mb-0">{{ field.label }}</label>
+                                            {% if field.auto_selected %}
+                                            <span class="badge bg-gradient-primary text-xxs px-3">Terdeteksi otomatis</span>
+                                            {% elif not field.selected %}
+                                            <span class="badge bg-gradient-secondary text-xxs px-3">Perlu dipilih</span>
+                                            {% endif %}
+                                        </div>
+                                        <select id="map_{{ field.name }}" name="map_{{ field.name }}" class="form-control form-select-sm">
+                                            <option value="">Pilih Kolom Excel</option>
+                                            {% for header in headers %}
+                                            <option value="{{ header }}" {% if field.selected == header %}selected{% endif %}>{{ header }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Preview Data</h6>
+                            <button type="submit" class="btn btn-sm bg-gradient-primary mb-0">
+                                <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mulai Import
+                            </button>
+                        </div>
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0" id="previewTable">
+                                <thead>
+                                    <tr>
+                                        {% for header in headers %}
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ header }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in preview_rows %}
+                                    <tr>
+                                        {% for cell in row %}
+                                        <td><span class="text-sm">{{ cell|default:'-' }}</span></td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="{{ headers|length }}" class="text-center text-sm text-secondary">Tidak ada baris data untuk diimport.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+                {% else %}
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="upload">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label for="import_file" class="form-label">File Import</label>
+                            <input type="file" id="import_file" name="import_file" class="form-control form-control-sm" accept=".xlsx,.csv">
+                            <small class="text-muted">Gunakan file .xlsx atau .csv. Baris pertama akan dianggap sebagai header kolom.</small>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-sm bg-gradient-primary mb-0">
+                            <i class="fas fa-upload"></i>&nbsp;&nbsp;Lanjutkan Mapping
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+        if ($('#previewTable').length) {
+            $('#previewTable').DataTable({
+                paging: false,
+                pageLength: 5,
+                lengthChange: false,
+                searching: false,
+                info: false,
+                ordering: false,
+                scrollX: true,
+                autoWidth: false,
+                language: {
+                    "search": "Cari:",
+                    "zeroRecords": "Tidak ada data",
+                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ baris",
+                    "infoEmpty": "Tidak ada data tersedia",
+                    "infoFiltered": "(disaring dari _MAX_ total data)",
+                    "paginate": {
+                        "previous": "<i class='fas fa-angle-left'>",
+                        "next": "<i class='fas fa-angle-right'>"
+                    }
+                },
+                columnDefs: [
+                    { targets: '_all', className: 'align-middle text-sm' }
+                ]
+            });
+
+            const buttons = document.getElementsByClassName('paginate_button');
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.add(
+                    'border-radius-top-start-circle',
+                    'border-radius-bottom-end-circle',
+                    'border-radius-top-end-circle',
+                    'border-radius-bottom-start-circle'
+                );
+            }
+        }
+    });
+</script>
+{% endblock javascripts %}

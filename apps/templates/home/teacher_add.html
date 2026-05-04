@@ -1,0 +1,123 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tambah Guru {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'teacher-add' %}" method="post">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Tambah Guru</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button type="submit" class="btn btn-sm bg-gradient-primary mb-0">
+                                    <i class="fas fa-save"></i>&nbsp;&nbsp;Simpan
+                                </button>
+                                <a href="{% url 'teacher-index' %}" class="btn btn-sm bg-gradient-dark mb-0">
+                                    <i class="fas fa-reply"></i>&nbsp;&nbsp;Batal
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row gx-3">
+                            <!-- Baris 1: NIP | Nama Guru | JK -->
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.nip.label_tag }}{{ form.nip }}
+                                    <div class="text-sm text-danger">{{ form.nip.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.user.label_tag }}{{ form.user }}
+                                    <div class="text-sm text-danger">{{ form.user.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.sex.label_tag }}{{ form.sex }}
+                                    <div class="text-sm text-danger">{{ form.sex.errors }}</div>
+                                </div>
+                            </div>
+                            <!-- Baris 2: Tempat Lahir | Tanggal Lahir | Status -->
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.birth_place.label_tag }}{{ form.birth_place }}
+                                    <div class="text-sm text-danger">{{ form.birth_place.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.birth_date.label_tag }}{{ form.birth_date }}
+                                    <div class="text-sm text-danger">{{ form.birth_date.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.status.label_tag }}{{ form.status }}
+                                    <div class="text-sm text-danger">{{ form.status.errors }}</div>
+                                </div>
+                            </div>
+                            <!-- Baris 3: Telepon | Email | Spesialisasi -->
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.phone.label_tag }}{{ form.phone }}
+                                    <div class="text-sm text-danger">{{ form.phone.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.email.label_tag }}{{ form.email }}
+                                    <div class="text-sm text-danger">{{ form.email.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.specialization.label_tag }}{{ form.specialization }}
+                                    <div class="text-sm text-danger">{{ form.specialization.errors }}</div>
+                                </div>
+                            </div>
+                            <!-- Baris 4: Pendidikan Terakhir | Jurusan | Nama Sekolah -->
+                            <div class="col-md-3 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.last_education.label_tag }}{{ form.last_education }}
+                                    <div class="text-sm text-danger">{{ form.last_education.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.last_school_major.label_tag }}{{ form.last_school_major }}
+                                    <div class="text-sm text-danger">{{ form.last_school_major.errors }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-5 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.last_school.label_tag }}{{ form.last_school }}
+                                    <div class="text-sm text-danger">{{ form.last_school.errors }}</div>
+                                </div>
+                            </div>
+                            <!-- Baris 5: Alamat -->
+                            <div class="col-12 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.address.label_tag }}{{ form.address }}
+                                    <div class="text-sm text-danger">{{ form.address.errors }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}

@@ -1,0 +1,114 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tambah Kelas {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'grade-add' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Tambah Kelas</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button type="submit" class="btn btn-sm bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <a href="{% url 'grade-index' %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.grade_id.label_tag }}{{ form.grade_id }}
+                                        <div class="text-sm text-danger">{{ form.grade_id.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.level.label_tag }}{{ form.level }}
+                                        <div class="text-sm text-danger">{{ form.level.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.school_year.label_tag }}{{ form.school_year }}
+                                        <div class="text-sm text-danger">{{ form.school_year.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.grade.label_tag }}{{ form.grade }}
+                                        <div class="text-sm text-danger">{{ form.grade.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.sub_grade.label_tag }}{{ form.sub_grade }}
+                                        <div class="text-sm text-danger">{{ form.sub_grade.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="shadow-none">
+                                        {{ form.grade_name.label_tag }}{{ form.grade_name }}
+                                        <div class="text-sm text-danger">{{ form.grade_name.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.homeroom_teacher_1.label_tag }}{{ form.homeroom_teacher_1 }}
+                                        <div class="text-sm text-danger">{{ form.homeroom_teacher_1.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.homeroom_teacher_2.label_tag }}{{ form.homeroom_teacher_2 }}
+                                        <div class="text-sm text-danger">{{ form.homeroom_teacher_2.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+        function syncHomeroomDropdowns() {
+            var val1 = $('#id_homeroom_teacher_1').val();
+            var val2 = $('#id_homeroom_teacher_2').val();
+
+            // Reset semua option dulu
+            $('#id_homeroom_teacher_1 option').prop('disabled', false);
+            $('#id_homeroom_teacher_2 option').prop('disabled', false);
+
+            // Disable pilihan yang sudah dipilih di sisi lain
+            if (val1) {
+                $('#id_homeroom_teacher_2 option[value="' + val1 + '"]').prop('disabled', true);
+            }
+            if (val2) {
+                $('#id_homeroom_teacher_1 option[value="' + val2 + '"]').prop('disabled', true);
+            }
+        }
+
+        syncHomeroomDropdowns();
+        $('#id_homeroom_teacher_1, #id_homeroom_teacher_2').on('change', syncHomeroomDropdowns);
+    });
+</script>
+{% endblock javascripts %}

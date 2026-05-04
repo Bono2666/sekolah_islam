@@ -1,0 +1,309 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Kelompok {{ data.group_name }} {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'study-group-detail-update' data.study_group_id %}" method="post">
+                {% csrf_token %}
+
+                <!-- Bagian Atas: Informasi Kelompok -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">{{ data.group_name }}</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% url 'study-group-index' %}" class="btn btn-sm bg-gradient-dark mb-0">
+                                    <i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}
+                                </a>
+                                <a href="{% url 'study-group-detail-update' data.study_group_id %}"
+                                   class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}"
+                                   {% if crud == 'update' %}hidden{% endif %}>
+                                    <i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah
+                                </a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0"
+                                        {% if crud == 'view' %}hidden{% endif %}>
+                                    <i class="fas fa-save"></i>&nbsp;&nbsp;Simpan
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm bg-gradient-danger mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete">
+                                    <i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal konfirmasi hapus kelompok -->
+                    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Konfirmasi</h5>
+                                </div>
+                                <div class="modal-body border-bottom-0">
+                                    Anda yakin ingin menghapus kelompok <strong>{{ data.group_name }}</strong>?
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'study-group-delete' data.study_group_id %}"
+                                       class="btn btn-sm bg-gradient-danger text-white">Hapus</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body pt-2 pb-3">
+                        <div class="row gx-3">
+                            <!-- Baris 1: Tahun Ajaran, Kode Jenis, Nama Jenis -->
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {% if crud == 'view' %}
+                                        <label class="form-label">Tahun Ajaran</label>
+                                        <input type="text" class="form-control-sm" value="{{ data.school_year.school_year_name|default:'-' }}" readonly>
+                                    {% else %}
+                                        {{ form.school_year.label_tag }}{{ form.school_year }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-2 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.group_type_code.label_tag }}{{ form.group_type_code }}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.group_type_name.label_tag }}{{ form.group_type_name }}
+                                </div>
+                            </div>
+                            <!-- Baris 2: Nama Kelompok, Pembagian Kelompok, Guru Kelompok -->
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.group_name.label_tag }}{{ form.group_name }}
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.group_division.label_tag }}{{ form.group_division }}
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-0">
+                                <div class="shadow-none">
+                                    {{ form.group_teacher.label_tag }}{{ form.group_teacher }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Bagian Bawah: Daftar Anggota -->
+            <div class="card mb-5 p-4">
+                <div class="row mb-3">
+                    <div class="col-6 d-flex align-items-center">
+                        <h5 class="mb-0">Daftar Anggota</h5>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button type="button"
+                                class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}"
+                                data-bs-toggle="modal" data-bs-target="#addMemberModal">
+                            <i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Anggota
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="memberTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">NIPD</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Santri</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelamin</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelas</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in members %}
+                                <tr data-href="{% url 'student-view' m.student.student_id %}" class="cursor-pointer">
+                                    <td><h6 class="mb-0 text-sm">{{ m.student.nipd|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ m.student.name }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ m.student.sex }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{% if m.student.grade %}{{ m.student.grade.grade_name }}{% else %}-{% endif %}</h6></td>
+                                    <td>
+                                        <button class="btn-icon-only text-dark bg-transparent border-0"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                {% if btn.delete or request.user.is_superuser %}data-bs-target="#remove-{{ m.student.student_id }}"{% else %}disabled{% endif %}>
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-sm py-3">Belum ada anggota di kelompok ini.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modals konfirmasi lepas anggota -->
+            {% for m in members %}
+            <div class="modal fade" id="remove-{{ m.student.student_id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Konfirmasi</h5>
+                        </div>
+                        <div class="modal-body border-bottom-0">
+                            Anda yakin ingin mengeluarkan <strong>{{ m.student.name }}</strong> dari kelompok ini?
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                            <a href="{% url 'study-group-remove-student' data.study_group_id m.student.student_id %}"
+                               class="btn btn-sm bg-gradient-danger text-white">Keluarkan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Modal: Tambah Anggota -->
+            <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addMemberModalLabel">Pilih Santri</h5>
+                            <button type="button" class="btn btn-link text-dark p-0 ms-auto" data-bs-dismiss="modal" style="font-size:1.25rem;line-height:1;"><i class="fas fa-times"></i></button>
+                        </div>
+                        <form method="post" action="{% url 'study-group-add-student' data.study_group_id %}">
+                            {% csrf_token %}
+                            <div class="modal-body border-bottom-0">
+                                {% if non_members %}
+                                <table class="table align-items-center mb-0" id="nonMemberTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"></th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">NIPD</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Santri</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelamin</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kelas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for s in non_members %}
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="student_ids" value="{{ s.student_id }}" class="cursor-pointer border">
+                                            </td>
+                                            <td><h6 class="mb-0 text-sm">{{ s.nipd|default:'-' }}</h6></td>
+                                            <td><h6 class="mb-0 text-sm">{{ s.name }}</h6></td>
+                                            <td><h6 class="mb-0 text-sm">{{ s.sex }}</h6></td>
+                                            <td><h6 class="mb-0 text-sm">{% if s.grade %}{{ s.grade.grade_name }}{% else %}-{% endif %}</h6></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                <p class="text-sm text-center py-3 mb-0">Semua santri sudah menjadi anggota kelompok ini.</p>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-sm bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                {% if non_members %}
+                                <button type="submit" class="btn btn-sm bg-gradient-primary">Masukkan ke Kelompok</button>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+        $.fn.dataTable.ext.errMode = 'none';
+
+        if ($.fn.DataTable.isDataTable('#memberTable')) {
+            $('#memberTable').DataTable().destroy();
+        }
+        $('#memberTable').DataTable({
+            'pageLength': 25,
+            'pagingType': 'numbers',
+            'autoWidth': false,
+            'columnDefs': [{ 'orderable': false, 'targets': -1 }],
+            'language': {
+                'search': 'Cari:',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'infoEmpty': 'Tidak ada data',
+                'infoFiltered': '(disaring dari _MAX_ total data)',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'previous': "<i class='fas fa-angle-left'>",
+                    'next': "<i class='fas fa-angle-right'>"
+                }
+            },
+            'order': [[1, 'asc']],
+        });
+
+        $(document).on('click', '#memberTable tbody tr', function () {
+            var href = $(this).data('href');
+            if (href) window.location = href;
+        });
+
+        $(document).on('click', '#memberTable .btn-icon-only', function (e) {
+            e.stopPropagation();
+        });
+    });
+
+    window.addEventListener('load', function () {
+        var nonMemberTableInit = false;
+
+        function initNonMemberTable() {
+            if (!nonMemberTableInit && document.getElementById('nonMemberTable')) {
+                $('#nonMemberTable').DataTable({
+                    'info': false,
+                    'pageLength': 10,
+                    'lengthChange': false,
+                    'columnDefs': [{ 'orderable': false, 'targets': 0 }],
+                    'order': [[2, 'asc']],
+                    'language': {
+                        'search': 'Cari:',
+                        'zeroRecords': 'Tidak ada data',
+                        'paginate': {
+                            'previous': "<i class='fas fa-angle-left'>",
+                            'next': "<i class='fas fa-angle-right'>"
+                        }
+                    },
+                });
+                nonMemberTableInit = true;
+            }
+        }
+
+        var modalEl = document.getElementById('addMemberModal');
+        if (modalEl) {
+            modalEl.addEventListener('shown.bs.modal', initNonMemberTable);
+            $(modalEl).on('shown.bs.modal', initNonMemberTable);
+        }
+
+        $('[data-bs-target="#addMemberModal"]').on('click', function () {
+            setTimeout(initNonMemberTable, 400);
+        });
+    });
+</script>
+{% endblock javascripts %}

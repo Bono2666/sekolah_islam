@@ -1,0 +1,102 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Kelompok Belajar {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Kelompok Belajar</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}"
+                           href="{% url 'study-group-add' %}">
+                            <i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Kelompok
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama Kelompok</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Jenis Kelompok</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pembagian</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tahun Ajaran</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Guru Kelompok</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Anggota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr data-href="{% url 'study-group-detail-view' item.study_group_id %}" class="cursor-pointer">
+                                    <td>
+                                        <div class="d-flex pe-2 py-0">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ item.group_name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">
+                                            {% if item.group_type_code %}{{ item.group_type_code }} - {% endif %}{{ item.group_type_name|default:'-' }}
+                                        </h6>
+                                    </td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.get_group_division_display|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.school_year.school_year_name|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.group_teacher.user.username|default:'-' }}</h6></td>
+                                    <td class="text-center">
+                                        <span class="badge badge-sm bg-gradient-primary">{{ item.member_count }}</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-sm py-3">Tidak ada data kelompok belajar.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+        $.fn.dataTable.ext.errMode = 'none';
+
+        $('#myTable').DataTable({
+            'pageLength': 25,
+            'pagingType': 'numbers',
+            'language': {
+                'search': 'Cari:',
+                'info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                'infoEmpty': 'Tidak ada data tersedia',
+                'infoFiltered': '(disaring dari _MAX_ total data)',
+                'lengthMenu': 'Tampilkan _MENU_ data',
+                'zeroRecords': 'Tidak ada data',
+                'paginate': {
+                    'previous': "<i class='fas fa-angle-left'>",
+                    'next': "<i class='fas fa-angle-right'>"
+                }
+            },
+            'order': [[3, 'desc'], [0, 'asc']],
+        });
+
+        $(document).on('click', '#myTable tbody tr', function () {
+            var href = $(this).data('href');
+            if (href) window.location = href;
+        });
+    });
+</script>
+{% endblock javascripts %}

@@ -1,0 +1,597 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tambah Santri {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="/santri/add/" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Tambah Santri</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button type="submit" class="btn btn-sm bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <a href="/santri/" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0 pb-4">
+                        <div class="pl-lg-0">
+                            <div class="row gx-3">
+                                <div class="col-lg-6">
+                                    <div class="row gx-3">
+                                        <div class="col-12 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.name.label_tag }}{{ form.name }}
+                                                <div class="text-sm text-danger">{{ form.name.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-5 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.grade.label_tag }}{{ form.grade }}
+                                                <div class="text-sm text-danger">{{ form.grade.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.hostel.label_tag }}{{ form.hostel }}
+                                                <div class="text-sm text-danger">{{ form.hostel.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.sex.label_tag }}{{ form.sex }}
+                                                <div class="text-sm text-danger">{{ form.sex.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-8 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.birth_place.label_tag }}{{ form.birth_place }}
+                                                <div class="text-sm text-danger">{{ form.birth_place.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.birth_date.label_tag }}{{ form.birth_date }}
+                                                <div class="text-sm text-danger">{{ form.birth_date.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.address.label_tag }}{{ form.address }}
+                                                <div class="text-sm text-danger">{{ form.address.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-8 mb-0">
+                                            <div class="shadow-none">
+                                                <label for="id_village_display">Desa/Kelurahan</label>
+                                                <div class="input-group input-group-alternative">
+                                                    <a class="form-control form-control-sm border" id="id_village_display" data-bs-toggle="modal" data-bs-target="#villageModal">Pilih Desa/Kelurahan</a>
+                                                    <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#villageModal"><i class="fas fa-angle-down"></i></span>
+                                                </div>
+                                                {{ form.village }}
+                                                <div class="text-sm text-danger">{{ form.village.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.rt.label_tag }}{{ form.rt }}
+                                                <div class="text-sm text-danger">{{ form.rt.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.rw.label_tag }}{{ form.rw }}
+                                                <div class="text-sm text-danger">{{ form.rw.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-7 mb-0">
+                                            <div class="shadow-none">
+                                                <label for="id_sub_district_display">Kecamatan</label>
+                                                <div class="input-group input-group-alternative">
+                                                    <a class="form-control form-control-sm border" id="id_sub_district_display" data-bs-toggle="modal" data-bs-target="#subDistrictModal">Pilih Kecamatan</a>
+                                                    <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#subDistrictModal"><i class="fas fa-angle-down"></i></span>
+                                                </div>
+                                                {{ form.sub_district }}
+                                                <div class="text-sm text-danger">{{ form.sub_district.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 mb-0">
+                                            <div class="shadow-none">
+                                                <label for="id_district_display">Kabupaten/Kota</label>
+                                                <div class="input-group input-group-alternative">
+                                                    <a class="form-control form-control-sm border" id="id_district_display" data-bs-toggle="modal" data-bs-target="#districtModal">Pilih Kabupaten/Kota</a>
+                                                    <span class="input-group-text bg-transparent end-0 pe-3 py-2 text-body z-index-0" data-bs-toggle="modal" data-bs-target="#districtModal"><i class="fas fa-angle-down"></i></span>
+                                                </div>
+                                                {{ form.district }}
+                                                <div class="text-sm text-danger">{{ form.district.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 mb-0">
+                                            <div class="row gx-3">
+                                                <div class="col-md-9 mb-0">
+                                                    <div class="shadow-none">
+                                                        {{ form.residence_type.label_tag }}{{ form.residence_type }}
+                                                        <div class="text-sm text-danger">{{ form.residence_type.errors }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 mb-0">
+                                                    <div class="shadow-none">
+                                                        {{ form.postal_code.label_tag }}{{ form.postal_code }}
+                                                        <div class="text-sm text-danger">{{ form.postal_code.errors }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <div class="row gx-3">
+                                        <div class="col-md-6 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.nipd.label_tag }}{{ form.nipd }}
+                                                <div class="text-sm text-danger">{{ form.nipd.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.nisn.label_tag }}{{ form.nisn }}
+                                                <div class="text-sm text-danger">{{ form.nisn.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.nik.label_tag }}{{ form.nik }}
+                                                <div class="text-sm text-danger">{{ form.nik.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.religion.label_tag }}{{ form.religion }}
+                                                <div class="text-sm text-danger">{{ form.religion.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.shkun_no.label_tag }}{{ form.shkun_no }}
+                                                <div class="text-sm text-danger">{{ form.shkun_no.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-7 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.kps_recipient.label_tag }}{{ form.kps_recipient }}
+                                                <div class="text-sm text-danger">{{ form.kps_recipient.errors }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.kps_no.label_tag }}{{ form.kps_no }}
+                                                <div class="text-sm text-danger">{{ form.kps_no.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-0">
+                                            <div class="row gx-3">
+                                                <div class="col-md-3 mb-0">
+                                                    <div class="shadow-none">
+                                                        {{ form.phone.label_tag }}{{ form.phone }}
+                                                        <div class="text-sm text-danger">{{ form.phone.errors }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 mb-0">
+                                                    <div class="shadow-none">
+                                                        {{ form.handphone.label_tag }}{{ form.handphone }}
+                                                        <div class="text-sm text-danger">{{ form.handphone.errors }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-0">
+                                                    <div class="shadow-none">
+                                                        {{ form.email.label_tag }}{{ form.email }}
+                                                        <div class="text-sm text-danger">{{ form.email.errors }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.transportation.label_tag }}{{ form.transportation }}
+                                                <div class="text-sm text-danger">{{ form.transportation.errors }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-0">
+                                            <div class="shadow-none">
+                                                {{ form.other_info.label_tag }}{{ form.other_info }}
+                                                <div class="text-sm text-danger">{{ form.other_info.errors }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-5 p-4">
+                    <ul class="nav nav-tabs" id="guardianTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-sm text-body {% if not form.mother_name.errors and not form.mother_birth_year.errors and not form.mother_education.errors and not form.mother_occupation.errors and not form.mother_nik.errors and not form.mother_income.errors and not form.guardian_name.errors and not form.guardian_birth_year.errors and not form.guardian_education.errors and not form.guardian_occupation.errors and not form.guardian_nik.errors and not form.guardian_income.errors %}active{% endif %}" id="father-tab" data-bs-toggle="tab" data-bs-target="#father-tab-pane" type="button"
+                                role="tab" aria-controls="father-tab-pane" aria-selected="true">Data Ayah</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-sm text-body {% if form.mother_name.errors or form.mother_birth_year.errors or form.mother_education.errors or form.mother_occupation.errors or form.mother_nik.errors or form.mother_income.errors %}active{% endif %}" id="mother-tab" data-bs-toggle="tab" data-bs-target="#mother-tab-pane" type="button"
+                                role="tab" aria-controls="mother-tab-pane" aria-selected="false">Data Ibu</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-sm text-body {% if form.guardian_name.errors or form.guardian_birth_year.errors or form.guardian_education.errors or form.guardian_occupation.errors or form.guardian_nik.errors or form.guardian_income.errors %}active{% endif %}" id="guardian-tab" data-bs-toggle="tab" data-bs-target="#guardian-tab-pane" type="button"
+                                role="tab" aria-controls="guardian-tab-pane" aria-selected="false">Data Wali</button>
+                        </li>
+                    </ul>
+                    <div class="card-body px-0 pt-3 pb-0">
+                        <div class="tab-content" id="guardianTabContent">
+                            <div class="tab-pane fade {% if not form.mother_name.errors and not form.mother_birth_year.errors and not form.mother_education.errors and not form.mother_occupation.errors and not form.mother_nik.errors and not form.mother_income.errors and not form.guardian_name.errors and not form.guardian_birth_year.errors and not form.guardian_education.errors and not form.guardian_occupation.errors and not form.guardian_nik.errors and not form.guardian_income.errors %}show active{% endif %}" id="father-tab-pane" role="tabpanel" aria-labelledby="father-tab" tabindex="0">
+                                <div class="row gx-3">
+                                    <div class="col-md-8 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.father_name.label_tag }}{{ form.father_name }}
+                                            <div class="text-sm text-danger">{{ form.father_name.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.father_birth_year.label_tag }}{{ form.father_birth_year }}
+                                            <div class="text-sm text-danger">{{ form.father_birth_year.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.father_education.label_tag }}{{ form.father_education }}
+                                            <div class="text-sm text-danger">{{ form.father_education.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.father_occupation.label_tag }}{{ form.father_occupation }}
+                                            <div class="text-sm text-danger">{{ form.father_occupation.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.father_nik.label_tag }}{{ form.father_nik }}
+                                            <div class="text-sm text-danger">{{ form.father_nik.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.father_income.label_tag }}{{ form.father_income }}
+                                            <div class="text-sm text-danger">{{ form.father_income.errors }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade {% if form.mother_name.errors or form.mother_birth_year.errors or form.mother_education.errors or form.mother_occupation.errors or form.mother_nik.errors or form.mother_income.errors %}show active{% endif %}" id="mother-tab-pane" role="tabpanel" aria-labelledby="mother-tab" tabindex="0">
+                                <div class="row gx-3">
+                                    <div class="col-md-8 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.mother_name.label_tag }}{{ form.mother_name }}
+                                            <div class="text-sm text-danger">{{ form.mother_name.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.mother_birth_year.label_tag }}{{ form.mother_birth_year }}
+                                            <div class="text-sm text-danger">{{ form.mother_birth_year.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.mother_education.label_tag }}{{ form.mother_education }}
+                                            <div class="text-sm text-danger">{{ form.mother_education.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.mother_occupation.label_tag }}{{ form.mother_occupation }}
+                                            <div class="text-sm text-danger">{{ form.mother_occupation.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.mother_nik.label_tag }}{{ form.mother_nik }}
+                                            <div class="text-sm text-danger">{{ form.mother_nik.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.mother_income.label_tag }}{{ form.mother_income }}
+                                            <div class="text-sm text-danger">{{ form.mother_income.errors }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade {% if form.guardian_name.errors or form.guardian_birth_year.errors or form.guardian_education.errors or form.guardian_occupation.errors or form.guardian_nik.errors or form.guardian_income.errors %}show active{% endif %}" id="guardian-tab-pane" role="tabpanel" aria-labelledby="guardian-tab" tabindex="0">
+                                <div class="row gx-3">
+                                    <div class="col-md-8 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.guardian_name.label_tag }}{{ form.guardian_name }}
+                                            <div class="text-sm text-danger">{{ form.guardian_name.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.guardian_birth_year.label_tag }}{{ form.guardian_birth_year }}
+                                            <div class="text-sm text-danger">{{ form.guardian_birth_year.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.guardian_education.label_tag }}{{ form.guardian_education }}
+                                            <div class="text-sm text-danger">{{ form.guardian_education.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.guardian_occupation.label_tag }}{{ form.guardian_occupation }}
+                                            <div class="text-sm text-danger">{{ form.guardian_occupation.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.guardian_nik.label_tag }}{{ form.guardian_nik }}
+                                            <div class="text-sm text-danger">{{ form.guardian_nik.errors }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-0">
+                                        <div class="shadow-none">
+                                            {{ form.guardian_income.label_tag }}{{ form.guardian_income }}
+                                            <div class="text-sm text-danger">{{ form.guardian_income.errors }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modals for location selection -->
+<div class="modal fade" id="districtModal" tabindex="-1" aria-labelledby="districtModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="districtModalLabel">Pilih Kabupaten/Kota</h5>
+        <button type="button" class="btn btn-link text-dark p-0 ms-auto" data-bs-dismiss="modal" aria-label="Tutup" style="font-size: 1.25rem; line-height: 1;"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <table id="districtTable" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr><th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama Kabupaten/Kota</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="subDistrictModal" tabindex="-1" aria-labelledby="subDistrictModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="subDistrictModalLabel">Pilih Kecamatan</h5>
+        <button type="button" class="btn btn-link text-dark p-0 ms-auto" data-bs-dismiss="modal" aria-label="Tutup" style="font-size: 1.25rem; line-height: 1;"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <table id="subDistrictTable" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr><th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama Kecamatan</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="villageModal" tabindex="-1" aria-labelledby="villageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="villageModalLabel">Pilih Desa/Kelurahan</h5>
+        <button type="button" class="btn btn-link text-dark p-0 ms-auto" data-bs-dismiss="modal" aria-label="Tutup" style="font-size: 1.25rem; line-height: 1;"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <table id="villageTable" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr><th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama Desa/Kelurahan</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+        function setDisplayValue(selector, value) {
+            var $el = $(selector);
+            if ($el.is('input,textarea,select')) {
+                $el.val(value);
+            } else {
+                $el.text(value);
+            }
+        }
+
+        function setDisplayFromSelect(selectId, displayId) {
+            var $select = $(selectId);
+            var selected = $select.find('option:selected');
+            if (selected.length && selected.val()) {
+                setDisplayValue(displayId, selected.text());
+            } else {
+                if (displayId === '#id_village_display') {
+                    setDisplayValue(displayId, 'Pilih Desa/Kelurahan');
+                } else {
+                    if (displayId === '#id_sub_district_display') {
+                        setDisplayValue(displayId, 'Pilih Kecamatan');
+                    } else if (displayId === '#id_district_display') {
+                        setDisplayValue(displayId, 'Pilih Kabupaten/Kota');
+                    } else {
+                        setDisplayValue(displayId, '');
+                    }
+                }
+            }
+        }
+
+        function selectOption(selectId, value, text) {
+            var $select = $(selectId);
+            if ($select.find('option[value="' + value + '"]').length === 0) {
+                $select.append($('<option>', {value: value, text: text}));
+            }
+            $select.val(value);
+        }
+
+        var districtTable = $('#districtTable').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                url: '{% url "district-data" %}',
+                type: 'GET'
+            },
+            columns: [
+                {
+                    data: 'name',
+                    className: 'cursor-pointer',
+                    render: function(data) {
+                        return '<h6 class="mb-0 text-sm">' + data + '</h6>';
+                    }
+                }
+            ],
+            pageLength: 10,
+            lengthChange: false,
+            searching: true,
+            order: [[0, 'asc']],
+            info: false,
+        });
+
+        var subDistrictTable = $('#subDistrictTable').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                url: '{% url "sub-district-data" %}',
+                type: 'GET'
+            },
+            columns: [
+                {
+                    data: 'name',
+                    className: 'cursor-pointer',
+                    render: function(data) {
+                        return '<h6 class="mb-0 text-sm">' + data + '</h6>';
+                    }
+                }
+            ],
+            pageLength: 10,
+            lengthChange: false,
+            searching: true,
+            order: [[0, 'asc']],
+            info: false,
+        });
+
+        var villageTable = $('#villageTable').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                url: '{% url "village-data" %}',
+                type: 'GET'
+            },
+            columns: [
+                {
+                    data: 'name',
+                    className: 'cursor-pointer',
+                    render: function(data) {
+                        return '<h6 class="mb-0 text-sm">' + data + '</h6>';
+                    }
+                }
+            ],
+            pageLength: 10,
+            lengthChange: false,
+            searching: true,
+            order: [[0, 'asc']],
+            info: false,
+        });
+
+        $('#open-district-modal').on('click', function() {
+            alert('Opening district modal');
+            districtTable.ajax.reload();
+            $('#districtModal').modal('show');
+        });
+
+        $('#districtTable tbody').on('click', 'tr', function() {
+            var data = districtTable.row(this).data();
+            if (!data) return;
+            selectOption('#id_district', data.id, data.name);
+            setDisplayValue('#id_district_display', data.name);
+            $('#districtModal').modal('hide');
+        });
+
+        $('#open-subdistrict-modal').on('click', function() {
+            console.log('Opening subdistrict modal');
+            subDistrictTable.ajax.reload();
+            $('#subDistrictModal').modal('show');
+        });
+
+        $('#subDistrictTable tbody').on('click', 'tr', function() {
+            var data = subDistrictTable.row(this).data();
+            if (!data) return;
+            selectOption('#id_sub_district', data.id, data.name);
+            $('#id_sub_district_display').val(data.name);
+            setDisplayValue('#id_sub_district_display', data.name);
+            $('#subDistrictModal').modal('hide');
+        });
+
+        $('#open-village-modal').on('click', function() {
+            console.log('Opening village modal');
+            villageTable.ajax.reload();
+            $('#villageModal').modal('show');
+        });
+
+        $('#villageTable tbody').on('click', 'tr', function() {
+            var data = villageTable.row(this).data();
+            if (!data) return;
+            selectOption('#id_village', data.id, data.name);
+            setDisplayValue('#id_village_display', data.name);
+            $('#villageModal').modal('hide');
+        });
+
+        setDisplayFromSelect('#id_district', '#id_district_display');
+        setDisplayFromSelect('#id_sub_district', '#id_sub_district_display');
+        setDisplayFromSelect('#id_village', '#id_village_display');
+    });
+</script>
+{% endblock javascripts %}

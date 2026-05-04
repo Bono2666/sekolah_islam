@@ -1,0 +1,79 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Daftar Tahun Ajaran {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Daftar Tahun Ajaran</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'school-year-add' %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Tahun Ajaran</a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tahun Ajaran</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr data-href="{% url 'school-year-view' item.school_year_id %}" class="cursor-pointer">
+                                    <td><h6 class="mb-0 text-sm">{{ item.school_year_id }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.school_year_name }}</h6></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+$(document).ready(function() {
+    $('#myTable').DataTable({
+        "pageLength": 25,
+        "ordering": true,
+        "searching": true,
+        "paging": true,
+        "info": true,
+        "lengthChange": false,
+        "language": {
+            "search": "Cari:",
+            "lengthMenu": "Tampilkan _MENU_ data per halaman",
+            "zeroRecords": "Data tidak ditemukan",
+            "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+            "infoEmpty": "Tidak ada data yang tersedia",
+            "infoFiltered": "(difilter dari _MAX_ total data)",
+            "paginate": {
+                "first": "Pertama",
+                "last": "Terakhir",
+                "next": "Selanjutnya",
+                "previous": "Sebelumnya"
+            }
+        }
+    });
+
+    $('#myTable tbody').on('click', 'tr[data-href]', function() {
+        window.location.href = $(this).data('href');
+    });
+});
+</script>
+
+{% endblock javascripts %}
