@@ -1,0 +1,217 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Mapel Per Kelas {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'grade-subject-update' data.grade_subject_id %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Mapel Per Kelas ID: {{ data.grade_subject_id }}</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% if crud == 'view' %}{% url 'grade-subject-index' %}{% else %}{% url 'grade-subject-view' data.grade_subject_id %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a>
+                                <a href="{% url 'grade-subject-update' data.grade_subject_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah</a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <button type="button" class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.grade_subject_id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirm-{{ data.grade_subject_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                </div>
+                                <div class="modal-body border-bottom-0">
+                                    Anda yakin ingin menghapus mapel <strong>{{ data.subject }}</strong> dari kelas <strong>{{ data.grade }}</strong>?
+                                    <br><small class="text-danger">Semua penugasan guru terkait juga akan dihapus.</small>
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-sm bg-gradient-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'grade-subject-delete' data.grade_subject_id %}" role="button" class="btn btn-sm bg-gradient-danger text-white">Hapus</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if message %}
+                        <div class="alert alert-danger text-white" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-6 mb-0">
+                                    <div class="shadow-none">
+                                        {{ form.grade.label_tag }}{{ form.grade }}
+                                        <div class="text-sm text-danger">{{ form.grade.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-0">
+                                    <div class="shadow-none">
+                                        {{ form.subject.label_tag }}{{ form.subject }}
+                                        <div class="text-sm text-danger">{{ form.subject.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-1">
+                                <div class="col-md-6 mb-0">
+                                    <div class="shadow-none">
+                                        {{ form.keterangan.label_tag }}{{ form.keterangan }}
+                                        <div class="text-sm text-danger">{{ form.keterangan.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-0">
+                                    <div class="shadow-none">
+                                        {{ form.room.label_tag }}{{ form.room }}
+                                        <div class="text-sm text-danger">{{ form.room.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            {% if crud == 'view' %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-6 d-flex align-items-center">
+                            <h4 class="mb-2">Daftar Guru Pengampu</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0" style="margin-left: 1.5rem; margin-right: 1.5rem;">
+                        <table id="teacherTable" class="table hover align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">No</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Guru</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jam</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ts in teachers %}
+                                <tr>
+                                    <td><h6 class="mb-0 text-sm">{{ forloop.counter }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ ts.teacher.user.username|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ ts.hours }}</h6></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+{% if crud == 'view' %}
+<script>
+$(document).ready(function() {
+    $('#teacherTable').DataTable({
+        "pagingType": "numbers",
+        "language": {
+            "search": "Cari:",
+            "zeroRecords": "Tidak ada data guru",
+            "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+            "infoEmpty": "Tidak ada data",
+            "infoFiltered": "(disaring dari _MAX_ total data)",
+            "lengthMenu": "Tampilkan _MENU_ data",
+            "paginate": {
+                "first": "Pertama",
+                "last": "Terakhir",
+                "next": "Selanjutnya",
+                "previous": "Sebelumnya"
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+
+{% if crud == 'update' %}
+<script>
+$(document).ready(function() {
+    const gradeSelect = $('#id_grade');
+    const subjectSelect = $('#id_subject');
+    const currentSubjectId = '{{ data.subject_id }}';
+
+    function fetchAvailableSubjects(gradeId, includeCurrent) {
+        if (!gradeId) {
+            subjectSelect.empty().append('<option value="">Pilih Mata Pelajaran</option>');
+            subjectSelect.prop('disabled', true);
+            return;
+        }
+
+        subjectSelect.prop('disabled', true);
+        subjectSelect.empty().append('<option value="">Memuat data...</option>');
+
+        $.ajax({
+            url: "{% url 'available-subjects-by-grade' %}",
+            data: { grade_id: gradeId, grade_subject_id: '{{ data.grade_subject_id }}' },
+            dataType: 'json',
+            success: function(response) {
+                subjectSelect.empty();
+                if (response.results && response.results.length > 0) {
+                    subjectSelect.append('<option value="">Pilih Mata Pelajaran</option>');
+                    $.each(response.results, function(i, item) {
+                        subjectSelect.append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                    // If updating, ensure current subject is included even if "registered"
+                    if (includeCurrent && currentSubjectId) {
+                        if (subjectSelect.find('option[value="' + currentSubjectId + '"]').length === 0) {
+                            var currentText = subjectSelect.find('option:first').text();
+                            subjectSelect.append($('<option>', {
+                                value: currentSubjectId,
+                                text: '{{ data.subject }}'
+                            }));
+                        }
+                        subjectSelect.val(currentSubjectId);
+                    }
+                    subjectSelect.prop('disabled', false);
+                } else {
+                    subjectSelect.append('<option value="">Tidak ada mata pelajaran tersedia</option>');
+                    subjectSelect.prop('disabled', true);
+                }
+            },
+            error: function() {
+                subjectSelect.empty().append('<option value="">Error loading data</option>');
+            }
+        });
+    }
+
+    // Initialize with current grade
+    if (gradeSelect.val()) {
+        fetchAvailableSubjects(gradeSelect.val(), true);
+    } else {
+        subjectSelect.prop('disabled', true);
+    }
+
+    gradeSelect.on('change', function() {
+        fetchAvailableSubjects($(this).val(), false);
+    });
+});
+</script>
+{% endif %}
+
+{% endblock javascripts %}

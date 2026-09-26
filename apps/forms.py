@@ -174,6 +174,48 @@ class FormPositionView(ModelForm):
         fields = ['position_id', 'position_name']
 
 
+class FormTeacherStatus(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTeacherStatus, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['status_id'].label = 'ID Status'
+        self.fields['status_name'].label = 'Nama Status'
+        self.fields['status_id'].widget = forms.TextInput(
+            {'class': 'form-control-sm text-uppercase', 'placeholder': 'XXXXXXXXXX'})
+        self.fields['status_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = TeacherStatus
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormTeacherStatusUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTeacherStatusUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['status_name'].label = 'Nama Status'
+        self.fields['status_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = TeacherStatus
+        exclude = ['status_id', 'entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormTeacherStatusView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTeacherStatusView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['status_name'].label = 'Nama Status'
+        self.fields['status_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = TeacherStatus
+        fields = ['status_id', 'status_name']
+
+
 class FormMenu(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormMenu, self).__init__(*args, **kwargs)
@@ -448,7 +490,7 @@ class FormGrade(ModelForm):
             {'class': 'form-control-sm text-uppercase', 'placeholder': 'VII-A'})
         self.fields['level'].queryset = Level.objects.all().order_by('level_id')
         self.fields['level'].empty_label = 'Pilih Tingkatan'
-        self.fields['level'].label_from_instance = lambda obj: f"{obj.level_id} - {obj.level_name}"
+        self.fields['level'].label_from_instance = lambda obj: obj.level_name
         self.fields['level'].widget.attrs.update(
             {'class': 'form-control form-select-sm'})
         self.fields['grade'].widget = forms.TextInput(
@@ -513,7 +555,7 @@ class FormGradeUpdate(ModelForm):
         self.fields['treasurer'].label = 'Bendahara'
         self.fields['level'].queryset = Level.objects.all().order_by('level_id')
         self.fields['level'].empty_label = 'Pilih Tingkatan'
-        self.fields['level'].label_from_instance = lambda obj: f"{obj.level_id} - {obj.level_name}"
+        self.fields['level'].label_from_instance = lambda obj: obj.level_name
         self.fields['level'].widget.attrs.update(
             {'class': 'form-control form-select-sm'})
         self.fields['grade'].widget = forms.TextInput(
@@ -764,7 +806,7 @@ class FormTeacher(ModelForm):
         self.label_suffix = ''
         self.fields['user'].label = 'Nama Guru'
         self.fields['user'].queryset = User.objects.filter(
-            position__position_name__iregex=r'kepala sekolah|wali kelas|pengajar'
+            position__position_name__iregex=r'kepala sekolah|wali kelas|pengajar|guru|ustadz|ustadzah|asatidz'
         ).order_by('username')
         self.fields['user'].empty_label = 'Pilih Guru'
         self.fields['user'].label_from_instance = lambda obj: obj.username
@@ -779,9 +821,9 @@ class FormTeacher(ModelForm):
         self.fields['address'].widget = forms.Textarea({'class': 'form-control-sm', 'rows': 2})
         self.fields['phone'].widget = forms.TextInput({'class': 'form-control-sm'})
         self.fields['email'].widget = forms.TextInput({'class': 'form-control-sm'})
-        self.fields['status'].widget = forms.Select(
-            choices=[('', 'Pilih Status'), ('GTY', 'Guru Tetap Yayasan'), ('GTT', 'Guru Tidak Tetap'), ('PNS', 'PNS')],
-            attrs={'class': 'form-control form-select-sm'})
+        self.fields['status'].queryset = TeacherStatus.objects.all().order_by('status_name')
+        self.fields['status'].empty_label = 'Pilih Status'
+        self.fields['status'].widget.attrs.update({'class': 'form-control form-select-sm'})
         self.fields['specialization'].widget = forms.TextInput({'class': 'form-control-sm'})
         self.fields['last_education'].widget = forms.Select(
             choices=EDUCATION_CHOICES,
@@ -800,7 +842,7 @@ class FormTeacherUpdate(ModelForm):
         self.label_suffix = ''
         self.fields['user'].label = 'Nama Guru'
         self.fields['user'].queryset = User.objects.filter(
-            position__position_name__iregex=r'kepala sekolah|wali kelas|pengajar'
+            position__position_name__iregex=r'kepala sekolah|wali kelas|pengajar|guru|ustadz|ustadzah|asatidz'
         ).order_by('username')
         self.fields['user'].empty_label = 'Pilih Guru'
         self.fields['user'].label_from_instance = lambda obj: obj.username
@@ -815,9 +857,9 @@ class FormTeacherUpdate(ModelForm):
         self.fields['address'].widget = forms.Textarea({'class': 'form-control-sm', 'rows': 2})
         self.fields['phone'].widget = forms.TextInput({'class': 'form-control-sm'})
         self.fields['email'].widget = forms.TextInput({'class': 'form-control-sm'})
-        self.fields['status'].widget = forms.Select(
-            choices=[('', 'Pilih Status'), ('GTY', 'Guru Tetap Yayasan'), ('GTT', 'Guru Tidak Tetap'), ('PNS', 'PNS')],
-            attrs={'class': 'form-control form-select-sm'})
+        self.fields['status'].queryset = TeacherStatus.objects.all().order_by('status_name')
+        self.fields['status'].empty_label = 'Pilih Status'
+        self.fields['status'].widget.attrs.update({'class': 'form-control form-select-sm'})
         self.fields['specialization'].widget = forms.TextInput({'class': 'form-control-sm'})
         self.fields['last_education'].widget = forms.Select(
             choices=EDUCATION_CHOICES,
@@ -862,7 +904,7 @@ class FormTeacherView(ModelForm):
         if self.instance and self.instance.pk:
             self.initial['user'] = self.instance.user.username if self.instance.user else ''
             self.initial['sex'] = self.instance.get_sex_display() if self.instance.sex else ''
-            self.initial['status'] = self.instance.get_status_display() if self.instance.status else ''
+            self.initial['status'] = self.instance.status.status_name if self.instance.status else ''
             self.initial['last_education'] = self.instance.get_last_education_display() if self.instance.last_education else ''
         self.fields['last_school_major'].widget = forms.TextInput({'class': 'form-control-sm', **ro})
 
@@ -1521,3 +1563,470 @@ class FormExtracurricularView(ModelForm):
     class Meta:
         model = Extracurricular
         fields = ['extracurricular_id', 'name', 'teacher']
+
+
+class FormSubjectGroup(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormSubjectGroup, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['group_code'].label = 'Kode Group'
+        self.fields['group_code'].widget = forms.TextInput(
+            {'class': 'form-control-sm text-uppercase', 'placeholder': 'Contoh: A'})
+        self.fields['group_name'].label = 'Nama Group'
+        self.fields['group_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'placeholder': 'Contoh: Diniyah'})
+
+    class Meta:
+        model = SubjectGroup
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormSubjectGroupUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormSubjectGroupUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['group_code'].label = 'Kode Group'
+        self.fields['group_code'].widget = forms.TextInput(
+            {'class': 'form-control-sm text-uppercase'})
+        self.fields['group_name'].label = 'Nama Group'
+        self.fields['group_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = SubjectGroup
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormSubjectGroupView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormSubjectGroupView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['group_code'].label = 'Kode Group'
+        self.fields['group_code'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['group_name'].label = 'Nama Group'
+        self.fields['group_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = SubjectGroup
+        fields = ['group_id', 'group_code', 'group_name']
+
+
+class FormSubject(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormSubject, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['subject_name'].label = 'Nama Mata Pelajaran'
+        self.fields['subject_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'placeholder': 'Contoh: Fiqih'})
+        self.fields['group'].label = 'Group Mapel'
+        self.fields['group'].empty_label = 'Pilih Group'
+        self.fields['group'].widget.attrs.update({'class': 'form-control form-select-sm'})
+
+    class Meta:
+        model = Subject
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormSubjectUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormSubjectUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['subject_name'].label = 'Nama Mata Pelajaran'
+        self.fields['subject_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['group'].label = 'Group Mapel'
+        self.fields['group'].widget.attrs.update({'class': 'form-control form-select-sm'})
+
+    class Meta:
+        model = Subject
+        exclude = ['subject_id', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+
+class FormSubjectView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormSubjectView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['subject_name'].label = 'Nama Mata Pelajaran'
+        self.fields['subject_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['group'].label = 'Group Mapel'
+        self.fields['group'].widget.attrs.update({'class': 'form-control form-select-sm', 'disabled': 'disabled'})
+
+    class Meta:
+        model = Subject
+        fields = ['subject_id', 'subject_name', 'group']
+
+
+class FormTeacherSubject(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTeacherSubject, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['grade_subject'].label = 'Mapel di Kelas'
+
+        # Filter grade_subject: hanya tampilkan yang belum ada guru
+        grade_subject_ids_with_teacher = TeacherSubject.objects.values_list('grade_subject', flat=True).distinct()
+
+        self.fields['grade_subject'].queryset = GradeSubject.objects.select_related(
+            'grade__level', 'grade__school_year', 'subject'
+        ).exclude(grade_subject_id__in=grade_subject_ids_with_teacher).order_by('grade__grade', 'grade__sub_grade', 'subject__subject_name')
+        self.fields['grade_subject'].empty_label = 'Pilih Mapel di Kelas'
+        self.fields['grade_subject'].label_from_instance = lambda obj: f"{obj.grade.grade}{obj.grade.sub_grade or ''} - {obj.subject.subject_name}"
+        self.fields['grade_subject'].widget.attrs.update({
+            'class': 'form-control form-select-sm',
+            'id': 'id_grade_subject',
+        })
+        self.fields['teacher'].label = 'Guru'
+        self.fields['teacher'].queryset = Teacher.objects.select_related(
+            'user').order_by('user__username')
+        self.fields['teacher'].empty_label = 'Pilih Guru'
+        self.fields['teacher'].label_from_instance = lambda obj: obj.user.username if obj.user else str(obj.teacher_id)
+        self.fields['teacher'].widget.attrs.update({'class': 'form-control form-select-sm'})
+        self.fields['hours'].label = 'Jam'
+        self.fields['hours'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'min': '1', 'placeholder': 'Contoh: 3'})
+
+    class Meta:
+        model = TeacherSubject
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormTeacherSubjectUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTeacherSubjectUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['grade_subject'].label = 'Mapel di Kelas'
+        self.fields['grade_subject'].queryset = GradeSubject.objects.select_related(
+            'grade__level', 'grade__school_year', 'subject'
+        ).order_by('grade__grade', 'grade__sub_grade', 'subject__subject_name')
+        self.fields['grade_subject'].label_from_instance = lambda obj: f"{obj.grade.grade}{obj.grade.sub_grade or ''} - {obj.subject.subject_name}"
+        self.fields['grade_subject'].widget.attrs.update({
+            'class': 'form-control form-select-sm',
+            'id': 'id_grade_subject',
+        })
+        self.fields['teacher'].label = 'Guru'
+        self.fields['teacher'].queryset = Teacher.objects.select_related(
+            'user').order_by('user__username')
+        self.fields['teacher'].label_from_instance = lambda obj: obj.user.username if obj.user else str(obj.teacher_id)
+        self.fields['teacher'].widget.attrs.update({'class': 'form-control form-select-sm'})
+        self.fields['hours'].label = 'Jam'
+        self.fields['hours'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'min': '1'})
+
+    class Meta:
+        model = TeacherSubject
+        exclude = ['teacher_subject_id', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+
+class FormTeacherSubjectView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTeacherSubjectView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['grade_subject'].label = 'Mapel di Kelas'
+        self.fields['grade_subject'].queryset = GradeSubject.objects.select_related(
+            'grade__level', 'grade__school_year', 'subject'
+        ).order_by('grade__grade', 'grade__sub_grade', 'subject__subject_name')
+        self.fields['grade_subject'].label_from_instance = lambda obj: f"{obj.grade.grade}{obj.grade.sub_grade or ''} - {obj.subject.subject_name}"
+        self.fields['grade_subject'].widget.attrs.update({'class': 'form-control form-select-sm', 'disabled': 'disabled'})
+        self.fields['teacher'].label = 'Guru'
+        self.fields['teacher'].queryset = Teacher.objects.select_related(
+            'user').order_by('user__username')
+        self.fields['teacher'].label_from_instance = lambda obj: obj.user.username if obj.user else str(obj.teacher_id)
+        self.fields['teacher'].widget.attrs.update({'class': 'form-control form-select-sm', 'disabled': 'disabled'})
+        self.fields['hours'].label = 'Jam'
+        self.fields['hours'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = TeacherSubject
+        fields = ['teacher_subject_id', 'grade_subject', 'teacher', 'hours']
+
+
+class FormGradeSubject(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormGradeSubject, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['grade'].label = 'Kelas'
+        from django.db.models import Count
+
+        # Ambil ID grade yang sudah punya SEMUA subject
+        total_subjects = Subject.objects.count()
+        grade_ids_full = (
+            GradeSubject.objects.values('grade')
+            .annotate(cnt=Count('subject'))
+            .filter(cnt=total_subjects)
+            .values_list('grade', flat=True)
+        )
+
+        self.fields['grade'].queryset = (
+            Grade.objects
+            .select_related('level', 'school_year')
+            .exclude(grade_id__in=grade_ids_full)
+            .order_by('grade', 'sub_grade')
+        )
+        self.fields['grade'].empty_label = 'Pilih Kelas'
+        self.fields['grade'].label_from_instance = lambda obj: f"{obj.grade}{obj.sub_grade or ''} - {obj.school_year.school_year_name if obj.school_year else '-'} ({obj.get_semester_display() if obj.semester else '-'})"
+        self.fields['grade'].widget.attrs.update({
+            'class': 'form-control form-select-sm',
+            'id': 'id_grade',
+        })
+
+        self.fields['subject'].label = 'Mata Pelajaran'
+        # Untuk field subject, kita perlu menangani kasus POST dan edit
+        # agar validasi ModelChoiceField tidak gagal
+        subject_pk = None
+        if args and args[0]:  # POST data
+            subject_pk = args[0].get('subject') or None
+        elif self.instance and self.instance.pk:
+            subject_pk = self.instance.subject_id
+
+        if subject_pk:
+            self.fields['subject'].queryset = Subject.objects.filter(pk=subject_pk)
+        else:
+            self.fields['subject'].queryset = Subject.objects.none()
+
+        self.fields['subject'].empty_label = 'Pilih Mata Pelajaran'
+        self.fields['subject'].widget.attrs.update({
+            'class': 'form-control form-select-sm',
+            'id': 'id_subject',
+        })
+
+        self.fields['keterangan'].label = 'Keterangan'
+        self.fields['keterangan'].widget = forms.TextInput(
+            {'class': 'form-control form-control-sm', 'placeholder': 'Keterangan'})
+
+        self.fields['room'].label = 'Ruangan'
+        self.fields['room'].queryset = Room.objects.all().order_by('room_name')
+        self.fields['room'].empty_label = 'Pilih Ruangan'
+        self.fields['room'].widget.attrs.update({
+            'class': 'form-control form-select-sm',
+        })
+
+    class Meta:
+        model = GradeSubject
+        exclude = ['entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormGradeSubjectUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormGradeSubjectUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['grade'].label = 'Kelas'
+        # Untuk form update, grade sudah dipilih - kita harus eksklusi grade yang sudah memiliki semua subject
+        from django.db.models import Count
+
+        total_subjects = Subject.objects.count()
+        grade_ids_full = (
+            GradeSubject.objects.values('grade')
+            .annotate(cnt=Count('subject'))
+            .filter(cnt=total_subjects)
+            .values_list('grade', flat=True)
+        )
+
+        # Pastikan grade saat ini selalu ada di queryset
+        current_grade_id = self.instance.grade_id if self.instance and self.instance.pk else None
+        exclude_ids = [gid for gid in grade_ids_full if gid != current_grade_id]
+
+        self.fields['grade'].queryset = Grade.objects.select_related(
+            'level', 'school_year'
+        ).exclude(
+            grade_id__in=exclude_ids
+        ).order_by('grade', 'sub_grade')
+
+        self.fields['grade'].label_from_instance = lambda obj: f"{obj.grade}{obj.sub_grade or ''} - {obj.school_year.school_year_name if obj.school_year else '-'} ({obj.get_semester_display() if obj.semester else '-'})"
+        self.fields['grade'].widget.attrs.update({
+            'class': 'form-control form-select-sm',
+            'id': 'id_grade',
+        })
+        self.fields['subject'].label = 'Mata Pelajaran'
+        # Untuk update: tampilkan subject yang belum terdaftar untuk grade ini, plus yang sedang aktif
+        if self.instance and self.instance.pk:
+            # Include current subject plus available subjects
+            current_subject_id = self.instance.subject_id
+            registered_subject_ids = GradeSubject.objects.filter(
+                grade_id=self.instance.grade_id
+            ).exclude(subject_id=current_subject_id).values_list('subject_id', flat=True)
+
+            # Pastikan subject saat ini selalu ada di queryset
+            self.fields['subject'].queryset = Subject.objects.select_related(
+                'group'
+            ).exclude(subject_id__in=registered_subject_ids).order_by('subject_name')
+            
+            # Jika subject saat ini tidak ada di queryset, tambahkan secara eksplisit
+            if current_subject_id and not self.fields['subject'].queryset.filter(pk=current_subject_id).exists():
+                current_subject = Subject.objects.get(pk=current_subject_id)
+                self.fields['subject'].queryset = Subject.objects.filter(pk=current_subject_id) | self.fields['subject'].queryset
+        else:
+            self.fields['subject'].queryset = Subject.objects.none()
+
+        self.fields['subject'].widget.attrs.update({
+            'class': 'form-control form-select-sm',
+            'id': 'id_subject',
+        })
+        self.fields['keterangan'].label = 'Keterangan'
+        self.fields['keterangan'].widget = forms.TextInput(
+            {'class': 'form-control form-control-sm'})
+
+        self.fields['room'].label = 'Ruangan'
+        self.fields['room'].queryset = Room.objects.all().order_by('room_name')
+        self.fields['room'].empty_label = 'Pilih Ruangan'
+        self.fields['room'].widget.attrs.update({
+            'class': 'form-control form-select-sm',
+        })
+
+    class Meta:
+        model = GradeSubject
+        exclude = ['grade_subject_id', 'entry_date',
+                   'entry_by', 'update_date', 'update_by']
+
+
+class FormGradeSubjectView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormGradeSubjectView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['grade'].label = 'Kelas'
+        self.fields['grade'].queryset = Grade.objects.select_related(
+            'level', 'school_year').order_by('grade', 'sub_grade')
+        self.fields['grade'].label_from_instance = lambda obj: f"{obj.grade}{obj.sub_grade or ''} - {obj.school_year.school_year_name if obj.school_year else '-'} ({obj.get_semester_display() if obj.semester else '-'})"
+        self.fields['grade'].widget.attrs.update({'class': 'form-control form-select-sm', 'disabled': 'disabled'})
+        self.fields['subject'].label = 'Mata Pelajaran'
+        self.fields['subject'].queryset = Subject.objects.select_related(
+            'group').order_by('subject_name')
+        self.fields['subject'].widget.attrs.update({'class': 'form-control form-select-sm', 'disabled': 'disabled'})
+        self.fields['keterangan'].label = 'Keterangan'
+        self.fields['keterangan'].widget = forms.TextInput(
+            {'class': 'form-control form-control-sm', 'readonly': 'readonly'})
+        self.fields['room'].label = 'Ruangan'
+        self.fields['room'].queryset = Room.objects.all().order_by('room_name')
+        self.fields['room'].widget.attrs.update({'class': 'form-control form-select-sm', 'disabled': 'disabled'})
+
+    class Meta:
+        model = GradeSubject
+        fields = ['grade_subject_id', 'grade', 'subject', 'keterangan', 'room']
+
+
+# --- Schedule / Timetable Forms ---
+
+class FormRoom(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormRoom, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['room_name'].label = 'Nama Ruangan'
+        self.fields['room_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'placeholder': 'Contoh: R.101'})
+        self.fields['capacity'].label = 'Kapasitas'
+        self.fields['capacity'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'min': '0'})
+        self.fields['description'].label = 'Keterangan'
+        self.fields['description'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'placeholder': 'Keterangan (opsional)'})
+
+    class Meta:
+        model = Room
+        exclude = ['room_id', 'entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormRoomUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormRoomUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['room_name'].label = 'Nama Ruangan'
+        self.fields['room_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['capacity'].label = 'Kapasitas'
+        self.fields['capacity'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'min': '0'})
+        self.fields['description'].label = 'Keterangan'
+        self.fields['description'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+
+    class Meta:
+        model = Room
+        exclude = ['room_id', 'entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormRoomView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormRoomView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['room_name'].label = 'Nama Ruangan'
+        self.fields['room_name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['capacity'].label = 'Kapasitas'
+        self.fields['capacity'].widget = forms.NumberInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['description'].label = 'Keterangan'
+        self.fields['description'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+
+    class Meta:
+        model = Room
+        fields = ['room_id', 'room_name', 'capacity', 'description']
+
+
+class FormTimetable(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTimetable, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['name'].label = 'Nama Jadwal'
+        self.fields['name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'placeholder': 'Contoh: Jadwal Pelajaran 2025/2026 Ganjil'})
+        self.fields['school_year'].label = 'Tahun Ajaran'
+        self.fields['school_year'].queryset = SchoolYear.objects.all().order_by('-school_year_name')
+        self.fields['school_year'].widget.attrs.update({'class': 'form-control form-select-sm'})
+        self.fields['semester'].label = 'Semester'
+        self.fields['semester'].widget.attrs.update({'class': 'form-control form-select-sm'})
+        self.fields['notes'].label = 'Catatan'
+        self.fields['notes'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 3})
+
+    class Meta:
+        model = Timetable
+        exclude = ['timetable_id', 'status', 'entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormTimetableUpdate(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTimetableUpdate, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['name'].label = 'Nama Jadwal'
+        self.fields['name'].widget = forms.TextInput(
+            {'class': 'form-control-sm'})
+        self.fields['school_year'].label = 'Tahun Ajaran'
+        self.fields['school_year'].queryset = SchoolYear.objects.all().order_by('-school_year_name')
+        self.fields['school_year'].widget.attrs.update({'class': 'form-control form-select-sm'})
+        self.fields['semester'].label = 'Semester'
+        self.fields['semester'].widget.attrs.update({'class': 'form-control form-select-sm'})
+        self.fields['notes'].label = 'Catatan'
+        self.fields['notes'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'rows': 3})
+
+    class Meta:
+        model = Timetable
+        exclude = ['timetable_id', 'status', 'entry_date', 'entry_by', 'update_date', 'update_by']
+
+
+class FormTimetableView(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FormTimetableView, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['name'].label = 'Nama Jadwal'
+        self.fields['name'].widget = forms.TextInput(
+            {'class': 'form-control-sm', 'readonly': 'readonly'})
+        self.fields['school_year'].label = 'Tahun Ajaran'
+        self.fields['school_year'].queryset = SchoolYear.objects.all().order_by('-school_year_name')
+        self.fields['school_year'].widget.attrs.update({'class': 'form-control form-select-sm', 'disabled': 'disabled'})
+        self.fields['status'].label = 'Status'
+        self.fields['status'].widget.attrs.update({'class': 'form-control form-select-sm', 'disabled': 'disabled'})
+        self.fields['notes'].label = 'Catatan'
+        self.fields['notes'].widget = forms.Textarea(
+            {'class': 'form-control-sm', 'readonly': 'readonly', 'rows': 3})
+
+    class Meta:
+        model = Timetable
+        fields = ['timetable_id', 'name', 'school_year', 'status', 'notes']
+
+

@@ -1,0 +1,111 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tambah Guru Per Mapel {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'teacher-subject-add' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Tambah Guru Per Mapel</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button type="submit" class="btn btn-sm bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <a href="{% url 'teacher-subject-index' %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Kelas</label>
+                                        <select name="grade_filter" id="id_grade_filter" class="form-control form-select-sm">
+                                            <option value="">Pilih Kelas</option>
+                                            {% for g in grades %}
+                                            <option value="{{ g.grade_id }}" {% if request.GET.grade_id == g.grade_id %}selected{% endif %}>
+                                                {{ g.grade }}{{ g.sub_grade|default:"" }} - {{ g.school_year.school_year_name|default:'-' }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.grade_subject.label_tag }}{{ form.grade_subject }}
+                                        <div class="text-sm text-danger">{{ form.grade_subject.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-1">
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.teacher.label_tag }}{{ form.teacher }}
+                                        <div class="text-sm text-danger">{{ form.teacher.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.hours.label_tag }}{{ form.hours }}
+                                        <div class="text-sm text-danger">{{ form.hours.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+$(document).ready(function() {
+    var $gradeSelect = $('#id_grade_filter');
+    var $gradeSubjectSelect = $('#id_grade_subject');
+
+    $gradeSelect.on('change', function() {
+        var gradeId = $(this).val();
+        $gradeSubjectSelect.empty().append('<option value="">Pilih Mapel di Kelas</option>');
+
+        if (!gradeId) return;
+
+        $.ajax({
+            url: '{% url "grade-subject-by-grade" %}',
+            data: { grade_id: gradeId },
+            dataType: 'json',
+            success: function(data) {
+                $.each(data.results, function(i, item) {
+                    $gradeSubjectSelect.append(
+                        $('<option>').val(item.id).text(item.text)
+                    );
+                });
+            }
+        });
+    });
+
+    // If there's a pre-selected grade_subject (edit mode), trigger the filter
+    var currentGsId = $gradeSubjectSelect.val();
+    if (currentGsId) {
+        $.ajax({
+            url: '{% url "grade-subject-by-grade" %}',
+            data: { grade_id: '' },
+            dataType: 'json',
+            success: function(data) {}
+        });
+    }
+});
+</script>
+
+{% endblock javascripts %}

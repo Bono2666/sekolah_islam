@@ -1,0 +1,79 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tambah Guru Absen - {{ timetable.name }} {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Tambah Guru Absen</h4>
+                        <span class="badge bg-gradient-info ms-2">{{ timetable.name }}</span>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-dark mb-0" href="{% url 'teacher-absence-index' timetable.timetable_id %}"><i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Kembali</a>
+                    </div>
+                </div>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Guru</label>
+                                    <select name="teacher" class="form-control form-select-sm" required>
+                                        <option value="">Pilih Guru</option>
+                                        {% for teacher in teachers %}
+                                        <option value="{{ teacher.teacher_id }}">{{ teacher.user.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Hari</label>
+                                    <select name="day" class="form-control form-select-sm" required>
+                                        <option value="">Pilih Hari</option>
+                                        <option value="MON">Senin</option>
+                                        <option value="TUE">Selasa</option>
+                                        <option value="WED">Rabu</option>
+                                        <option value="THU">Kamis</option>
+                                        <option value="FRI">Jumat</option>
+                                        <option value="SAT">Sabtu</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Periode (Opsional)</label>
+                                    <select name="period" class="form-control form-select-sm">
+                                        <option value="">Semua Periode</option>
+                                        {% for p in periods %}
+                                        <option value="{{ p.period_id }}">{{ p.get_day_display }} - {{ p.order }} ({{ p.start_time|time:'H:i' }}-{{ p.end_time|time:'H:i' }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Keterangan</label>
+                                    <input type="text" name="reason" class="form-control form-control-sm" placeholder="Alasan absen">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-sm bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

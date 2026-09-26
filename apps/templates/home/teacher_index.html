@@ -44,7 +44,7 @@
                                         </div>
                                     </td>
                                     <td><h6 class="mb-0 text-sm">{{ item.get_sex_display|default:'-' }}</h6></td>
-                                    <td><h6 class="mb-0 text-sm">{{ item.get_status_display|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.status.status_name|default:'-' }}</h6></td>
                                     <td><h6 class="mb-0 text-sm">{{ item.specialization|default:'-' }}</h6></td>
                                     <td><h6 class="mb-0 text-sm">{{ item.get_last_education_display|default:'-' }}</h6></td>
                                 </tr>

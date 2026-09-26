@@ -2,6 +2,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.db import connection, IntegrityError
 from django.db.models.deletion import ProtectedError
+from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -22,6 +23,8 @@ from django.db.models import Max
 from django.db.models import Min
 from . import host
 from reportlab.pdfgen import canvas
+from xhtml2pdf import pisa
+from io import BytesIO
 from django.http import FileResponse
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
@@ -40,6 +43,7 @@ import re
 import uuid
 import zipfile
 import csv
+import json
 import xml.etree.ElementTree as ET
 # from apps.notifications import order_notification
 
@@ -1032,6 +1036,110 @@ def position_view(request, _id):
 
 
 @login_required(login_url='/login/')
+@role_required(allowed_roles='STATUS-GURU')
+def teacher_status_add(request):
+    if request.POST:
+        form = FormTeacherStatus(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('teacher-status-index'))
+        else:
+            message = form.errors
+            context = {
+                'form': form,
+                'segment': 'teacher-status',
+                'group_segment': 'master',
+                'crud': 'add',
+                'message': message,
+                'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+                'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='STATUS-GURU') if not request.user.is_superuser else Auth.objects.all(),
+            }
+            return render(request, 'home/teacher_status_add.html', context)
+    else:
+        form = FormTeacherStatus()
+        context = {
+            'form': form,
+            'segment': 'teacher-status',
+            'group_segment': 'master',
+            'crud': 'add',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='STATUS-GURU') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/teacher_status_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='STATUS-GURU')
+def teacher_status_index(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT status_id, status_name FROM apps_teacherstatus")
+        statuses = cursor.fetchall()
+
+    context = {
+        'data': statuses,
+        'segment': 'teacher-status',
+        'group_segment': 'master',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='STATUS-GURU') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_status_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='STATUS-GURU')
+def teacher_status_update(request, _id):
+    teacher_status = TeacherStatus.objects.get(status_id=_id)
+    if request.POST:
+        form = FormTeacherStatusUpdate(
+            request.POST, request.FILES, instance=teacher_status)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('teacher-status-view', args=[_id, ]))
+    else:
+        form = FormTeacherStatusUpdate(instance=teacher_status)
+
+    message = form.errors
+    context = {
+        'form': form,
+        'data': teacher_status,
+        'segment': 'teacher-status',
+        'group_segment': 'master',
+        'crud': 'update',
+        'message': message,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='STATUS-GURU') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_status_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='STATUS-GURU')
+def teacher_status_delete(request, _id):
+    teacher_status = TeacherStatus.objects.get(status_id=_id)
+    teacher_status.delete()
+    return HttpResponseRedirect(reverse('teacher-status-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='STATUS-GURU')
+def teacher_status_view(request, _id):
+    teacher_status = TeacherStatus.objects.get(status_id=_id)
+    form = FormTeacherStatusView(instance=teacher_status)
+
+    context = {
+        'form': form,
+        'data': teacher_status,
+        'segment': 'teacher-status',
+        'group_segment': 'master',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list('menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id, menu_id='STATUS-GURU') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_status_view.html', context)
+
+
+@login_required(login_url='/login/')
 @role_required(allowed_roles='MENU')
 def menu_add(request):
     if request.POST:
@@ -1480,7 +1588,7 @@ def grade_index(request):
     context = {
         'data': grades,
         'segment': 'grade',
-        'group_segment': 'master',
+        'group_segment': 'kurikulum',
         'crud': 'index',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
             'menu_id', flat=True),
@@ -1504,7 +1612,7 @@ def grade_add(request):
     context = {
         'form': form,
         'segment': 'grade',
-        'group_segment': 'master',
+        'group_segment': 'kurikulum',
         'crud': 'add',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
             'menu_id', flat=True),
@@ -1531,7 +1639,7 @@ def grade_update(request, _id):
         'form': form,
         'data': grade,
         'segment': 'grade',
-        'group_segment': 'master',
+        'group_segment': 'kurikulum',
         'crud': 'update',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
             'menu_id', flat=True),
@@ -1560,7 +1668,7 @@ def grade_view(request, _id):
         'data': grade,
         'form': form,
         'segment': 'grade',
-        'group_segment': 'master',
+        'group_segment': 'kurikulum',
         'crud': 'view',
         'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
             'menu_id', flat=True),
@@ -1894,7 +2002,7 @@ def study_group_remove_student(request, group_id, student_id):
 @login_required(login_url='/login/')
 @role_required(allowed_roles='GURU')
 def teacher_index(request):
-    teachers = Teacher.objects.select_related('user').order_by('user__username')
+    teachers = Teacher.objects.select_related('user', 'status').order_by('user__username')
     context = {
         'data': teachers,
         'segment': 'guru',
@@ -3463,10 +3571,596 @@ def residence_type_delete(request, _id):
             'message': 'Jenis tinggal ini sudah dipakai pada data santri dan tidak bisa dihapus.',
             'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
                 'menu_id', flat=True),
-            'btn': Auth.objects.get(user_id=request.user.user_id,
-                                    menu_id='JENIS-TINGGAL') if not request.user.is_superuser else Auth.objects.all(),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='JENIS-TINGGAL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/residence_type_view.html', context)
+
+
+# ============================================================
+# AJAX: GradeSubject by Grade
+# ============================================================
+
+@login_required(login_url='/login/')
+def grade_subject_by_grade(request):
+    grade_id = request.GET.get('grade_id')
+
+    # Filter: hanya GradeSubject yang belum punya guru
+    grade_subjects_with_teacher = TeacherSubject.objects.values_list('grade_subject', flat=True).distinct()
+
+    grade_subjects = GradeSubject.objects.filter(
+        grade_id=grade_id
+    ).exclude(
+        grade_subject_id__in=grade_subjects_with_teacher
+    ).select_related('subject').order_by('subject__subject_name')
+
+    data = [
+        {
+            'id': gs.grade_subject_id,
+            'text': gs.subject.subject_name
         }
-        return render(request, 'home/residence_type_view.html', context)
+        for gs in grade_subjects
+    ]
+    return JsonResponse({'results': data})
+
+
+def available_subjects_by_grade(request):
+    """AJAX endpoint: return subjects not yet registered for a given grade."""
+    grade_id = request.GET.get('grade_id')
+    grade_subject_id = request.GET.get('grade_subject_id')
+    if not grade_id:
+        return JsonResponse({'results': []})
+
+    registered_subject_ids = GradeSubject.objects.filter(
+        grade_id=grade_id
+    )
+    
+    # Exclude current grade_subject_id when updating
+    if grade_subject_id:
+        registered_subject_ids = registered_subject_ids.exclude(
+            grade_subject_id=grade_subject_id
+        )
+    
+    registered_subject_ids = registered_subject_ids.values_list('subject_id', flat=True)
+
+    subjects = Subject.objects.select_related('group').exclude(
+        subject_id__in=registered_subject_ids
+    ).order_by('subject_name')
+
+    data = [
+        {'id': s.subject_id, 'text': s.subject_name}
+        for s in subjects
+    ]
+    return JsonResponse({'results': data})
+
+
+# ============================================================
+# TeacherSubject CRUD (Guru Per Mapel)
+# ============================================================
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GURU-MAPEL')
+def teacher_subject_index(request):
+    teacher_subjects = TeacherSubject.objects.select_related(
+        'grade_subject__grade__level', 'grade_subject__grade__school_year',
+        'grade_subject__subject', 'teacher__user'
+    ).all().order_by('grade_subject__grade__grade', 'grade_subject__grade__sub_grade', 'grade_subject__subject__subject_name')
+
+    context = {
+        'data': teacher_subjects,
+        'segment': 'guru-mapel',
+        'group_segment': 'kurikulum',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='GURU-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_subject_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GURU-MAPEL')
+def teacher_subject_add(request):
+    if request.POST:
+        form = FormTeacherSubject(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('teacher-subject-index'))
+    else:
+        form = FormTeacherSubject()
+
+    # Filter grades: hanya kelas yang masih punya mapel tanpa guru
+    # 1. Dapatkan semua GradeSubject yang sudah punya guru
+    grade_subjects_with_teacher = TeacherSubject.objects.values_list('grade_subject', flat=True).distinct()
+
+    # 2. Dapatkan Grade IDs yang memiliki setidaknya satu GradeSubject tanpa guru
+    grades_with_subjects_without_teacher = Grade.objects.filter(
+        gradesubject__grade_subject_id__in=GradeSubject.objects.exclude(
+            grade_subject_id__in=grade_subjects_with_teacher
+        ).values_list('grade_subject_id', flat=True)
+    ).distinct()
+
+    grades = grades_with_subjects_without_teacher.select_related(
+        'level', 'school_year').order_by('grade', 'sub_grade')
+
+    context = {
+        'form': form,
+        'grades': grades,
+        'segment': 'guru-mapel',
+        'group_segment': 'kurikulum',
+        'crud': 'add',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='GURU-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_subject_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GURU-MAPEL')
+def teacher_subject_update(request, _id):
+    teacher_subject = TeacherSubject.objects.get(teacher_subject_id=_id)
+
+    if request.POST:
+        form = FormTeacherSubjectUpdate(
+            request.POST, request.FILES, instance=teacher_subject)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('teacher-subject-index'))
+    else:
+        form = FormTeacherSubjectUpdate(instance=teacher_subject)
+
+    # Filter grades: kelas yang masih punya mapel tanpa guru + kelas dari data yang sedang diedit
+    grade_subjects_with_teacher = TeacherSubject.objects.exclude(
+        teacher_subject_id=_id
+    ).values_list('grade_subject', flat=True).distinct()
+
+    # Grade dari teacher_subject yang sedang diedit (selalu tampilkan)
+    current_grade_id = teacher_subject.grade_subject.grade_id
+
+    grades = Grade.objects.filter(
+        Q(gradesubject__grade_subject_id__in=GradeSubject.objects.exclude(
+            grade_subject_id__in=grade_subjects_with_teacher
+        ).values_list('grade_subject_id', flat=True)) |
+        Q(grade_id=current_grade_id)
+    ).distinct().select_related(
+        'level', 'school_year').order_by('grade', 'sub_grade')
+
+    context = {
+        'form': form,
+        'data': teacher_subject,
+        'grades': grades,
+        'segment': 'guru-mapel',
+        'group_segment': 'kurikulum',
+        'crud': 'update',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='GURU-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_subject_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GURU-MAPEL')
+def teacher_subject_delete(request, _id):
+    teacher_subject = TeacherSubject.objects.get(teacher_subject_id=_id)
+    try:
+        teacher_subject.delete()
+    except ProtectedError:
+        form = FormTeacherSubjectView(instance=teacher_subject)
+        context = {
+            'data': teacher_subject,
+            'form': form,
+            'segment': 'guru-mapel',
+            'group_segment': 'kurikulum',
+            'crud': 'view',
+            'message': 'Data penugasan guru ini sudah dipakai pada data lain dan tidak bisa dihapus.',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+                'menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id,
+                                    menu_id='GURU-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/teacher_subject_view.html', context)
+
+    return HttpResponseRedirect(reverse('teacher-subject-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GURU-MAPEL')
+def teacher_subject_view(request, _id):
+    teacher_subject = TeacherSubject.objects.get(teacher_subject_id=_id)
+    form = FormTeacherSubjectView(instance=teacher_subject)
+
+    context = {
+        'data': teacher_subject,
+        'form': form,
+        'segment': 'guru-mapel',
+        'group_segment': 'kurikulum',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='GURU-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_subject_view.html', context)
+
+
+# ============================================================
+# GradeSubject CRUD (Mapel Per Kelas)
+# ============================================================
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL-KELAS')
+def grade_subject_index(request):
+    grade_subjects = GradeSubject.objects.select_related(
+        'grade__level', 'grade__school_year', 'subject'
+    ).prefetch_related('teacher_subjects__teacher__user').all()
+
+    grade_id = request.GET.get('grade_id')
+    semester = request.GET.get('semester')
+
+    if grade_id:
+        grade_subjects = grade_subjects.filter(grade__grade_id=grade_id)
+    if semester:
+        grade_subjects = grade_subjects.filter(grade__semester=semester)
+
+    grade_subjects = grade_subjects.order_by(
+        'grade__grade', 'grade__sub_grade', 'subject__subject_name')
+
+    grades = Grade.objects.select_related(
+        'level', 'school_year').order_by('grade', 'sub_grade')
+
+    context = {
+        'data': grade_subjects,
+        'grades': grades,
+        'selected_grade': grade_id,
+        'selected_semester': semester,
+        'segment': 'mapel-kelas',
+        'group_segment': 'kurikulum',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='MAPEL-KELAS') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/grade_subject_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL-KELAS')
+def grade_subject_add(request):
+    if request.POST:
+        form = FormGradeSubject(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('grade-subject-index'))
+    else:
+        form = FormGradeSubject()
+
+    context = {
+        'form': form,
+        'segment': 'mapel-kelas',
+        'group_segment': 'kurikulum',
+        'crud': 'add',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='MAPEL-KELAS') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/grade_subject_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL-KELAS')
+def grade_subject_update(request, _id):
+    grade_subject = GradeSubject.objects.get(grade_subject_id=_id)
+
+    if request.POST:
+        form = FormGradeSubjectUpdate(
+            request.POST, request.FILES, instance=grade_subject)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('grade-subject-index'))
+    else:
+        form = FormGradeSubjectUpdate(instance=grade_subject)
+
+    context = {
+        'form': form,
+        'data': grade_subject,
+        'segment': 'mapel-kelas',
+        'group_segment': 'kurikulum',
+        'crud': 'update',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='MAPEL-KELAS') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/grade_subject_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL-KELAS')
+def grade_subject_delete(request, _id):
+    grade_subject = GradeSubject.objects.get(grade_subject_id=_id)
+    try:
+        grade_subject.delete()
+    except ProtectedError:
+        form = FormGradeSubjectView(instance=grade_subject)
+        context = {
+            'data': grade_subject,
+            'form': form,
+            'segment': 'mapel-kelas',
+            'group_segment': 'kurikulum',
+            'crud': 'view',
+            'message': 'Data mapel per kelas ini sudah dipakai pada data lain dan tidak bisa dihapus.',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+                'menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id,
+                                    menu_id='MAPEL-KELAS') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/grade_subject_view.html', context)
+
+    return HttpResponseRedirect(reverse('grade-subject-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL-KELAS')
+def grade_subject_view(request, _id):
+    grade_subject = GradeSubject.objects.select_related(
+        'grade__level', 'grade__school_year', 'subject'
+    ).prefetch_related('teacher_subjects__teacher__user').get(grade_subject_id=_id)
+    form = FormGradeSubjectView(instance=grade_subject)
+    teachers = grade_subject.teacher_subjects.select_related('teacher__user').all()
+
+    context = {
+        'data': grade_subject,
+        'form': form,
+        'teachers': teachers,
+        'segment': 'mapel-kelas',
+        'group_segment': 'kurikulum',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='MAPEL-KELAS') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/grade_subject_view.html', context)
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GROUP-MAPEL')
+def subject_group_index(request):
+    subject_groups = SubjectGroup.objects.all().order_by('group_code')
+
+    context = {
+        'data': subject_groups,
+        'segment': 'group-mapel',
+        'group_segment': 'master',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='GROUP-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/subject_group_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GROUP-MAPEL')
+def subject_group_add(request):
+    if request.POST:
+        form = FormSubjectGroup(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('subject-group-index'))
+    else:
+        form = FormSubjectGroup()
+
+    context = {
+        'form': form,
+        'segment': 'group-mapel',
+        'group_segment': 'master',
+        'crud': 'add',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='GROUP-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/subject_group_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GROUP-MAPEL')
+def subject_group_update(request, _id):
+    subject_group = SubjectGroup.objects.get(group_id=_id)
+
+    if request.POST:
+        form = FormSubjectGroupUpdate(
+            request.POST, request.FILES, instance=subject_group)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('subject-group-index'))
+    else:
+        form = FormSubjectGroupUpdate(instance=subject_group)
+
+    context = {
+        'form': form,
+        'data': subject_group,
+        'segment': 'group-mapel',
+        'group_segment': 'master',
+        'crud': 'update',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='GROUP-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/subject_group_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GROUP-MAPEL')
+def subject_group_delete(request, _id):
+    subject_group = SubjectGroup.objects.get(group_id=_id)
+    try:
+        subject_group.delete()
+    except ProtectedError:
+        form = FormSubjectGroupView(instance=subject_group)
+        context = {
+            'data': subject_group,
+            'form': form,
+            'segment': 'group-mapel',
+            'group_segment': 'master',
+            'crud': 'view',
+            'message': 'Group ini sudah dipakai pada data mata pelajaran dan tidak bisa dihapus.',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+                'menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id,
+                                    menu_id='GROUP-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/subject_group_view.html', context)
+
+    return HttpResponseRedirect(reverse('subject-group-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='GROUP-MAPEL')
+def subject_group_view(request, _id):
+    subject_group = SubjectGroup.objects.get(group_id=_id)
+    form = FormSubjectGroupView(instance=subject_group)
+
+    context = {
+        'data': subject_group,
+        'form': form,
+        'segment': 'group-mapel',
+        'group_segment': 'master',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='GROUP-MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/subject_group_view.html', context)
+
+
+# ============================================================
+# Subject CRUD
+# ============================================================
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL')
+def subject_index(request):
+    subjects = Subject.objects.select_related('group').all().order_by('subject_name')
+
+    context = {
+        'data': subjects,
+        'segment': 'mapel',
+        'group_segment': 'kurikulum',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/subject_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL')
+def subject_add(request):
+    if request.POST:
+        form = FormSubject(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('subject-index'))
+    else:
+        form = FormSubject()
+
+    context = {
+        'form': form,
+        'segment': 'mapel',
+        'group_segment': 'kurikulum',
+        'crud': 'add',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/subject_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL')
+def subject_update(request, _id):
+    subject = Subject.objects.get(subject_id=_id)
+
+    if request.POST:
+        form = FormSubjectUpdate(
+            request.POST, request.FILES, instance=subject)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('subject-index'))
+    else:
+        form = FormSubjectUpdate(instance=subject)
+
+    context = {
+        'form': form,
+        'data': subject,
+        'segment': 'mapel',
+        'group_segment': 'kurikulum',
+        'crud': 'update',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/subject_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL')
+def subject_delete(request, _id):
+    subject = Subject.objects.get(subject_id=_id)
+    try:
+        subject.delete()
+    except ProtectedError:
+        form = FormSubjectView(instance=subject)
+        context = {
+            'data': subject,
+            'form': form,
+            'segment': 'mapel',
+            'group_segment': 'kurikulum',
+            'crud': 'view',
+            'message': 'Mata pelajaran ini sudah dipakai pada data lain dan tidak bisa dihapus.',
+            'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+                'menu_id', flat=True),
+            'btn': Auth.objects.get(user_id=request.user.user_id,
+                                    menu_id='MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+        }
+        return render(request, 'home/subject_view.html', context)
+
+    return HttpResponseRedirect(reverse('subject-index'))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='MAPEL')
+def subject_view(request, _id):
+    subject = Subject.objects.get(subject_id=_id)
+    form = FormSubjectView(instance=subject)
+
+    context = {
+        'data': subject,
+        'form': form,
+        'segment': 'mapel',
+        'group_segment': 'kurikulum',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='MAPEL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/subject_view.html', context)
 
     return HttpResponseRedirect(reverse('residence-type-index'))
 
@@ -3489,3 +4183,1759 @@ def residence_type_view(request, _id):
                                 menu_id='JENIS-TINGGAL') if not request.user.is_superuser else Auth.objects.all(),
     }
     return render(request, 'home/residence_type_view.html', context)
+
+
+# =============================================================================
+# SCHEDULE / JADWAL PELAJARAN VIEWS
+# =============================================================================
+
+# --- Room CRUD ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def room_index(request):
+    rooms = Room.objects.all().order_by('room_name')
+    context = {
+        'data': rooms,
+        'segment': 'ruangan',
+        'group_segment': 'kurikulum',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='RUANGAN') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/room_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def room_add(request):
+    if request.POST:
+        form = FormRoom(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('room-index'))
+    else:
+        form = FormRoom()
+
+    context = {
+        'form': form,
+        'segment': 'ruangan',
+        'group_segment': 'kurikulum',
+        'crud': 'add',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='RUANGAN') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/room_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def room_view(request, _id):
+    room = Room.objects.get(room_id=_id)
+    form = FormRoomView(instance=room)
+
+    context = {
+        'data': room,
+        'form': form,
+        'segment': 'ruangan',
+        'group_segment': 'kurikulum',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='RUANGAN') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/room_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def room_update(request, _id):
+    room = Room.objects.get(room_id=_id)
+    if request.POST:
+        form = FormRoomUpdate(request.POST, instance=room)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('room-index'))
+    else:
+        form = FormRoomUpdate(instance=room)
+
+    context = {
+        'data': room,
+        'form': form,
+        'segment': 'ruangan',
+        'group_segment': 'kurikulum',
+        'crud': 'update',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='RUANGAN') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/room_update.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def room_delete(request, _id):
+    try:
+        room = Room.objects.get(room_id=_id)
+        room.delete()
+    except ProtectedError:
+        pass
+    return HttpResponseRedirect(reverse('room-index'))
+
+
+# --- Timetable CRUD ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_index(request):
+    timetables = Timetable.objects.select_related('school_year').all().order_by('-entry_date')
+    
+    if timetables.exists():
+        return HttpResponseRedirect(reverse('timetable-view', args=[timetables.first().timetable_id]))
+    
+    school_year = SchoolYear.objects.order_by('-school_year_name').first()
+    timetable = Timetable.objects.create(
+        name='Jadwal Pelajaran',
+        school_year=school_year,
+        status='draft'
+    )
+    return HttpResponseRedirect(reverse('timetable-view', args=[timetable.timetable_id]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_add(request):
+    if request.POST:
+        form = FormTimetable(request.POST)
+        if form.is_valid():
+            timetable = form.save()
+            return HttpResponseRedirect(reverse('timetable-view', args=[timetable.timetable_id]))
+    else:
+        form = FormTimetable()
+
+    context = {
+        'form': form,
+        'segment': 'jadwal',
+        'group_segment': 'kurikulum',
+        'crud': 'add',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/timetable_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_view(request, _id):
+    timetable = Timetable.objects.select_related('school_year').get(timetable_id=_id)
+    
+    # Custom day order mapping
+    day_order = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
+    periods = list(timetable.periods.all())
+    periods.sort(key=lambda p: (day_order.get(p.day, 99), p.order))
+    
+    lessons = timetable.lessons.select_related(
+        'grade_subject__grade', 'grade_subject__subject', 'teacher__user'
+    ).all()
+    slots = timetable.slots.select_related(
+        'lesson__grade_subject__grade', 'lesson__grade_subject__subject',
+        'lesson__teacher__user', 'period', 'room'
+    ).all()
+    
+    # Data dari Mapel Per Kelas (GradeSubject) - filter by school_year + semester timetable
+    grade_subjects = GradeSubject.objects.select_related(
+        'grade__school_year', 'subject', 'room'
+    ).prefetch_related('teacher_subjects__teacher__user').filter(
+        grade__school_year=timetable.school_year,
+        grade__semester=timetable.semester,
+    ).order_by('grade__grade', 'grade__sub_grade', 'subject__subject_name')
+    
+    # Data guru - hanya guru yang punya TeacherSubject di school_year + semester ini
+    teacher_ids = TeacherSubject.objects.filter(
+        grade_subject__grade__school_year=timetable.school_year,
+        grade_subject__grade__semester=timetable.semester,
+    ).values_list('teacher_id', flat=True).distinct()
+    teachers = Teacher.objects.select_related('user').filter(
+        teacher_id__in=teacher_ids
+    ).order_by('user__username')
+    teacher_availabilities = TeacherAvailability.objects.filter(
+        timetable=timetable
+    ).select_related('teacher', 'period')
+    
+    # Organize availability data by teacher_id -> day -> [period_ids]
+    # Convert teacher_id keys to strings for JSON compatibility
+    availability_data = {}
+    for avail in teacher_availabilities:
+        teacher_id = str(avail.teacher_id)
+        day = avail.day
+        if teacher_id not in availability_data:
+            availability_data[teacher_id] = {}
+        if day not in availability_data[teacher_id]:
+            availability_data[teacher_id][day] = []
+        if avail.period_id and avail.is_available:
+            availability_data[teacher_id][day].append(avail.period_id)
+    
+    # Data ruangan dan ketersediaan
+    rooms = Room.objects.all().order_by('room_name')
+    room_availabilities = RoomAvailability.objects.filter(
+        timetable=timetable
+    ).select_related('room', 'period')
+    
+    # Organize room availability data by room_id -> day -> [period_ids]
+    room_availability_data = {}
+    for avail in room_availabilities:
+        room_id = str(avail.room_id)
+        day = avail.day
+        if room_id not in room_availability_data:
+            room_availability_data[room_id] = {}
+        if day not in room_availability_data[room_id]:
+            room_availability_data[room_id][day] = []
+        if avail.period_id and avail.is_available:
+            room_availability_data[room_id][day].append(avail.period_id)
+    
+    # Data kelas - filter by school_year + semester timetable
+    grades = Grade.objects.filter(
+        school_year=timetable.school_year,
+        semester=timetable.semester,
+    ).order_by('grade', 'sub_grade')
+    grade_availabilities = GradeAvailability.objects.filter(
+        timetable=timetable
+    ).select_related('grade', 'period')
+    
+    # Organize grade availability data by grade_id -> day -> [period_ids]
+    grade_availability_data = {}
+    for avail in grade_availabilities:
+        grade_id = str(avail.grade_id)
+        day = avail.day
+        if grade_id not in grade_availability_data:
+            grade_availability_data[grade_id] = {}
+        if day not in grade_availability_data[grade_id]:
+            grade_availability_data[grade_id][day] = []
+        if avail.period_id and avail.is_available:
+            grade_availability_data[grade_id][day].append(avail.period_id)
+    
+    # Periods data for JSON serialization - group by order
+    periods_by_order = {}
+    for p in periods:
+        if p.order not in periods_by_order:
+            periods_by_order[p.order] = {
+                'order': p.order,
+                'name': p.break_name if p.is_break else f"Periode {p.order}",
+                'start_time': p.start_time.strftime('%H.%M'),
+                'end_time': p.end_time.strftime('%H.%M'),
+                'is_break': p.is_break,
+                'days': {}
+            }
+        periods_by_order[p.order]['days'][p.day] = p.period_id
+    
+    periods_json = list(periods_by_order.values())
+
+    # --- Workload Analysis ---
+    # Total unique non-break periods in this timetable
+    total_periods = len(set(
+        (p.day, p.order) for p in periods if not p.is_break
+    ))
+
+    # Count scheduled slots per grade
+    grade_slot_counts = {}
+    for slot in slots:
+        gid = slot.lesson.grade_subject.grade.grade_id
+        grade_slot_counts[gid] = grade_slot_counts.get(gid, 0) + 1
+
+    # Count scheduled slots per teacher
+    teacher_slot_counts = {}
+    for slot in slots:
+        tid = slot.lesson.teacher.teacher_id
+        teacher_slot_counts[tid] = teacher_slot_counts.get(tid, 0) + 1
+
+    # Count scheduled slots per room
+    room_slot_counts = {}
+    for slot in slots:
+        if slot.room_id:
+            room_slot_counts[slot.room_id] = room_slot_counts.get(slot.room_id, 0) + 1
+
+    # Time-off periods per grade (periods marked unavailable via GradeAvailability)
+    grade_timeoff_counts = {}
+    for avail in GradeAvailability.objects.filter(timetable=timetable, is_available=False):
+        gid = avail.grade_id
+        if avail.period_id:
+            grade_timeoff_counts[gid] = grade_timeoff_counts.get(gid, 0) + 1
+
+    # Time-off periods per teacher
+    teacher_timeoff_counts = {}
+    for avail in TeacherAvailability.objects.filter(timetable=timetable, is_available=False):
+        tid = avail.teacher_id
+        if avail.period_id:
+            teacher_timeoff_counts[tid] = teacher_timeoff_counts.get(tid, 0) + 1
+
+    # Time-off periods per room
+    room_timeoff_counts = {}
+    for avail in RoomAvailability.objects.filter(timetable=timetable, is_available=False):
+        rid = avail.room_id
+        if avail.period_id:
+            room_timeoff_counts[rid] = room_timeoff_counts.get(rid, 0) + 1
+
+    # Build workload lists
+    grade_workload = []
+    for g in grades:
+        scheduled = grade_slot_counts.get(g.grade_id, 0)
+        timeoff = grade_timeoff_counts.get(g.grade_id, 0)
+        available = total_periods - timeoff
+        util = round((scheduled / total_periods) * 100, 1) if total_periods > 0 else 0
+        grade_workload.append({
+            'name': f"{g.grade}{g.sub_grade or ''}",
+            'scheduled': scheduled,
+            'available': available,
+            'total': total_periods,
+            'timeoff': timeoff,
+            'utilization': util,
+        })
+
+    teacher_workload = []
+    for t in teachers:
+        scheduled = teacher_slot_counts.get(t.teacher_id, 0)
+        timeoff = teacher_timeoff_counts.get(t.teacher_id, 0)
+        available = total_periods - timeoff
+        util = round((scheduled / total_periods) * 100, 1) if total_periods > 0 else 0
+        teacher_workload.append({
+            'name': t.user.username,
+            'scheduled': scheduled,
+            'available': available,
+            'total': total_periods,
+            'timeoff': timeoff,
+            'utilization': util,
+        })
+
+    room_workload = []
+    for r in rooms:
+        scheduled = room_slot_counts.get(r.room_id, 0)
+        timeoff = room_timeoff_counts.get(r.room_id, 0)
+        available = total_periods - timeoff
+        util = round((scheduled / total_periods) * 100, 1) if total_periods > 0 else 0
+        if scheduled > 0:
+            room_workload.append({
+                'name': r.room_name,
+                'scheduled': scheduled,
+                'available': available,
+                'total': total_periods,
+                'timeoff': timeoff,
+                'utilization': util,
+            })
+
+    context = {
+        'data': timetable,
+        'periods': periods,
+        'lessons': lessons,
+        'slots': slots,
+        'grade_subjects': grade_subjects,
+        'teachers': teachers,
+        'availability_data': availability_data,
+        'rooms': rooms,
+        'room_availability_data': room_availability_data,
+        'grades': grades,
+        'grade_availability_data': grade_availability_data,
+        'periods_json': periods_json,
+        'day_choices': Period.DAY_CHOICES,
+        'school_years': SchoolYear.objects.all().order_by('-school_year_name'),
+        'grade_workload': grade_workload,
+        'teacher_workload': teacher_workload,
+        'room_workload': room_workload,
+        'total_periods': total_periods,
+        'segment': 'jadwal',
+        'group_segment': 'kurikulum',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/timetable_view.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_update(request, _id):
+    timetable = Timetable.objects.get(timetable_id=_id)
+    if request.POST:
+        form = FormTimetableUpdate(request.POST, instance=timetable)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('timetable-view', args=[_id]))
+    else:
+        form = FormTimetableUpdate(instance=timetable)
+
+    context = {
+        'data': timetable,
+        'form': form,
+        'segment': 'jadwal',
+        'group_segment': 'kurikulum',
+        'crud': 'update',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/timetable_update.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_delete(request, _id):
+    try:
+        timetable = Timetable.objects.get(timetable_id=_id)
+        timetable.delete()
+    except ProtectedError:
+        pass
+    return HttpResponseRedirect(reverse('timetable-index'))
+
+
+# --- Save Teacher Availability (AJAX) ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_save_availability(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'})
+    
+    try:
+        data = json.loads(request.body)
+        timetable_id = data.get('timetable_id')
+        availabilities = data.get('availabilities', [])
+        
+        timetable = Timetable.objects.get(timetable_id=timetable_id)
+        
+        user = get_current_user()
+        user_id = user.user_id if user else None
+
+        # Delete existing availability for this teacher and timetable only
+        target_teacher_id = None
+        for avail in availabilities:
+            tid = avail.get('teacher_id')
+            if tid:
+                target_teacher_id = int(tid)
+                break
+        
+        if target_teacher_id:
+            TeacherAvailability.objects.filter(timetable=timetable, teacher_id=target_teacher_id).delete()
+        else:
+            TeacherAvailability.objects.filter(timetable=timetable).delete()
+        
+        # Create new availability records
+        created_count = 0
+        for avail in availabilities:
+            teacher_id = avail.get('teacher_id')
+            day = avail.get('day')
+            period_id = avail.get('period_id')
+            is_available = avail.get('is_available', True)
+            
+            if teacher_id and day and period_id:
+                TeacherAvailability.objects.create(
+                    teacher_id=int(teacher_id),
+                    timetable=timetable,
+                    day=day,
+                    period_id=int(period_id),
+                    is_available=is_available,
+                    entry_by=user_id,
+                    entry_date=timezone.now()
+                )
+                created_count += 1
+        
+        return JsonResponse({'success': True, 'count': created_count})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_save_room_availability(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'})
+    
+    try:
+        data = json.loads(request.body)
+        timetable_id = data.get('timetable_id')
+        availabilities = data.get('availabilities', [])
+        
+        timetable = Timetable.objects.get(timetable_id=timetable_id)
+        
+        user = get_current_user()
+        user_id = user.user_id if user else None
+
+        # Delete existing availability for this room and timetable only
+        target_room_id = None
+        for avail in availabilities:
+            rid = avail.get('room_id')
+            if rid:
+                target_room_id = int(rid)
+                break
+        
+        if target_room_id:
+            RoomAvailability.objects.filter(timetable=timetable, room_id=target_room_id).delete()
+        else:
+            RoomAvailability.objects.filter(timetable=timetable).delete()
+        
+        # Create new availability records
+        created_count = 0
+        for avail in availabilities:
+            room_id = avail.get('room_id')
+            day = avail.get('day')
+            period_id = avail.get('period_id')
+            is_available = avail.get('is_available', True)
+            
+            if room_id and day and period_id:
+                RoomAvailability.objects.create(
+                    room_id=int(room_id),
+                    timetable=timetable,
+                    day=day,
+                    period_id=int(period_id),
+                    is_available=is_available,
+                    entry_by=user_id,
+                    entry_date=timezone.now()
+                )
+                created_count += 1
+        
+        return JsonResponse({'success': True, 'count': created_count})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_save_grade_availability(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'})
+    
+    try:
+        data = json.loads(request.body)
+        timetable_id = data.get('timetable_id')
+        availabilities = data.get('availabilities', [])
+        
+        timetable = Timetable.objects.get(timetable_id=timetable_id)
+        
+        user = get_current_user()
+        user_id = user.user_id if user else None
+
+        # Delete existing availability for this grade and timetable only
+        target_grade_id = None
+        for avail in availabilities:
+            gid = avail.get('grade_id')
+            if gid:
+                target_grade_id = gid
+                break
+        
+        if target_grade_id:
+            GradeAvailability.objects.filter(timetable=timetable, grade_id=target_grade_id).delete()
+        else:
+            GradeAvailability.objects.filter(timetable=timetable).delete()
+        
+        # Create new availability records
+        created_count = 0
+        for avail in availabilities:
+            grade_id = avail.get('grade_id')
+            day = avail.get('day')
+            period_id = avail.get('period_id')
+            is_available = avail.get('is_available', True)
+            
+            if grade_id and day and period_id:
+                GradeAvailability.objects.create(
+                    grade_id=grade_id,
+                    timetable=timetable,
+                    day=day,
+                    period_id=int(period_id),
+                    is_available=is_available,
+                    entry_by=user_id,
+                    entry_date=timezone.now()
+                )
+                created_count += 1
+        
+        return JsonResponse({'success': True, 'count': created_count})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+# --- Timetable Grid View ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_grid(request, _id):
+    timetable = Timetable.objects.get(timetable_id=_id)
+    
+    # Custom day order mapping
+    day_order = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
+    periods = list(timetable.periods.all())
+    periods.sort(key=lambda p: (day_order.get(p.day, 99), p.order))
+    
+    slots = timetable.slots.select_related(
+        'lesson__grade_subject__grade', 'lesson__grade_subject__subject',
+        'lesson__teacher__user', 'period', 'room'
+    ).all()
+    grades = Grade.objects.filter(
+        school_year=timetable.school_year,
+        semester=timetable.semester,
+        gradesubject__teacher_subjects__isnull=False,
+    ).distinct().order_by('grade', 'sub_grade')
+
+    days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+    grid = {}
+    for slot in slots:
+        day = slot.period.day
+        order = slot.period.order
+        grade_key = f"{slot.lesson.grade_subject.grade.grade}{slot.lesson.grade_subject.grade.sub_grade or ''}"
+        if grade_key not in grid:
+            grid[grade_key] = {}
+        if day not in grid[grade_key]:
+            grid[grade_key][day] = {}
+        grid[grade_key][day][order] = {
+            'subject': slot.lesson.grade_subject.subject.subject_name,
+            'teacher': slot.lesson.teacher.user.username,
+            'room': slot.room.room_name if slot.room else '',
+            'slot_id': slot.slot_id,
+        }
+
+    days_display = dict(Period.DAY_CHOICES)
+
+    from django.db.models import Count
+
+    # Count scheduled slots per (teacher, grade_subject)
+    scheduled_counts = TimetableSlot.objects.filter(
+        timetable=timetable
+    ).values(
+        'lesson__teacher__teacher_id',
+        'lesson__grade_subject__grade_subject_id',
+    ).annotate(
+        cnt=Count('slot_id')
+    )
+
+    sched_map = {}
+    for sc in scheduled_counts:
+        key = (sc['lesson__teacher__teacher_id'], sc['lesson__grade_subject__grade_subject_id'])
+        sched_map[key] = sc['cnt']
+
+    # Find TeacherSubjects with remaining hours - filter by school_year + semester timetable
+    ts_list = TeacherSubject.objects.select_related(
+        'grade_subject__grade', 'grade_subject__subject', 'teacher__user'
+    ).filter(
+        grade_subject__grade__school_year=timetable.school_year,
+        grade_subject__grade__semester=timetable.semester,
+    )
+
+    unscheduled_teacher_subjects = []
+    for ts in ts_list:
+        scheduled = sched_map.get((ts.teacher_id, ts.grade_subject_id), 0)
+        remaining = ts.hours - scheduled
+        if remaining > 0:
+            ts.remaining_hours = remaining
+            unscheduled_teacher_subjects.append(ts)
+    unscheduled_teacher_subjects.sort(key=lambda x: (x.grade_subject.grade.grade, x.grade_subject.grade.sub_grade or '', x.grade_subject.subject.subject_name))
+
+    # Build header data for merged day names - from sorted periods directly
+    header_days = []  # [{code, name, colspan}, ...]
+    current_day = None
+    count = 0
+    for p in periods:
+        if p.day != current_day:
+            if current_day is not None:
+                header_days.append({
+                    'code': current_day,
+                    'name': days_display.get(current_day, current_day),
+                    'colspan': count,
+                })
+            current_day = p.day
+            count = 1
+        else:
+            count += 1
+    if current_day is not None:
+        header_days.append({
+            'code': current_day,
+            'name': days_display.get(current_day, current_day),
+            'colspan': count,
+        })
+
+    # Generate color map for subjects
+    subject_colors = {}
+    color_palette = [
+        {'bg': '#e3f2fd', 'border': '#1976d2', 'text': '#1565c0'},
+        {'bg': '#e8f5e9', 'border': '#388e3c', 'text': '#2e7d32'},
+        {'bg': '#fff3e0', 'border': '#f57c00', 'text': '#ef6c00'},
+        {'bg': '#fce4ec', 'border': '#c2185b', 'text': '#c2185b'},
+        {'bg': '#f3e5f5', 'border': '#7b1fa2', 'text': '#6a1b9a'},
+        {'bg': '#e0f7fa', 'border': '#00838f', 'text': '#00838f'},
+        {'bg': '#fffde7', 'border': '#f9a825', 'text': '#f57f17'},
+        {'bg': '#e8eaf6', 'border': '#303f9f', 'text': '#283593'},
+        {'bg': '#fbe9e7', 'border': '#d84315', 'text': '#bf360c'},
+        {'bg': '#f1f8e9', 'border': '#689f38', 'text': '#558b2f'},
+        {'bg': '#ede7f6', 'border': '#512da8', 'text': '#4527a0'},
+        {'bg': '#e1f5fe', 'border': '#0277bd', 'text': '#01579b'},
+    ]
+    subjects = Subject.objects.all().order_by('subject_name')
+    for idx, subject in enumerate(subjects):
+        subject_colors[subject.subject_id] = color_palette[idx % len(color_palette)]
+
+    # Unique periods for compact view (one column per time slot)
+    seen_orders = set()
+    periods_unique = []
+    for p in periods:
+        if p.order not in seen_orders:
+            seen_orders.add(p.order)
+            periods_unique.append(p)
+
+    # Active days (days that have periods defined)
+    active_days = sorted(set(p.day for p in periods), key=lambda d: day_order.get(d, 99))
+
+    # Teachers that have slots in this timetable
+    teachers = Teacher.objects.filter(
+        lesson__slots__timetable=timetable
+    ).distinct().order_by('user__username')
+
+    # Rooms that have slots in this timetable
+    rooms = Room.objects.filter(
+        timetableslot__timetable=timetable
+    ).distinct().order_by('room_name')
+
+    context = {
+        'data': timetable,
+        'periods': periods,
+        'periods_unique': periods_unique,
+        'active_days': active_days,
+        'header_days': header_days,
+        'slots': slots,
+        'grades': grades,
+        'teachers': teachers,
+        'rooms': rooms,
+        'days_display': days_display,
+        'subject_colors': subject_colors,
+        'unscheduled_teacher_subjects': unscheduled_teacher_subjects,
+        'segment': 'jadwal',
+        'group_segment': 'kurikulum',
+        'crud': 'view',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/timetable_grid.html', context)
+
+
+# --- Automatic Scheduling Engine (AJAX) ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_generate(request, _id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    timetable = Timetable.objects.get(timetable_id=_id)
+
+    if not timetable.school_year or not timetable.semester:
+        return JsonResponse(
+            {'error': 'Tahun ajaran dan semester harus diatur terlebih dahulu'},
+            status=400)
+
+    # Replace: clear existing slots
+    timetable.slots.all().delete()
+
+    # Custom day order mapping
+    day_order = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+
+    # Group non-break periods per day, sorted by order
+    periods_by_day = {}
+    for p in timetable.periods.filter(is_break=False):
+        periods_by_day.setdefault(p.day, []).append(p)
+    for day in periods_by_day:
+        periods_by_day[day].sort(key=lambda x: x.order)
+    active_days = [d for d in day_order if d in periods_by_day]
+
+    if not active_days:
+        return JsonResponse(
+            {'error': 'Belum ada periode jam pelajaran yang diatur'},
+            status=400)
+
+    break_orders_by_day = {d: set() for d in active_days}
+    for p in timetable.periods.filter(is_break=True):
+        if p.day in break_orders_by_day:
+            break_orders_by_day[p.day].add(p.order)
+
+    day_pos = {d: i for i, d in enumerate(active_days)}
+
+    # PRD §8 step 1-2: explicit GradeSubject for (school_year, semester),
+    # then TeacherSubject for those GradeSubjects
+    grade_subjects = GradeSubject.objects.filter(
+        grade__school_year=timetable.school_year,
+        grade__semester=timetable.semester,
+    ).select_related('grade', 'subject', 'room')
+    teacher_subjects = list(TeacherSubject.objects.filter(
+        grade_subject__in=grade_subjects,
+    ).select_related(
+        'grade_subject__grade', 'grade_subject__subject',
+        'grade_subject__room', 'teacher__user',
+    ).order_by('teacher_subject_id'))
+    rooms = list(Room.objects.all())
+
+    scheduled_count = 0
+    total_needed = 0
+    unscheduled_lessons = []
+
+    for lesson_idx, ts in enumerate(teacher_subjects):
+        slots_needed = ts.hours
+        slots_assigned = 0
+        total_needed += slots_needed
+
+        grade = ts.grade_subject.grade
+        grade_label = f"{grade.grade}{grade.sub_grade or ''}"
+        teacher = ts.teacher
+        grade_subject = ts.grade_subject
+
+        # Get or create Lesson for this timetable
+        lesson, created = Lesson.objects.get_or_create(
+            timetable=timetable,
+            grade_subject=grade_subject,
+            teacher=teacher,
+            defaults={'hours_per_week': slots_needed}
+        )
+        if not created and lesson.hours_per_week != slots_needed:
+            lesson.hours_per_week = slots_needed
+            lesson.save()
+
+        # Round-robin: rotate starting day per lesson so hours spread evenly
+        day_idx = lesson_idx % len(active_days)
+        period_idx = {d: 0 for d in active_days}
+
+        preferred_room = grade_subject.room
+
+        def period_ok(day, period):
+            # 1. Teacher conflict (same teacher, same period)
+            if TimetableSlot.objects.filter(
+                timetable=timetable,
+                period=period,
+                lesson__teacher=teacher,
+            ).exists():
+                return False
+            # 2. Grade conflict (same grade, same period)
+            if TimetableSlot.objects.filter(
+                timetable=timetable,
+                period=period,
+                lesson__grade_subject__grade=grade,
+            ).exists():
+                return False
+            # 3. Subject conflict (same grade_subject already at this period)
+            if TimetableSlot.objects.filter(
+                timetable=timetable,
+                period=period,
+                lesson__grade_subject=grade_subject,
+            ).exists():
+                return False
+            # 4. Teacher availability (blacklist: skip only if is_available=False)
+            if TeacherAvailability.objects.filter(
+                timetable=timetable,
+                teacher=teacher,
+                day=day,
+                is_available=False,
+            ).filter(
+                Q(period=period) | Q(period__isnull=True),
+            ).exists():
+                return False
+            # 5. Grade availability (blacklist)
+            if GradeAvailability.objects.filter(
+                timetable=timetable,
+                grade=grade,
+                day=day,
+                is_available=False,
+            ).filter(
+                Q(period=period) | Q(period__isnull=True),
+            ).exists():
+                return False
+            return True
+
+        def room_free(day, period, room):
+            if TimetableSlot.objects.filter(
+                timetable=timetable,
+                period=period,
+                room=room,
+            ).exists():
+                return False
+            if RoomAvailability.objects.filter(
+                timetable=timetable,
+                room=room,
+                day=day,
+                is_available=False,
+            ).filter(
+                Q(period=period) | Q(period__isnull=True),
+            ).exists():
+                return False
+            return True
+
+        def pick_room(day, chunk):
+            if preferred_room:
+                if all(room_free(day, p, preferred_room) for p in chunk):
+                    return preferred_room
+                for room in rooms:
+                    if all(room_free(day, p, room) for p in chunk):
+                        return room
+            return None
+
+        def create_slots(chunk, room):
+            nonlocal slots_assigned, scheduled_count
+            for p in chunk:
+                TimetableSlot.objects.create(
+                    timetable=timetable,
+                    lesson=lesson,
+                    period=p,
+                    room=room,
+                    is_manual=False,
+                )
+                slots_assigned += 1
+                scheduled_count += 1
+
+        def contiguous(day, extra_orders):
+            # No idle gaps: for this grade AND this teacher, occupied periods
+            # on the day must be consecutive (istirahat between them is fine;
+            # leading/trailing free periods are fine)
+            extra = set(extra_orders)
+            lookups = (
+                Q(lesson__grade_subject__grade=grade),
+                Q(lesson__teacher=teacher),
+            )
+            for lookup in lookups:
+                orders = set(
+                    TimetableSlot.objects.filter(
+                        timetable=timetable,
+                        period__day=day,
+                    ).filter(lookup).values_list('period__order', flat=True)
+                ) | extra
+                if not orders:
+                    continue
+                idxs = [
+                    i for i, p in enumerate(periods_by_day[day])
+                    if p.order in orders
+                ]
+                if idxs and idxs[-1] - idxs[0] + 1 != len(idxs):
+                    return False
+            return True
+
+        # Every subject: prefer 2-hour sessions (max 2 hours/day per subject);
+        # sessions must not be split by istirahat (hard rule for lab rooms)
+        hours_on_day = {d: 0 for d in active_days}
+        is_lab = bool(
+            preferred_room
+            and 'lab' in (preferred_room.room_name or '').lower()
+        )
+
+        def no_break_between(day, a, b):
+            return not any(
+                a.order < o < b.order for o in break_orders_by_day[day]
+            )
+
+        def adjacent_session(day):
+            i = day_pos[day]
+            return (
+                (i > 0 and hours_on_day[active_days[i - 1]] > 0)
+                or (
+                    i + 1 < len(active_days)
+                    and hours_on_day[active_days[i + 1]] > 0
+                )
+            )
+
+        def try_pair(no_break_only, allow_adjacent=False):
+            nonlocal day_idx
+            for _ in range(len(active_days)):
+                day = active_days[day_idx % len(active_days)]
+                day_idx += 1
+                if hours_on_day[day] > 0:
+                    continue
+                if adjacent_session(day) and not allow_adjacent:
+                    continue
+                day_periods = periods_by_day[day]
+                for i in range(len(day_periods) - 1):
+                    a, b = day_periods[i], day_periods[i + 1]
+                    if no_break_only and not no_break_between(day, a, b):
+                        continue
+                    if (
+                        period_ok(day, a)
+                        and period_ok(day, b)
+                        and contiguous(day, (a.order, b.order))
+                    ):
+                        create_slots([a, b], pick_room(day, [a, b]))
+                        hours_on_day[day] = 2
+                        period_idx[day] = len(day_periods)
+                        return True
+            return False
+
+        def try_single(allow_adjacent):
+            nonlocal day_idx
+            for _ in range(len(active_days)):
+                day = active_days[day_idx % len(active_days)]
+                day_idx += 1
+                day_periods = periods_by_day[day]
+                if hours_on_day[day] > 0:
+                    period_idx[day] = len(day_periods)
+                    continue
+                if adjacent_session(day) and not allow_adjacent:
+                    period_idx[day] = len(day_periods)
+                    continue
+                idx = period_idx[day]
+                if idx >= len(day_periods):
+                    continue
+                period = day_periods[idx]
+                period_idx[day] = idx + 1
+                if not period_ok(day, period):
+                    continue
+                if not contiguous(day, (period.order,)):
+                    continue
+                create_slots([period], pick_room(day, [period]))
+                hours_on_day[day] = 1
+                period_idx[day] = len(day_periods)
+                return True
+            return False
+
+        def singles_phase(allow_adjacent, reset):
+            if reset:
+                for d in active_days:
+                    if hours_on_day[d] == 0:
+                        period_idx[d] = 0
+            while slots_assigned < slots_needed:
+                if all(period_idx[d] >= len(periods_by_day[d]) for d in active_days):
+                    break
+                try_single(allow_adjacent)
+
+        # Fill order — "setiap pelajaran tidak terjeda istirahat":
+        #   A. sesi 2 jam TANPA istirahat (tier: hari non-adjacent, lalu adjacent)
+        #   B. jam tunggal (fase ketat, lalu relaksasi hari-berurutan)
+        #   C. sesi 2 jam MELEWATI istirahat — non-lab, last resort mutlak
+        pairs_planned = slots_needed // 2
+        pairs_done = 0
+
+        # Phase A: no-break pairs only
+        for _ in range(pairs_planned):
+            if try_pair(no_break_only=True):
+                pairs_done += 1
+                continue
+            if try_pair(no_break_only=True, allow_adjacent=True):
+                pairs_done += 1
+                continue
+            break
+
+        # Phase B: singles — strict, then relaxed adjacency
+        singles_phase(allow_adjacent=False, reset=False)
+        if slots_assigned < slots_needed:
+            singles_phase(allow_adjacent=True, reset=True)
+
+        # Phase C: crossing-istirahat pairs (non-lab only), then top up singles
+        if slots_assigned < slots_needed and not is_lab:
+            while (
+                pairs_done < pairs_planned
+                and slots_needed - slots_assigned >= 2
+            ):
+                if try_pair(no_break_only=False):
+                    pairs_done += 1
+                    continue
+                if try_pair(no_break_only=False, allow_adjacent=True):
+                    pairs_done += 1
+                    continue
+                break
+            singles_phase(allow_adjacent=False, reset=False)
+            if slots_assigned < slots_needed:
+                singles_phase(allow_adjacent=True, reset=True)
+
+        if slots_assigned < slots_needed:
+            unscheduled_lessons.append({
+                'lesson_id': lesson.lesson_id,
+                'subject': grade_subject.subject.subject_name,
+                'grade': grade_label,
+                'teacher': teacher.user.username if teacher.user else str(teacher),
+                'needed': slots_needed,
+                'assigned': slots_assigned,
+            })
+
+    return JsonResponse({
+        'success': True,
+        'generated': scheduled_count,
+        'failed': total_needed - scheduled_count,
+        # Backward-compatible fields
+        'scheduled_count': scheduled_count,
+        'total_lessons': len(teacher_subjects),
+        'unscheduled': unscheduled_lessons,
+    })
+
+
+# --- Manual Slot Move (AJAX) ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_move_slot(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        slot_id = data.get('slot_id')
+        target_period_id = data.get('target_period_id')
+
+        slot = TimetableSlot.objects.get(slot_id=slot_id)
+        target_period = Period.objects.get(period_id=target_period_id)
+
+        target_grade_id = data.get('target_grade_id')
+        if target_grade_id and target_grade_id != slot.lesson.grade_subject.grade_id:
+            return JsonResponse({'error': 'Kelas target tidak sesuai dengan kelas pelajaran ini'}, status=400)
+
+        if target_period.is_break:
+            return JsonResponse({'error': 'Tidak bisa dijadwalkan pada jam istirahat'}, status=400)
+
+        # Check conflicts
+        teacher_conflict = TimetableSlot.objects.filter(
+            timetable=slot.timetable,
+            period=target_period,
+            lesson__teacher=slot.lesson.teacher
+        ).exclude(slot_id=slot_id).exists()
+
+        grade_conflict = TimetableSlot.objects.filter(
+            timetable=slot.timetable,
+            period=target_period,
+            lesson__grade_subject__grade=slot.lesson.grade_subject.grade
+        ).exclude(slot_id=slot_id).exists()
+
+        if teacher_conflict:
+            return JsonResponse({'error': 'Konflik guru pada periode ini'}, status=400)
+        if grade_conflict:
+            return JsonResponse({'error': 'Konflik kelas pada periode ini'}, status=400)
+
+        # Check subject conflict (same grade_subject already scheduled at this period)
+        subject_conflict = TimetableSlot.objects.filter(
+            timetable=slot.timetable,
+            period=target_period,
+            lesson__grade_subject=slot.lesson.grade_subject
+        ).exclude(slot_id=slot_id).exists()
+        if subject_conflict:
+            return JsonResponse({'error': 'Mapel ini sudah dijadwalkan pada periode ini'}, status=400)
+
+        # Check room conflict (same room already used at this period)
+        if slot.room:
+            room_conflict = TimetableSlot.objects.filter(
+                timetable=slot.timetable,
+                period=target_period,
+                room=slot.room
+            ).exclude(slot_id=slot_id).exists()
+            if room_conflict:
+                return JsonResponse({'error': 'Ruangan sudah digunakan pada periode ini'}, status=400)
+
+        # Check teacher availability
+        teacher_unavailable = TeacherAvailability.objects.filter(
+            timetable=slot.timetable,
+            teacher=slot.lesson.teacher,
+            day=target_period.day,
+        ).filter(
+            Q(period=target_period) | Q(period__isnull=True),
+            is_available=False
+        ).exists()
+        if teacher_unavailable:
+            return JsonResponse({'error': f'Guru tidak tersedia pada hari {target_period.get_day_display()}'}, status=400)
+
+        # Check room availability if room is assigned
+        if slot.room:
+            room_unavailable = RoomAvailability.objects.filter(
+                timetable=slot.timetable,
+                room=slot.room,
+                day=target_period.day,
+            ).filter(
+                Q(period=target_period) | Q(period__isnull=True),
+                is_available=False
+            ).exists()
+            if room_unavailable:
+                return JsonResponse({'error': f'Ruangan tidak tersedia pada hari {target_period.get_day_display()}'}, status=400)
+
+        # Check grade availability
+        grade_unavailable = GradeAvailability.objects.filter(
+            timetable=slot.timetable,
+            grade=slot.lesson.grade_subject.grade,
+            day=target_period.day,
+        ).filter(
+            Q(period=target_period) | Q(period__isnull=True),
+            is_available=False,
+        ).exists()
+        if grade_unavailable:
+            return JsonResponse({'error': f'Kelas tidak tersedia pada hari {target_period.get_day_display()}'}, status=400)
+
+        slot.period = target_period
+        slot.is_manual = True
+        slot.save()
+
+        return JsonResponse({'success': True})
+    except (TimetableSlot.DoesNotExist, Period.DoesNotExist, json.JSONDecodeError) as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# --- Schedule Lesson from Unscheduled (AJAX) ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_schedule_lesson(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        teacher_subject_id = data.get('teacher_subject_id')
+        target_period_id = data.get('target_period_id')
+
+        ts = TeacherSubject.objects.select_related(
+            'grade_subject__grade', 'teacher'
+        ).get(teacher_subject_id=teacher_subject_id)
+        target_period = Period.objects.get(period_id=target_period_id)
+        timetable = Timetable.objects.get(timetable_id=data.get('timetable_id', None))
+
+        if target_period.is_break:
+            return JsonResponse({'error': 'Tidak bisa dijadwalkan pada jam istirahat'}, status=400)
+
+        target_grade_id = data.get('target_grade_id')
+        if target_grade_id and target_grade_id != ts.grade_subject.grade_id:
+            return JsonResponse({'error': 'Kelas target tidak sesuai dengan kelas pelajaran ini'}, status=400)
+
+        # Validasi: TeacherSubject harus sesuai school_year + semester timetable
+        if ts.grade_subject.grade.school_year != timetable.school_year or \
+           ts.grade_subject.grade.semester != timetable.semester:
+            return JsonResponse({'error': 'Mapel/guru ini tidak sesuai dengan tahun ajaran dan semester jadwal'}, status=400)
+
+        lesson, _ = Lesson.objects.get_or_create(
+            timetable=timetable,
+            grade_subject=ts.grade_subject,
+            teacher=ts.teacher,
+            defaults={'hours_per_week': ts.hours}
+        )
+
+        if TimetableSlot.objects.filter(
+            timetable=timetable,
+            period=target_period,
+            lesson__teacher=ts.teacher
+        ).exists():
+            return JsonResponse({'error': 'Konflik guru pada periode ini'}, status=400)
+
+        if TimetableSlot.objects.filter(
+            timetable=timetable,
+            period=target_period,
+            lesson__grade_subject__grade=ts.grade_subject.grade
+        ).exists():
+            return JsonResponse({'error': 'Konflik kelas pada periode ini'}, status=400)
+
+        subject_conflict = TimetableSlot.objects.filter(
+            timetable=timetable,
+            period=target_period,
+            lesson__grade_subject=ts.grade_subject
+        ).exists()
+        if subject_conflict:
+            return JsonResponse({'error': 'Mapel ini sudah dijadwalkan pada periode ini'}, status=400)
+
+        teacher_unavailable = TeacherAvailability.objects.filter(
+            timetable=timetable,
+            teacher=ts.teacher,
+            day=target_period.day,
+        ).filter(
+            Q(period=target_period) | Q(period__isnull=True),
+            is_available=False
+        ).exists()
+        if teacher_unavailable:
+            return JsonResponse({'error': f'Guru tidak tersedia pada hari {target_period.get_day_display()}'}, status=400)
+
+        # Check room conflict and availability
+        target_room = ts.grade_subject.room
+        if target_room:
+            room_conflict = TimetableSlot.objects.filter(
+                timetable=timetable,
+                period=target_period,
+                room=target_room
+            ).exists()
+            if room_conflict:
+                return JsonResponse({'error': 'Ruangan sudah digunakan pada periode ini'}, status=400)
+
+            room_unavailable = RoomAvailability.objects.filter(
+                timetable=timetable,
+                room=target_room,
+                day=target_period.day,
+            ).filter(
+                Q(period=target_period) | Q(period__isnull=True),
+                is_available=False
+            ).exists()
+            if room_unavailable:
+                return JsonResponse({'error': f'Ruangan tidak tersedia pada hari {target_period.get_day_display()}'}, status=400)
+
+        # Check grade availability
+        grade_unavailable = GradeAvailability.objects.filter(
+            timetable=timetable,
+            grade=ts.grade_subject.grade,
+            day=target_period.day,
+        ).filter(
+            Q(period=target_period) | Q(period__isnull=True),
+            is_available=False,
+        ).exists()
+        if grade_unavailable:
+            return JsonResponse({'error': f'Kelas tidak tersedia pada hari {target_period.get_day_display()}'}, status=400)
+
+        new_slot = TimetableSlot.objects.create(
+            timetable=timetable,
+            lesson=lesson,
+            period=target_period,
+            room=ts.grade_subject.room,
+            is_manual=True,
+        )
+
+        scheduled_count = TimetableSlot.objects.filter(
+            timetable=timetable,
+            lesson__grade_subject=ts.grade_subject,
+            lesson__teacher=ts.teacher,
+        ).count()
+        remaining = max(0, ts.hours - scheduled_count)
+
+        return JsonResponse({
+            'success': True,
+            'slot_id': new_slot.slot_id,
+            'subject_name': ts.grade_subject.subject.subject_name,
+            'subject_id': ts.grade_subject.subject.subject_id,
+            'teacher_name': ts.teacher.user.username,
+            'grade_name': f"{ts.grade_subject.grade.grade}{ts.grade_subject.grade.sub_grade or ''}",
+            'grade_id': ts.grade_subject.grade_id,
+            'room_name': ts.grade_subject.room.room_name if ts.grade_subject.room else '',
+            'teacher_subject_id': ts.teacher_subject_id,
+            'remaining_hours': remaining,
+        })
+    except (TeacherSubject.DoesNotExist, Period.DoesNotExist, Timetable.DoesNotExist, json.JSONDecodeError) as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# --- Delete Slot (AJAX) ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_delete_slot(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        slot_id = data.get('slot_id')
+        slot = TimetableSlot.objects.select_related(
+            'lesson__teacher__user', 'lesson__grade_subject__grade', 'lesson__grade_subject__subject', 'room'
+        ).get(slot_id=slot_id)
+
+        ts = TeacherSubject.objects.filter(
+            grade_subject=slot.lesson.grade_subject,
+            teacher=slot.lesson.teacher,
+        ).first()
+
+        scheduled_count = TimetableSlot.objects.filter(
+            timetable=slot.timetable,
+            lesson__grade_subject=slot.lesson.grade_subject,
+            lesson__teacher=slot.lesson.teacher,
+        ).exclude(slot_id=slot_id).count()
+
+        remaining = (ts.hours - scheduled_count) if ts else 0
+
+        slot_data = {
+            'slot_id': slot.slot_id,
+            'subject_name': slot.lesson.grade_subject.subject.subject_name,
+            'subject_id': slot.lesson.grade_subject.subject.subject_id,
+            'teacher_name': slot.lesson.teacher.user.username,
+            'grade_name': f"{slot.lesson.grade_subject.grade.grade}{slot.lesson.grade_subject.grade.sub_grade or ''}",
+            'grade_id': slot.lesson.grade_subject.grade_id,
+            'room_name': slot.room.room_name if slot.room else '',
+            'teacher_subject_id': ts.teacher_subject_id if ts else None,
+            'remaining_hours': remaining,
+        }
+
+        slot.delete()
+        return JsonResponse({'success': True, **slot_data})
+    except (TimetableSlot.DoesNotExist, json.JSONDecodeError) as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# --- Save Periods (AJAX) ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_save_periods(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        timetable_id = data.get('timetable_id')
+        days = data.get('days', [])
+        periods_data = data.get('periods', [])
+
+        timetable = Timetable.objects.get(timetable_id=timetable_id)
+
+        # Day mapping
+        day_map = {0: 'SUN', 1: 'MON', 2: 'TUE', 3: 'WED', 4: 'THU', 5: 'FRI', 6: 'SAT'}
+
+        # Delete existing periods for this timetable
+        Period.objects.filter(timetable=timetable).delete()
+
+        # Create new periods for each selected day
+        for day_num in days:
+            day_code = day_map.get(day_num, 'MON')
+            for period_data in periods_data:
+                is_break = period_data.get('type') == 'break'
+                Period.objects.create(
+                    timetable=timetable,
+                    day=day_code,
+                    order=period_data.get('order'),
+                    start_time=period_data.get('start_time'),
+                    end_time=period_data.get('end_time'),
+                    is_break=is_break,
+                    break_name=period_data.get('name') if is_break else ''
+                )
+
+        return JsonResponse({'success': True})
+    except (Timetable.DoesNotExist, json.JSONDecodeError, Exception) as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# --- Publish / Unpublish Timetable ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_publish(request, _id):
+    if request.method != 'POST':
+        return HttpResponseRedirect(reverse('timetable-view', args=[_id]))
+
+    timetable = Timetable.objects.get(timetable_id=_id)
+    timetable.status = 'published'
+    timetable.save()
+    return HttpResponseRedirect(reverse('timetable-view', args=[_id]))
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_unpublish(request, _id):
+    if request.method != 'POST':
+        return HttpResponseRedirect(reverse('timetable-view', args=[_id]))
+
+    timetable = Timetable.objects.get(timetable_id=_id)
+    timetable.status = 'draft'
+    timetable.save()
+    return HttpResponseRedirect(reverse('timetable-view', args=[_id]))
+
+
+# --- Teacher Absence Management ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def teacher_absence_index(request, timetable_id):
+    timetable = Timetable.objects.get(timetable_id=timetable_id)
+    availabilities = timetable.teacher_availabilities.select_related(
+        'teacher__user'
+    ).all().order_by('teacher__user__username', 'day')
+
+    context = {
+        'data': availabilities,
+        'timetable': timetable,
+        'segment': 'guru-absen',
+        'group_segment': 'kurikulum',
+        'crud': 'index',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_absence_index.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def teacher_absence_add(request, timetable_id):
+    timetable = Timetable.objects.get(timetable_id=timetable_id)
+    if request.method == 'POST':
+        teacher_id = request.POST.get('teacher')
+        day = request.POST.get('day')
+        reason = request.POST.get('reason', '')
+        period_id = request.POST.get('period')
+
+        teacher = Teacher.objects.get(teacher_id=teacher_id)
+        period = Period.objects.get(period_id=period_id) if period_id else None
+
+        TeacherAvailability.objects.create(
+            teacher=teacher,
+            timetable=timetable,
+            day=day,
+            period=period,
+            is_available=False,
+            reason=reason,
+        )
+        return HttpResponseRedirect(reverse('teacher-absence-index', args=[timetable_id]))
+
+    teachers = Teacher.objects.select_related('user').order_by('user__username')
+    
+    # Custom day order mapping
+    day_order = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
+    periods = list(timetable.periods.all())
+    periods.sort(key=lambda p: (day_order.get(p.day, 99), p.order))
+
+    context = {
+        'teachers': teachers,
+        'periods': periods,
+        'timetable': timetable,
+        'segment': 'guru-absen',
+        'group_segment': 'kurikulum',
+        'crud': 'add',
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.get(user_id=request.user.user_id,
+                                menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+    }
+    return render(request, 'home/teacher_absence_add.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def teacher_absence_delete(request, timetable_id, _id):
+    try:
+        availability = TeacherAvailability.objects.get(availability_id=_id)
+        availability.delete()
+    except ProtectedError:
+        pass
+    return HttpResponseRedirect(reverse('teacher-absence-index', args=[timetable_id]))
+
+
+# --- Substitute Matching (AJAX) ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def substitute_recommend(request, timetable_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        slot_id = data.get('slot_id')
+        timetable = Timetable.objects.get(timetable_id=timetable_id)
+        slot = TimetableSlot.objects.select_related(
+            'lesson__teacher__user', 'period'
+        ).get(slot_id=slot_id)
+
+        original_teacher = slot.lesson.teacher
+        period = slot.period
+
+        # Find teachers who are NOT already teaching at this period
+        busy_teachers = TimetableSlot.objects.filter(
+            timetable=timetable,
+            period=period
+        ).values_list('lesson__teacher_id', flat=True)
+
+        candidates = Teacher.objects.exclude(
+            teacher_id__in=busy_teachers
+        ).select_related('user').order_by('user__username')
+
+        # Score candidates
+        recommendations = []
+        for candidate in candidates:
+            score = 0
+
+            # Same subject qualification
+            has_qualification = TeacherSubject.objects.filter(
+                teacher=candidate,
+                grade_subject=slot.lesson.grade_subject
+            ).exists()
+            if has_qualification:
+                score += 50
+
+            # Not marked absent for this period
+            is_absent = TeacherAvailability.objects.filter(
+                teacher=candidate,
+                timetable=timetable,
+                day=period.day,
+                is_available=False
+            ).exists()
+            if is_absent:
+                continue
+
+            # Not too many hours
+            current_hours = TimetableSlot.objects.filter(
+                timetable=timetable,
+                lesson__teacher=candidate
+            ).count()
+            if current_hours < 24:
+                score += 25
+
+            recommendations.append({
+                'teacher_id': candidate.teacher_id,
+                'username': candidate.user.username,
+                'score': score,
+                'has_qualification': has_qualification,
+            })
+
+        recommendations.sort(key=lambda x: x['score'], reverse=True)
+
+        return JsonResponse({'success': True, 'recommendations': recommendations[:10]})
+    except (TimetableSlot.DoesNotExist, json.JSONDecodeError) as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# --- Assign Substitute (AJAX) ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def substitute_assign(request, timetable_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        slot_id = data.get('slot_id')
+        substitute_teacher_id = data.get('substitute_teacher_id')
+        reason = data.get('reason', '')
+
+        timetable = Timetable.objects.get(timetable_id=timetable_id)
+        slot = TimetableSlot.objects.get(slot_id=slot_id)
+        substitute_teacher = Teacher.objects.get(teacher_id=substitute_teacher_id)
+
+        # Check if this teacher is available
+        is_absent = TeacherAvailability.objects.filter(
+            teacher=substitute_teacher,
+            timetable=timetable,
+            day=slot.period.day,
+            is_available=False
+        ).exists()
+        if is_absent:
+            return JsonResponse({'error': 'Guru tidak tersedia'}, status=400)
+
+        assignment = SubstituteAssignment.objects.create(
+            timetable=timetable,
+            original_slot=slot,
+            substitute_teacher=substitute_teacher,
+            status='confirmed',
+            match_score=0,
+            reason=reason,
+        )
+
+        return JsonResponse({'success': True, 'assignment_id': assignment.assignment_id})
+    except (TimetableSlot.DoesNotExist, Teacher.DoesNotExist, json.JSONDecodeError) as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# --- Grade Subject by Grade (AJAX) ---
+
+@login_required(login_url='/login/')
+def ajax_grade_subjects_by_grade_for_schedule(request):
+    grade_id = request.GET.get('grade_id')
+    timetable_id = request.GET.get('timetable_id')
+    if not grade_id:
+        return JsonResponse([], safe=False)
+
+    gs_list = GradeSubject.objects.filter(
+        grade_id=grade_id
+    ).select_related('subject').order_by('subject__subject_name')
+
+    result = [
+        {'id': gs.grade_subject_id, 'name': gs.subject.subject_name}
+        for gs in gs_list
+    ]
+    return JsonResponse(result, safe=False)
+
+
+# --- Timetable PDF Export ---
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='JADWAL')
+def timetable_export_pdf(request, _id):
+    timetable = Timetable.objects.get(timetable_id=_id)
+
+    day_order = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
+    periods = list(timetable.periods.all())
+    periods.sort(key=lambda p: (day_order.get(p.day, 99), p.order))
+
+    slots = timetable.slots.select_related(
+        'lesson__grade_subject__grade', 'lesson__grade_subject__subject',
+        'lesson__teacher__user', 'period', 'room'
+    ).all()
+
+    days_display = dict(Period.DAY_CHOICES)
+
+    header_days = []
+    current_day = None
+    count = 0
+    for p in periods:
+        if p.day != current_day:
+            if current_day is not None:
+                header_days.append({'code': current_day, 'name': days_display.get(current_day, current_day), 'colspan': count})
+            current_day = p.day
+            count = 1
+        else:
+            count += 1
+    if current_day is not None:
+        header_days.append({'code': current_day, 'name': days_display.get(current_day, current_day), 'colspan': count})
+
+    mode = request.GET.get('mode', 'kelas')
+    view_type = request.GET.get('view', 'standar')
+    grade_filter = request.GET.get('grade', '')
+    teacher_filter = request.GET.get('teacher', '')
+    room_filter = request.GET.get('room', '')
+
+    grades = Grade.objects.filter(
+        school_year=timetable.school_year,
+        semester=timetable.semester,
+        gradesubject__teacher_subjects__isnull=False,
+    ).distinct().order_by('grade', 'sub_grade')
+
+    teachers = Teacher.objects.filter(
+        lesson__slots__timetable=timetable
+    ).distinct().order_by('user__username')
+
+    rooms = Room.objects.filter(
+        timetableslot__timetable=timetable
+    ).distinct().order_by('room_name')
+
+    if grade_filter:
+        grades = grades.filter(grade_id=grade_filter) | grades.filter(grade=grade_filter[:2], sub_grade=grade_filter[2:] if len(grade_filter) > 2 else '')
+
+    if teacher_filter:
+        teachers = teachers.filter(teacher_id=teacher_filter)
+
+    if room_filter:
+        rooms = rooms.filter(room_id=room_filter)
+
+    periods_unique = []
+    seen_orders = set()
+    for p in periods:
+        if p.order not in seen_orders:
+            seen_orders.add(p.order)
+            periods_unique.append(p)
+
+    active_days = sorted(set(p.day for p in periods), key=lambda d: day_order.get(d, 99))
+
+    mode_label = {'kelas': 'Per Kelas', 'guru': 'Per Guru', 'ruangan': 'Per Ruangan'}.get(mode, 'Per Kelas')
+    view_label = 'Standar' if view_type == 'standar' else 'Kompak'
+
+    context = {
+        'data': timetable,
+        'periods': periods,
+        'periods_unique': periods_unique,
+        'active_days': active_days,
+        'header_days': header_days,
+        'slots': slots,
+        'grades': grades,
+        'teachers': teachers,
+        'rooms': rooms,
+        'days_display': days_display,
+        'mode': mode,
+        'view_type': view_type,
+        'mode_label': mode_label,
+        'view_label': view_label,
+    }
+
+    html_string = render(request, 'home/timetable_pdf.html', context).content.decode('utf-8')
+
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html_string.encode('utf-8')), result, encoding='utf-8')
+
+    if pdf.err:
+        return HttpResponse('Error generating PDF', status=500)
+
+    response = HttpResponse(result.getvalue(), content_type='application/pdf')
+    filename = f"Jadwal_{timetable.name}_{mode_label}_{view_label}.pdf".replace(' ', '_')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

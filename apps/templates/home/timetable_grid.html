@@ -1,0 +1,1536 @@
+{% extends 'layouts/base.html' %}
+{% load my_filter %}
+
+{% block title %} Grid Jadwal - {{ data.name }} ({{ data.get_semester_display }}) {% endblock title %}
+
+{% block stylesheets %}
+<style>
+    .timetable-grid {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.75rem;
+    }
+    .timetable-grid th,
+    .timetable-grid td {
+        border: 1px solid #dee2e6;
+        padding: 6px 8px;
+        text-align: center;
+        vertical-align: top;
+        min-width: 120px;
+    }
+    .timetable-grid td:first-child {
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    /* Frozen first column — only first row (KELAS) */
+    .timetable-grid thead tr:first-child th:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 5;
+        background: #f8f9fa;
+        min-width: 80px;
+    }
+    .timetable-grid tbody td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: #e9ecef;
+        min-width: 80px;
+    }
+    /* Frozen first row (day names) */
+    .timetable-grid thead tr:first-child th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: #f8f9fa;
+    }
+    .timetable-grid thead tr:first-child th:first-child {
+        z-index: 5;
+    }
+    /* Frozen second row (period details) */
+    .timetable-grid thead tr:nth-child(2) th {
+        position: sticky;
+        top: 30px;
+        z-index: 4;
+        background: #f8f9fa;
+    }
+    .timetable-grid .day-header-group {
+        background-color: #f8f9fa !important;
+        color: #1d6f42;
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 1px solid #dee2e6 !important;
+    }
+    .timetable-grid .period-header {
+        font-size: 0.75rem;
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    .timetable-grid .period-header.break-period {
+        background-color: #fff9c4 !important;
+    }
+    .timetable-grid th.day-start,
+    .timetable-grid td.day-start {
+        border-left: 3px solid #1d6f42 !important;
+    }
+    .timetable-grid th.day-start.day-header-group {
+        border-left: 3px solid #1d6f42 !important;
+    }
+    .timetable-grid th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.65rem;
+    }
+    .timetable-grid .grade-row td,
+    .timetable-grid .teacher-row td,
+    .timetable-grid .room-row td {
+        background-color: #e9ecef;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .timetable-grid .break-row {
+        background-color: #fff9c4;
+        font-style: italic;
+        font-weight: 700;
+        color: #856404;
+        text-transform: uppercase;
+    }
+    .slot-card {
+        border-left: 3px solid #1976d2;
+        padding: 4px 6px;
+        border-radius: 3px;
+        margin-bottom: 2px;
+        cursor: grab;
+        font-size: 0.7rem;
+        text-align: left;
+        text-transform: uppercase;
+    }
+    .slot-card.default {
+        background: #e3f2fd;
+        border-left-color: #1976d2;
+    }
+    .slot-card:active {
+        cursor: grabbing;
+    }
+    .slot-card .subject {
+        font-weight: 700 !important;
+        color: #1565c0;
+    }
+    .slot-card .teacher {
+        color: #555;
+        font-size: 0.65rem;
+        font-weight: 700 !important;
+    }
+    .slot-card .grade {
+        color: #888;
+        font-size: 0.7rem;
+        font-weight: 700 !important;
+    }
+    .slot-card .room {
+        color: #888;
+        font-size: 0.6rem;
+        font-weight: 700 !important;
+    }
+    .slot-card .delete-slot {
+        cursor: pointer;
+        color: #dc3545;
+        float: right;
+        font-size: 0.65rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .slot-card:hover .delete-slot {
+        opacity: 1;
+    }
+    .table-responsive {
+        overflow: auto;
+        max-height: 70vh;
+    }
+    .drop-zone {
+        min-height: 40px;
+        background: #f8f9fa;
+        border: 1px dashed #dee2e6;
+        border-radius: 3px;
+    }
+    .drop-zone.break-cell {
+        background: #fff9c4 !important;
+    }
+    .drop-zone.dragover {
+        background: #e8f5e9;
+        border-color: #4caf50;
+    }
+    body.dark-page .drop-zone.dragover {
+        background: #1b5e20 !important;
+        border-color: #66bb6a !important;
+    }
+    .generate-btn {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    .view-toggle {
+        height: 31px !important;
+        display: inline-flex !important;
+        align-items: center;
+    }
+    .view-toggle .btn {
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #6c757d;
+        width: 32px;
+        height: 31px !important;
+        min-height: 31px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        line-height: 1;
+        margin: 0;
+    }
+    .view-toggle .btn:first-child {
+        border-radius: 8px 0 0 8px;
+    }
+    .view-toggle .btn:last-child {
+        border-radius: 0 8px 8px 0;
+    }
+    .view-toggle .btn.active {
+        background: #1d6f42;
+        border-color: #1d6f42;
+        color: white;
+    }
+    .view-toggle .btn:hover:not(.active) {
+        background: #f8f9fa;
+    }
+    .view-toggle .btn i {
+        font-size: 1rem;
+    }
+    /* Mode toggle (Kelas/Guru/Ruangan) */
+    .mode-toggle {
+        height: 31px !important;
+        display: inline-flex !important;
+        align-items: center;
+    }
+    .mode-toggle .btn {
+        height: 31px !important;
+        min-height: 31px !important;
+        padding: 0 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #6c757d;
+        margin: 0;
+        line-height: 1;
+    }
+    .mode-toggle .btn:first-child {
+        border-radius: 8px 0 0 8px;
+    }
+    .mode-toggle .btn:last-child {
+        border-radius: 0 8px 8px 0;
+    }
+    .mode-toggle .btn:not(:first-child):not(:last-child) {
+        border-radius: 0;
+    }
+    .mode-toggle .btn.active {
+        background: #1d6f42;
+        border-color: #1d6f42;
+        color: white;
+    }
+    .mode-toggle .btn:hover:not(.active) {
+        background: #f8f9fa;
+    }
+    body.dark-page .mode-toggle .btn {
+        background-color: #344767;
+        color: #e0e0e0;
+        border-color: #4a5c7a;
+    }
+    body.dark-page .mode-toggle .btn.active {
+        background-color: #3e5068;
+        color: #fff;
+    }
+    body.dark-page .mode-toggle .btn:hover:not(.active) {
+        background-color: #3e5068;
+    }
+    .room-section {
+        margin-bottom: 1.5rem;
+    }
+    .room-header {
+        background: #5d4037;
+        color: white;
+        padding: 8px 16px;
+        font-weight: 600;
+        border-radius: 6px 6px 0 0;
+        font-size: 0.9rem;
+    }
+    body.dark-page .room-header {
+        background: #1a2940 !important;
+    }
+    /* Kompak View Styles */
+    .compact-view .class-section {
+        margin-bottom: 1.5rem;
+    }
+    .teacher-section {
+        margin-bottom: 1.5rem;
+    }
+    .teacher-header,
+    .room-header,
+    .class-header {
+        background: #30475e;
+        color: white;
+        padding: 8px 16px;
+        font-weight: 600;
+        border-radius: 6px 6px 0 0;
+        font-size: 0.9rem;
+        text-transform: uppercase !important;
+    }
+    .slot-card .grade,
+    .compact-slot-card .grade {
+        color: #888;
+        font-size: 0.7rem;
+        font-weight: 700 !important;
+    }
+    body.dark-page .teacher-header,
+    body.dark-page .room-header,
+    body.dark-page .class-header {
+        background: #1a2940 !important;
+    }
+    body.dark-page .slot-card .grade,
+    body.dark-page .compact-slot-card .grade {
+        color: #aaa !important;
+    }
+    body.dark-page .slot-card .teacher,
+    body.dark-page .slot-card .room,
+    body.dark-page .compact-slot-card .teacher,
+    body.dark-page .compact-slot-card .room {
+        color: #aaa !important;
+        font-weight: 700 !important;
+    }
+    .compact-grid {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.7rem;
+    }
+    .compact-grid th,
+    .compact-grid td {
+        border: 1px solid #dee2e6;
+        padding: 4px 6px;
+        text-align: center;
+        vertical-align: top;
+        min-width: 100px;
+        text-transform: uppercase;
+    }
+    .compact-grid .compact-slot-card .subject,
+    .compact-grid .compact-slot-card .teacher,
+    .compact-grid .compact-slot-card .grade,
+    .compact-grid .break-row,
+    .compact-grid .break-row small {
+        text-transform: uppercase;
+    }
+    .compact-grid tbody td {
+        height: 60px;
+    }
+    .compact-grid th:first-child,
+    .compact-grid td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: #e9ecef;
+        min-width: 60px;
+        border-right: 2px solid #dee2e6;
+    }
+    .compact-grid td:first-child {
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .compact-grid thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: #f8f9fa;
+    }
+    .compact-grid thead th:first-child {
+        z-index: 5;
+    }
+    .compact-grid .period-header {
+        font-size: 0.75rem;
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    .compact-grid .period-header.break-period {
+        background-color: #fff9c4 !important;
+    }
+    .compact-grid .day-cell {
+        background-color: #e9ecef;
+        font-weight: 600;
+        font-size: 0.7rem;
+    }
+    .compact-grid .break-row {
+        background-color: #fff9c4 !important;
+        font-style: italic;
+        font-weight: 700;
+        color: #856404 !important;
+        min-height: 100%;
+        width: 100%;
+        text-transform: uppercase;
+    }
+    .compact-slot-card {
+        border-left: 3px solid #1976d2;
+        padding: 3px 5px;
+        border-radius: 3px;
+        margin-bottom: 2px;
+        font-size: 0.65rem;
+        text-align: left;
+        position: relative;
+        cursor: grab;
+    }
+    .compact-slot-card:active {
+        cursor: grabbing;
+    }
+    .compact-slot-card .subject {
+        font-weight: 700 !important;
+    }
+    .compact-slot-card .teacher {
+        color: #555;
+        font-size: 0.6rem;
+        font-weight: 700 !important;
+    }
+    .compact-slot-card .room {
+        color: #888;
+        font-size: 0.55rem;
+        font-weight: 700 !important;
+    }
+    .compact-slot-card .delete-slot {
+        position: absolute;
+        top: 2px;
+        right: 4px;
+        cursor: pointer;
+        color: #dc3545;
+        font-size: 0.6rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .compact-slot-card:hover .delete-slot {
+        opacity: 1;
+    }
+    .unscheduled-card {
+        border-left: 3px solid #6c757d;
+        background: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        cursor: grab;
+        min-width: 160px;
+        transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .unscheduled-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        transform: translateY(-1px);
+    }
+    .unscheduled-card:active {
+        cursor: grabbing;
+    }
+    .unscheduled-card .subject {
+        font-weight: 600;
+    }
+    .unscheduled-card .teacher {
+        color: #555;
+        font-size: 0.7rem;
+    }
+    .unscheduled-card .info {
+        color: #888;
+        font-size: 0.65rem;
+    }
+    .unscheduled-card .room {
+        color: #888;
+        font-size: 0.6rem;
+        font-style: italic;
+    }
+    /* Dark mode */
+    body.dark-page .timetable-grid th,
+    body.dark-page .timetable-grid td {
+        background-color: #344767;
+        color: #e0e0e0;
+        border-color: #4a5c7a;
+    }
+    body.dark-page .timetable-grid thead tr:first-child th {
+        background-color: #2d3a52;
+    }
+    body.dark-page .timetable-grid thead tr:nth-child(2) th {
+        background-color: #344767;
+    }
+    body.dark-page .timetable-grid .day-header-group {
+        background-color: #2d3a52 !important;
+        color: #a5d6a7;
+        border-color: #4a5c7a !important;
+    }
+    body.dark-page .timetable-grid .period-header {
+        background-color: #344767 !important;
+        color: #e0e0e0;
+        border-color: #4a5c7a !important;
+    }
+    body.dark-page .timetable-grid tbody td:first-child {
+        background-color: #2d3a52;
+        color: #e0e0e0;
+    }
+    body.dark-page .timetable-grid .grade-row td,
+    body.dark-page .timetable-grid .teacher-row td,
+    body.dark-page .timetable-grid .room-row td {
+        background-color: #2d3a52;
+        color: #e0e0e0;
+    }
+    body.dark-page .timetable-grid .break-row td {
+        background-color: #fff9c4;
+        color: #856404;
+    }
+    body.dark-page .timetable-grid .period-header.break-period {
+        background-color: #fff9c4 !important;
+        color: #856404;
+    }
+    body.dark-page .slot-card {
+        background-color: #3e5068;
+        color: #e0e0e0;
+    }
+    body.dark-page .compact-slot-card {
+        background-color: #3e5068;
+        color: #e0e0e0;
+    }
+    body.dark-page .compact-slot-card .delete-slot {
+        color: #ff6b6b !important;
+    }
+    body.dark-page .compact-grid th,
+    body.dark-page .compact-grid td {
+        border-color: #4a5c7a !important;
+    }
+    body.dark-page .compact-grid td {
+        background-color: #344767 !important;
+        color: #e0e0e0 !important;
+    }
+    body.dark-page .compact-grid th:first-child,
+    body.dark-page .compact-grid td:first-child {
+        background-color: #2d3a52 !important;
+        border-right-color: #4a5c7a !important;
+    }
+    body.dark-page .compact-grid .period-header {
+        background-color: #2d3a52 !important;
+        color: #fff !important;
+        border-color: #4a5c7a !important;
+    }
+    body.dark-page .compact-grid .day-cell {
+        background-color: #2d3a52 !important;
+        color: #fff !important;
+    }
+    body.dark-page .compact-grid .break-row {
+        background-color: #fff9c4 !important;
+        color: #856404 !important;
+    }
+    body.dark-page .compact-grid .period-header.break-period {
+        background-color: #fff9c4 !important;
+        color: #856404 !important;
+    }
+    body.dark-page .drop-zone.break-cell {
+        background-color: #fff9c4 !important;
+    }
+    body.dark-page .unscheduled-card {
+        background-color: #3e5068;
+        color: #e0e0e0;
+        border-color: #5a6c8a;
+    }
+    body.dark-page .table-responsive::-webkit-scrollbar-thumb {
+        background: #5a6c8a;
+    }
+    body.dark-page #gradeFilter,
+    body.dark-page #teacherFilter,
+    body.dark-page #roomFilter {
+        background-color: #344767;
+        color: #e0e0e0;
+        border-color: #4a5c7a;
+    }
+    body.dark-page .view-toggle .btn {
+        background-color: #344767;
+        color: #e0e0e0;
+        border-color: #4a5c7a;
+    }
+    body.dark-page .view-toggle .btn.active {
+        background-color: #3e5068;
+        color: #fff;
+    }
+    body.dark-page .mode-toggle .btn.active {
+        color: #a5d6a7;
+    }
+    body.dark-page .timetable-grid th.day-start,
+    body.dark-page .timetable-grid td.day-start {
+        border-left: 3px solid #4caf50 !important;
+    }
+    body.dark-page .timetable-grid th.day-start.day-header-group {
+        border-left: 3px solid #4caf50 !important;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Grid Jadwal</h4>
+                        <span class="badge bg-gradient-primary ms-2">{{ data.name }}</span>
+                        <span class="badge bg-gradient-info ms-2">{{ data.get_semester_display }}</span>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-dark mb-0" href="{% url 'timetable-view' data.timetable_id %}"><i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Kembali</a>
+                        <button class="btn btn-sm bg-gradient-primary mb-0 generate-btn" id="generateBtn" onclick="generateTimetable()">
+                            <i class="fas fa-magic"></i>&nbsp;&nbsp;Generate Otomatis
+                        </button>
+                        <button class="btn btn-sm bg-gradient-dark mb-0" onclick="exportPDF()">
+                            <i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Ekspor PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mode Toggle & Filters -->
+                <div class="d-flex align-items-center mb-3 gap-2 flex-wrap">
+                    <!-- Kelas / Guru / Ruangan Toggle -->
+                    <div class="mode-toggle" role="group">
+                        <button type="button" class="btn active" id="kelasModeBtn" onclick="switchMode('kelas')" data-tooltip="Tampilan per Kelas">
+                            <i class="fas fa-users me-1"></i>Kelas
+                        </button>
+                        <button type="button" class="btn" id="guruModeBtn" onclick="switchMode('guru')" data-tooltip="Tampilan per Guru">
+                            <i class="fas fa-chalkboard-teacher me-1"></i>Guru
+                        </button>
+                        <button type="button" class="btn" id="ruanganModeBtn" onclick="switchMode('ruangan')" data-tooltip="Tampilan per Ruangan">
+                            <i class="fas fa-door-open me-1"></i>Ruangan
+                        </button>
+                    </div>
+
+                    <!-- Grade Filter (active when Kelas mode) -->
+                    <select id="gradeFilter" class="form-select form-select-sm" style="width: 180px; height: 31px;">
+                        <option value="">Semua Kelas</option>
+                        {% for g in grades %}
+                        <option value="{{ g.grade }}{{ g.sub_grade|default:'' }}">{{ g.grade }}{{ g.sub_grade|default:'' }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Teacher Filter (active when Guru mode) -->
+                    <select id="teacherFilter" class="form-select form-select-sm" style="width: 180px; height: 31px; display: none;">
+                        <option value="">Semua Guru</option>
+                        {% for t in teachers %}
+                        <option value="{{ t.teacher_id }}">{{ t.user.username }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Room Filter (active when Ruangan mode) -->
+                    <select id="roomFilter" class="form-select form-select-sm" style="width: 180px; height: 31px; display: none;">
+                        <option value="">Semua Ruangan</option>
+                        {% for r in rooms %}
+                        <option value="{{ r.room_id }}">{{ r.room_name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Standar / Kompak Toggle -->
+                    <div class="btn-group btn-group-sm view-toggle" role="group">
+                        <button type="button" class="btn active" id="standarBtn" onclick="switchView('standar')" data-tooltip="Tampilan Standar">
+                            <i class="fas fa-table-columns"></i>
+                        </button>
+                        <button type="button" class="btn" id="kompakBtn" onclick="switchView('kompak')" data-tooltip="Tampilan Kompak">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Standar View -->
+                <div id="standarView">
+                    <div class="table-responsive">
+                        <table class="timetable-grid" id="timetableGrid">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="align-middle">Kelas</th>
+                                    {% for day in header_days %}
+                                    <th colspan="{{ day.colspan }}" data-day="{{ day.code }}" class="text-center day-header-group">
+                                        {{ day.name }}
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for period in periods %}
+                                    <th data-day="{{ period.day }}" class="period-header{% if period.is_break %} break-period{% endif %}">
+                                        <small>{{ period.order }}. {{ period.start_time|time:'H:i' }}-{{ period.end_time|time:'H:i' }}</small>
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grade in grades %}
+                                <tr class="grade-row" data-grade="{{ grade.grade }}{{ grade.sub_grade|default:'' }}">
+                                    <td>{{ grade.grade }}{{ grade.sub_grade|default:'' }}</td>
+                                    {% for period in periods %}
+                                    <td class="drop-zone{% if period.is_break %} break-cell{% endif %}"
+                                        data-period-id="{{ period.period_id }}"
+                                        data-grade="{{ grade.grade }}{{ grade.sub_grade|default:'' }}"
+                                        data-grade-id="{{ grade.grade_id }}"
+                                        data-day="{{ period.day }}">
+                                        {% if period.is_break %}
+                                        <div class="break-row"><small>{{ period.break_name|default:'Istirahat' }}</small></div>
+                                        {% else %}
+                                            {% for slot in slots %}
+                                                {% if slot.lesson.grade_subject.grade.grade == grade.grade and slot.lesson.grade_subject.grade.sub_grade == grade.sub_grade and slot.period.day == period.day and slot.period.order == period.order %}
+                                                <div class="slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
+                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
+                                                    <div class="teacher">{{ slot.lesson.teacher.user.username }}</div>
+                                                    <div class="room">{{ slot.room.room_name|default:'' }}</div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Kompak View -->
+                <div id="kompakView" style="display: none;">
+                    {% for grade in grades %}
+                    <div class="class-section mb-3">
+                        <div class="class-header">
+                            <i class="fas fa-users me-2"></i>{{ grade.grade }}{{ grade.sub_grade|default:'' }}
+                        </div>
+                        <div class="table-responsive">
+                            <table class="compact-grid">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle">Hari</th>
+                                        {% for period in periods_unique %}
+                                        <th class="period-header{% if period.is_break %} break-period{% endif %}">
+                                            <small>{{ period.order }}. {{ period.start_time|time:'H:i' }}-{{ period.end_time|time:'H:i' }}</small>
+                                        </th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for day_code in active_days %}
+                                    <tr data-grade="{{ grade.grade }}{{ grade.sub_grade|default:'' }}">
+                                        <td class="day-cell">{{ day_code|day_name }}</td>
+                                        {% for period in periods_unique %}
+                                        {% for ps in periods %}{% if ps.day == day_code and ps.order == period.order %}
+                                        <td class="drop-zone{% if ps.is_break %} break-cell{% endif %}"
+                                            data-period-id="{{ ps.period_id }}"
+                                            data-grade="{{ grade.grade }}{{ grade.sub_grade|default:'' }}"
+                                            data-grade-id="{{ grade.grade_id }}"
+                                            data-day="{{ day_code }}">
+                                            {% if ps.is_break %}
+                                            <div class="break-row"><small>{{ ps.break_name|default:'Istirahat' }}</small></div>
+                                            {% endif %}
+                                            {% for slot in slots %}
+                                                {% if slot.lesson.grade_subject.grade.grade == grade.grade and slot.lesson.grade_subject.grade.sub_grade == grade.sub_grade and slot.period.day == day_code and slot.period.order == period.order %}
+                                                <div class="compact-slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
+                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
+                                                    <div class="teacher">{{ slot.lesson.teacher.user.username }}</div>
+                                                    <div class="room">{{ slot.room.room_name|default:'' }}</div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        {% endif %}{% endfor %}{% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Guru Mode: Standar View -->
+                <div id="guruStandarView" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="timetable-grid" id="guruTimetableGrid">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="align-middle">Guru</th>
+                                    {% for day in header_days %}
+                                    <th colspan="{{ day.colspan }}" data-day="{{ day.code }}" class="text-center day-header-group">
+                                        {{ day.name }}
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for period in periods %}
+                                    <th data-day="{{ period.day }}" class="period-header{% if period.is_break %} break-period{% endif %}">
+                                        <small>{{ period.order }}. {{ period.start_time|time:'H:i' }}-{{ period.end_time|time:'H:i' }}</small>
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for teacher in teachers %}
+                                <tr class="teacher-row" data-teacher-id="{{ teacher.teacher_id }}">
+                                    <td>{{ teacher.user.username }}</td>
+                                    {% for period in periods %}
+                                    <td class="drop-zone{% if period.is_break %} break-cell{% endif %}"
+                                        data-period-id="{{ period.period_id }}"
+                                        data-teacher-id="{{ teacher.teacher_id }}"
+                                        data-day="{{ period.day }}">
+                                        {% if period.is_break %}
+                                        <div class="break-row"><small>{{ period.break_name|default:'Istirahat' }}</small></div>
+                                        {% else %}
+                                            {% for slot in slots %}
+                                                {% if slot.lesson.teacher.teacher_id == teacher.teacher_id and slot.period.day == period.day and slot.period.order == period.order %}
+                                                <div class="slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
+                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
+                                                    <div class="grade">{{ slot.lesson.grade_subject.grade.grade }}{{ slot.lesson.grade_subject.grade.sub_grade|default:'' }}</div>
+                                                    <div class="room">{{ slot.room.room_name|default:'' }}</div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Guru Mode: Kompak View -->
+                <div id="guruKompakView" style="display: none;">
+                    {% for teacher in teachers %}
+                    <div class="teacher-section mb-3">
+                        <div class="teacher-header" data-teacher-id="{{ teacher.teacher_id }}">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>{{ teacher.user.username }}
+                        </div>
+                        <div class="table-responsive">
+                            <table class="compact-grid">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle">Hari</th>
+                                        {% for period in periods_unique %}
+                                        <th class="period-header{% if period.is_break %} break-period{% endif %}">
+                                            <small>{{ period.order }}. {{ period.start_time|time:'H:i' }}-{{ period.end_time|time:'H:i' }}</small>
+                                        </th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for day_code in active_days %}
+                                    <tr data-teacher-id="{{ teacher.teacher_id }}">
+                                        <td class="day-cell">{{ day_code|day_name }}</td>
+                                        {% for period in periods_unique %}
+                                        {% for ps in periods %}{% if ps.day == day_code and ps.order == period.order %}
+                                        <td class="drop-zone{% if ps.is_break %} break-cell{% endif %}"
+                                            data-period-id="{{ ps.period_id }}"
+                                            data-teacher-id="{{ teacher.teacher_id }}"
+                                            data-day="{{ day_code }}">
+                                            {% if ps.is_break %}
+                                            <div class="break-row"><small>{{ ps.break_name|default:'Istirahat' }}</small></div>
+                                            {% endif %}
+                                            {% for slot in slots %}
+                                                {% if slot.lesson.teacher.teacher_id == teacher.teacher_id and slot.period.day == day_code and slot.period.order == period.order %}
+                                                <div class="compact-slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
+                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
+                                                    <div class="grade">{{ slot.lesson.grade_subject.grade.grade }}{{ slot.lesson.grade_subject.grade.sub_grade|default:'' }}</div>
+                                                    <div class="room">{{ slot.room.room_name|default:'' }}</div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        {% endif %}{% endfor %}{% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Ruangan Mode: Standar View -->
+                <div id="ruanganStandarView" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="timetable-grid" id="ruanganTimetableGrid">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="align-middle">Ruangan</th>
+                                    {% for day in header_days %}
+                                    <th colspan="{{ day.colspan }}" data-day="{{ day.code }}" class="text-center day-header-group">
+                                        {{ day.name }}
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for period in periods %}
+                                    <th data-day="{{ period.day }}" class="period-header{% if period.is_break %} break-period{% endif %}">
+                                        <small>{{ period.order }}. {{ period.start_time|time:'H:i' }}-{{ period.end_time|time:'H:i' }}</small>
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for room in rooms %}
+                                <tr class="room-row" data-room-id="{{ room.room_id }}">
+                                    <td>{{ room.room_name }}</td>
+                                    {% for period in periods %}
+                                    <td class="drop-zone{% if period.is_break %} break-cell{% endif %}"
+                                        data-period-id="{{ period.period_id }}"
+                                        data-room-id="{{ room.room_id }}"
+                                        data-day="{{ period.day }}">
+                                        {% if period.is_break %}
+                                        <div class="break-row"><small>{{ period.break_name|default:'Istirahat' }}</small></div>
+                                        {% else %}
+                                            {% for slot in slots %}
+                                                {% if slot.room.room_id == room.room_id and slot.period.day == period.day and slot.period.order == period.order %}
+                                                <div class="slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
+                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
+                                                    <div class="teacher">{{ slot.lesson.teacher.user.username }}</div>
+                                                    <div class="grade">{{ slot.lesson.grade_subject.grade.grade }}{{ slot.lesson.grade_subject.grade.sub_grade|default:'' }}</div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Ruangan Mode: Kompak View -->
+                <div id="ruanganKompakView" style="display: none;">
+                    {% for room in rooms %}
+                    <div class="room-section mb-3">
+                        <div class="room-header" data-room-id="{{ room.room_id }}">
+                            <i class="fas fa-door-open me-2"></i>{{ room.room_name }}
+                        </div>
+                        <div class="table-responsive">
+                            <table class="compact-grid">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle">Hari</th>
+                                        {% for period in periods_unique %}
+                                        <th class="period-header{% if period.is_break %} break-period{% endif %}">
+                                            <small>{{ period.order }}. {{ period.start_time|time:'H:i' }}-{{ period.end_time|time:'H:i' }}</small>
+                                        </th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for day_code in active_days %}
+                                    <tr data-room-id="{{ room.room_id }}">
+                                        <td class="day-cell">{{ day_code|day_name }}</td>
+                                        {% for period in periods_unique %}
+                                        {% for ps in periods %}{% if ps.day == day_code and ps.order == period.order %}
+                                        <td class="drop-zone{% if ps.is_break %} break-cell{% endif %}"
+                                            data-period-id="{{ ps.period_id }}"
+                                            data-room-id="{{ room.room_id }}"
+                                            data-day="{{ day_code }}">
+                                            {% if ps.is_break %}
+                                            <div class="break-row"><small>{{ ps.break_name|default:'Istirahat' }}</small></div>
+                                            {% endif %}
+                                            {% for slot in slots %}
+                                                {% if slot.room.room_id == room.room_id and slot.period.day == day_code and slot.period.order == period.order %}
+                                                <div class="compact-slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
+                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
+                                                    <div class="teacher">{{ slot.lesson.teacher.user.username }}</div>
+                                                    <div class="grade">{{ slot.lesson.grade_subject.grade.grade }}{{ slot.lesson.grade_subject.grade.sub_grade|default:'' }}</div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        {% endif %}{% endfor %}{% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unscheduled Lessons -->
+    <div class="row" style="margin-top: -8px;">
+        <div class="col-12">
+            <div class="card p-4">
+                <h5 class="mb-3"><i class="fas fa-inbox me-2"></i>Mapel Belum Dijadwalkan</h5>
+                {% if unscheduled_teacher_subjects %}
+                <div class="d-flex flex-wrap gap-2" id="unscheduledPool">
+                    {% for ts in unscheduled_teacher_subjects %}
+                    <div class="unscheduled-card"
+                         draggable="true"
+                         data-teacher-subject-id="{{ ts.teacher_subject_id }}"
+                         data-subject-id="{{ ts.grade_subject.subject.subject_id }}"
+                         data-grade-id="{{ ts.grade_subject.grade.grade_id }}">
+                        <div class="subject">{{ ts.grade_subject.subject.subject_name }}</div>
+                        <div class="teacher">{{ ts.teacher.user.username }}</div>
+                        <div class="info">{{ ts.grade_subject.grade.grade }}{{ ts.grade_subject.grade.sub_grade|default:'' }} &middot; {{ ts.remaining_hours }} jam tersisa</div>
+                        {% if ts.grade_subject.room %}<div class="room">{{ ts.grade_subject.room.room_name }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Semua mata pelajaran sudah dijadwalkan.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    var timetableId = {{ data.timetable_id }};
+    var subjectColors = {{ subject_colors|safe }};
+
+    // Apply subject colors and mark first period of each day
+    document.addEventListener('DOMContentLoaded', function() {
+        applySubjectColors();
+        markDayBorders('timetableGrid');
+    });
+
+    function applySubjectColors() {
+        // Apply to Standar view
+        document.querySelectorAll('.slot-card[data-subject-id]').forEach(function(card) {
+            var subjectId = card.getAttribute('data-subject-id');
+            var color = subjectColors[subjectId];
+            if (color) {
+                card.style.background = color.bg;
+                card.style.borderLeftColor = color.border;
+                card.querySelector('.subject').style.color = color.text;
+            }
+        });
+        // Apply to Kompak view
+        document.querySelectorAll('.compact-slot-card[data-subject-id]').forEach(function(card) {
+            var subjectId = card.getAttribute('data-subject-id');
+            var color = subjectColors[subjectId];
+            if (color) {
+                card.style.background = color.bg;
+                card.style.borderLeftColor = color.border;
+                card.querySelector('.subject').style.color = color.text;
+            }
+        });
+        // Apply to Unscheduled cards
+        document.querySelectorAll('.unscheduled-card[data-subject-id]').forEach(function(card) {
+            var subjectId = card.getAttribute('data-subject-id');
+            var color = subjectColors[subjectId];
+            if (color) {
+                card.style.background = color.bg;
+                card.style.borderLeftColor = color.border;
+                card.querySelector('.subject').style.color = color.text;
+            }
+        });
+    }
+
+    function markDayBorders(tableId) {
+        var table = document.getElementById(tableId);
+        if (!table) return;
+        var lastDay = '';
+        var isFirst = true;
+        var headers = table.querySelectorAll('thead tr:nth-child(2) th[data-day]');
+        headers.forEach(function(th) {
+            var day = th.getAttribute('data-day');
+            if (day !== lastDay) {
+                if (!isFirst) {
+                    th.classList.add('day-start');
+                    var colIndex = Array.from(th.parentNode.children).indexOf(th);
+                    var rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(function(row) {
+                        var cells = row.querySelectorAll('td');
+                        if (cells[colIndex + 1]) {
+                            cells[colIndex + 1].classList.add('day-start');
+                        }
+                    });
+                    var row1Headers = table.querySelectorAll('thead tr:first-child th');
+                    row1Headers.forEach(function(r1th) {
+                        if (r1th.getAttribute('data-day') === day) {
+                            r1th.classList.add('day-start');
+                        }
+                    });
+                }
+                lastDay = day;
+                isFirst = false;
+            }
+        });
+    }
+
+    // Simple tooltip auto-hide for elements with data-tooltip attribute
+    function initTooltips() {
+        document.querySelectorAll('[data-tooltip]').forEach(function(el) {
+            if (el._tipInit) return;
+            el._tipInit = true;
+            var tip = null;
+            el.addEventListener('mouseenter', function() {
+                tip = document.createElement('div');
+                tip.textContent = el.getAttribute('data-tooltip');
+                tip.style.cssText = 'position:fixed;z-index:99999;background:#333;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;pointer-events:none;white-space:nowrap;';
+                document.body.appendChild(tip);
+                var rect = el.getBoundingClientRect();
+                tip.style.left = (rect.left + rect.width / 2 - tip.offsetWidth / 2) + 'px';
+                tip.style.top = (rect.top - tip.offsetHeight - 6) + 'px';
+                setTimeout(function() { if (tip && tip.parentNode) tip.remove(); tip = null; }, 2000);
+            });
+            el.addEventListener('mouseleave', function() {
+                if (tip && tip.parentNode) tip.remove();
+                tip = null;
+            });
+        });
+    }
+
+    function getCurrentMode() {
+        return localStorage.getItem('timetable_mode_' + timetableId) || 'kelas';
+    }
+
+    function generateSlotCardHTML(data, isCompact) {
+        var mode = getCurrentMode();
+        var cls = isCompact ? 'compact-slot-card' : 'slot-card';
+        var html = '<div class="' + cls + '" draggable="true" data-slot-id="' + data.slot_id + '" data-subject-id="' + data.subject_id + '" data-grade-id="' + (data.grade_id || '') + '">';
+        html += '<span class="delete-slot" onclick="deleteSlot(' + data.slot_id + ')"><i class="fas fa-times"></i></span>';
+        html += '<div class="subject">' + data.subject_name + '</div>';
+        if (mode === 'guru') {
+            html += '<div class="grade">' + data.grade_name + '</div>';
+            if (data.room_name) html += '<div class="room">' + data.room_name + '</div>';
+        } else if (mode === 'ruangan') {
+            html += '<div class="teacher">' + data.teacher_name + '</div>';
+            html += '<div class="grade">' + data.grade_name + '</div>';
+        } else {
+            html += '<div class="teacher">' + data.teacher_name + '</div>';
+            if (data.room_name) html += '<div class="room">' + data.room_name + '</div>';
+        }
+        html += '</div>';
+        return html;
+    }
+
+    function refreshPoolAfterSchedule(tsId, remainingHours) {
+        var pool = document.getElementById('unscheduledPool');
+        if (!pool) return;
+        var card = pool.querySelector('.unscheduled-card[data-teacher-subject-id="' + tsId + '"]');
+        if (!card) return;
+        if (remainingHours > 0) {
+            var infoEl = card.querySelector('.info');
+            if (infoEl) {
+                var parts = infoEl.textContent.split(' \u00b7 ');
+                infoEl.textContent = parts[0] + ' \u00b7 ' + remainingHours + ' jam tersisa';
+            }
+        } else {
+            card.remove();
+            if (!pool.querySelector('.unscheduled-card')) {
+                pool.innerHTML = '<p class="text-muted mb-0">Semua mata pelajaran sudah dijadwalkan.</p>';
+                pool.className = '';
+            }
+        }
+    }
+
+    function refreshPoolAfterDelete(data) {
+        if (!data.teacher_subject_id) return;
+
+        var pool = document.getElementById('unscheduledPool');
+        if (!pool) {
+            var emptyMsgs = document.querySelectorAll('.card .text-muted.mb-0');
+            for (var i = 0; i < emptyMsgs.length; i++) {
+                if (emptyMsgs[i].textContent.indexOf('Semua mata pelajaran') !== -1) {
+                    pool = document.createElement('div');
+                    pool.id = 'unscheduledPool';
+                    emptyMsgs[i].parentElement.replaceChild(pool, emptyMsgs[i]);
+                    break;
+                }
+            }
+        }
+        if (!pool) return;
+
+        var existing = pool.querySelector('.unscheduled-card[data-teacher-subject-id="' + data.teacher_subject_id + '"]');
+        if (existing) {
+            var infoEl = existing.querySelector('.info');
+            if (infoEl) {
+                var parts = infoEl.textContent.split(' \u00b7 ');
+                infoEl.textContent = parts[0] + ' \u00b7 ' + data.remaining_hours + ' jam tersisa';
+            }
+        } else {
+            var html = '<div class="unscheduled-card" draggable="true" data-teacher-subject-id="' + data.teacher_subject_id + '" data-subject-id="' + data.subject_id + '" data-grade-id="' + (data.grade_id || '') + '">';
+            html += '<div class="subject">' + data.subject_name + '</div>';
+            html += '<div class="teacher">' + data.teacher_name + '</div>';
+            html += '<div class="info">' + data.grade_name + ' \u00b7 ' + data.remaining_hours + ' jam tersisa</div>';
+            if (data.room_name) html += '<div class="room">' + data.room_name + '</div>';
+            html += '</div>';
+            pool.insertAdjacentHTML('beforeend', html);
+        }
+    }
+
+    function switchView(view) {
+        var currentMode = localStorage.getItem('timetable_mode_{{ data.timetable_id }}') || 'kelas';
+
+        // Hide all views first
+        document.getElementById('standarView').style.display = 'none';
+        document.getElementById('kompakView').style.display = 'none';
+        document.getElementById('guruStandarView').style.display = 'none';
+        document.getElementById('guruKompakView').style.display = 'none';
+        document.getElementById('ruanganStandarView').style.display = 'none';
+        document.getElementById('ruanganKompakView').style.display = 'none';
+
+        document.getElementById('standarBtn').classList.remove('active');
+        document.getElementById('kompakBtn').classList.remove('active');
+
+        if (currentMode === 'guru') {
+            if (view === 'standar') {
+                document.getElementById('guruStandarView').style.display = 'block';
+                document.getElementById('standarBtn').classList.add('active');
+            } else {
+                document.getElementById('guruKompakView').style.display = 'block';
+                document.getElementById('kompakBtn').classList.add('active');
+            }
+        } else if (currentMode === 'ruangan') {
+            if (view === 'standar') {
+                document.getElementById('ruanganStandarView').style.display = 'block';
+                document.getElementById('standarBtn').classList.add('active');
+            } else {
+                document.getElementById('ruanganKompakView').style.display = 'block';
+                document.getElementById('kompakBtn').classList.add('active');
+            }
+        } else {
+            if (view === 'standar') {
+                document.getElementById('standarView').style.display = 'block';
+                document.getElementById('standarBtn').classList.add('active');
+            } else {
+                document.getElementById('kompakView').style.display = 'block';
+                document.getElementById('kompakBtn').classList.add('active');
+            }
+        }
+
+        localStorage.setItem('timetable_view_{{ data.timetable_id }}', view);
+        initTooltips();
+        markDayBorders('timetableGrid');
+        markDayBorders('guruTimetableGrid');
+        markDayBorders('ruanganTimetableGrid');
+    }
+
+    function switchMode(mode) {
+        var kelasBtn = document.getElementById('kelasModeBtn');
+        var guruBtn = document.getElementById('guruModeBtn');
+        var ruanganBtn = document.getElementById('ruanganModeBtn');
+        var gradeFilter = document.getElementById('gradeFilter');
+        var teacherFilter = document.getElementById('teacherFilter');
+        var roomFilter = document.getElementById('roomFilter');
+
+        kelasBtn.classList.remove('active');
+        guruBtn.classList.remove('active');
+        ruanganBtn.classList.remove('active');
+        gradeFilter.style.display = 'none';
+        teacherFilter.style.display = 'none';
+        roomFilter.style.display = 'none';
+
+        if (mode === 'guru') {
+            guruBtn.classList.add('active');
+            teacherFilter.style.display = 'block';
+        } else if (mode === 'ruangan') {
+            ruanganBtn.classList.add('active');
+            roomFilter.style.display = 'block';
+        } else {
+            kelasBtn.classList.add('active');
+            gradeFilter.style.display = 'block';
+        }
+
+        localStorage.setItem('timetable_mode_{{ data.timetable_id }}', mode);
+
+        // Re-apply current view
+        var currentView = localStorage.getItem('timetable_view_{{ data.timetable_id }}') || 'standar';
+        switchView(currentView);
+    }
+
+    function exportPDF() {
+        var currentMode = localStorage.getItem('timetable_mode_{{ data.timetable_id }}') || 'kelas';
+        var currentView = localStorage.getItem('timetable_view_{{ data.timetable_id }}') || 'standar';
+        var gradeVal = $('#gradeFilter').val() || '';
+        var teacherVal = $('#teacherFilter').val() || '';
+        var roomVal = $('#roomFilter').val() || '';
+
+        var url = "{% url 'timetable-export-pdf' data.timetable_id %}?mode=" + currentMode + "&view=" + currentView;
+        if (gradeVal) url += "&grade=" + encodeURIComponent(gradeVal);
+        if (teacherVal) url += "&teacher=" + encodeURIComponent(teacherVal);
+        if (roomVal) url += "&room=" + encodeURIComponent(roomVal);
+
+        window.open(url, '_blank');
+    }
+
+    function generateTimetable() {
+        if (!confirm('Generate otomatis akan menghapus semua jadwal yang ada. Lanjutkan?')) return;
+
+        var btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp;&nbsp;Generating...';
+
+        $.ajax({
+            url: "{% url 'timetable-generate' data.timetable_id %}",
+            type: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.success) {
+                    var msg = 'Berhasil! ' + response.generated + ' slot dijadwalkan.';
+                    if (response.failed > 0) {
+                        msg += '\n' + response.failed + ' jam gagal dijadwalkan (cek panel Belum Dijadwalkan).';
+                    }
+                    alert(msg);
+                    location.reload();
+                }
+            },
+            error: function(xhr) {
+                var msg = 'Gagal generate jadwal.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    msg = xhr.responseJSON.error;
+                }
+                alert(msg);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic"></i>&nbsp;&nbsp;Generate Otomatis';
+            }
+        });
+    }
+
+    function deleteSlot(slotId) {
+        if (!confirm('Yakin ingin menghapus slot ini?')) return;
+
+        $.ajax({
+            url: "{% url 'timetable-delete-slot' %}",
+            type: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            contentType: 'application/json',
+            data: JSON.stringify({slot_id: slotId}),
+            success: function(response) {
+                if (response.success) {
+                    document.querySelectorAll('[data-slot-id="' + slotId + '"]').forEach(function(el) {
+                        if (el.classList.contains('slot-card') || el.classList.contains('compact-slot-card')) {
+                            el.remove();
+                        }
+                    });
+                    refreshPoolAfterDelete(response);
+                    applySubjectColors();
+                }
+            },
+            error: function(xhr) {
+                alert('Gagal menghapus slot.');
+            }
+        });
+    }
+
+    // Drag and Drop
+    $(document).ready(function() {
+        initTooltips();
+
+        var draggedSlot = null;
+        var draggedLesson = null;
+
+        $(document).on('dragstart', '.slot-card, .compact-slot-card', function(e) {
+            draggedSlot = $(this);
+            draggedLesson = null;
+            e.originalEvent.dataTransfer.setData('text/plain', 'slot:' + $(this).data('slot-id'));
+            $(this).css('opacity', '0.5');
+        });
+
+        $(document).on('dragstart', '.unscheduled-card', function(e) {
+            draggedLesson = $(this);
+            draggedSlot = null;
+            e.originalEvent.dataTransfer.setData('text/plain', 'teacher_subject:' + $(this).data('teacher-subject-id'));
+            $(this).css('opacity', '0.5');
+        });
+
+        $(document).on('dragend', '.slot-card, .compact-slot-card, .unscheduled-card', function() {
+            $(this).css('opacity', '1');
+            $('.drop-zone').removeClass('dragover');
+        });
+
+        $(document).on('dragover', '.drop-zone', function(e) {
+            e.preventDefault();
+            $(this).addClass('dragover');
+        });
+
+        $(document).on('dragleave', '.drop-zone', function() {
+            $(this).removeClass('dragover');
+        });
+
+        $(document).on('drop', '.drop-zone', function(e) {
+            e.preventDefault();
+            $(this).removeClass('dragover');
+
+            var rawData = e.originalEvent.dataTransfer.getData('text/plain');
+            var targetPeriodId = $(this).data('period-id');
+            if (!rawData || !targetPeriodId) return;
+
+            var targetGradeId = $(this).attr('data-grade-id') || '';
+
+            var parts = rawData.split(':');
+            var type = parts[0];
+            var id = parseInt(parts[1]);
+
+            if (type === 'slot') {
+                var srcGradeId = (draggedSlot && draggedSlot.attr('data-grade-id')) || '';
+                if (targetGradeId && srcGradeId && targetGradeId !== srcGradeId) {
+                    alert('Kelas pada slot tidak sesuai dengan kelas di jadwal.');
+                    draggedSlot = null;
+                    return;
+                }
+                $.ajax({
+                    url: "{% url 'timetable-move-slot' %}",
+                    type: 'POST',
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    contentType: 'application/json',
+                    data: JSON.stringify({slot_id: id, target_period_id: targetPeriodId, target_grade_id: targetGradeId || null}),
+                    success: function(response) {
+                        if (response.success) {
+                            var targetCell = $(e.target).closest('.drop-zone')[0] || $(this)[0];
+                            var breakRow = targetCell.querySelector('.break-row');
+                            if (breakRow) breakRow.remove();
+                            if (draggedSlot && draggedSlot[0]) {
+                                targetCell.appendChild(draggedSlot[0]);
+                            }
+                            applySubjectColors();
+                            initTooltips();
+                            draggedSlot = null;
+                        }
+                    },
+                    error: function(xhr) {
+                        var msg = 'Gagal memindahkan slot.';
+                        if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                        alert(msg);
+                    }
+                });
+            } else if (type === 'teacher_subject') {
+                var srcGradeId = (draggedLesson && draggedLesson.attr('data-grade-id')) || '';
+                if (targetGradeId && srcGradeId && targetGradeId !== srcGradeId) {
+                    alert('Kelas pada mapel tidak sesuai dengan kelas di jadwal.');
+                    draggedLesson = null;
+                    return;
+                }
+                $.ajax({
+                    url: "{% url 'timetable-schedule-lesson' %}",
+                    type: 'POST',
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    contentType: 'application/json',
+                    data: JSON.stringify({teacher_subject_id: id, target_period_id: targetPeriodId, timetable_id: timetableId, target_grade_id: targetGradeId || null}),
+                    success: function(response) {
+                        if (response.success) {
+                            var targetCell = $(e.target).closest('.drop-zone')[0] || $(this)[0];
+                            var breakRow = targetCell.querySelector('.break-row');
+                            if (breakRow) breakRow.remove();
+                            var isCompact = targetCell.closest('.compact-grid') !== null;
+                            targetCell.insertAdjacentHTML('beforeend', generateSlotCardHTML(response, isCompact));
+                            refreshPoolAfterSchedule(id, response.remaining_hours !== undefined ? response.remaining_hours - 1 : 0);
+                            applySubjectColors();
+                            initTooltips();
+                            draggedLesson = null;
+                        }
+                    },
+                    error: function(xhr) {
+                        var msg = 'Gagal menjadwalkan mapel.';
+                        if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                        alert(msg);
+                    }
+                });
+            }
+        });
+
+        // Grade filter
+        $('#gradeFilter').on('change', function() {
+            var selected = $(this).val();
+            localStorage.setItem('timetable_grade_{{ data.timetable_id }}', selected);
+            if (selected === '') {
+                $('#timetableGrid tbody tr').show();
+                $('#kompakView .class-section').show();
+            } else {
+                $('#timetableGrid tbody tr').hide();
+                $('#timetableGrid tbody tr[data-grade="' + selected + '"]').show();
+                $('#kompakView .class-section').hide();
+                $('#kompakView .class-section').each(function() {
+                    var gradeText = $(this).find('.class-header').text().trim();
+                    if (gradeText === selected) {
+                        $(this).show();
+                    }
+                });
+            }
+        });
+
+        // Teacher filter
+        $('#teacherFilter').on('change', function() {
+            var selected = $(this).val();
+            localStorage.setItem('timetable_teacher_{{ data.timetable_id }}', selected);
+            if (selected === '') {
+                $('#guruTimetableGrid tbody tr').show();
+                $('#guruKompakView .teacher-section').show();
+            } else {
+                $('#guruTimetableGrid tbody tr').hide();
+                $('#guruTimetableGrid tbody tr[data-teacher-id="' + selected + '"]').show();
+                $('#guruKompakView .teacher-section').hide();
+                $('#guruKompakView .teacher-section').each(function() {
+                    if ($(this).find('.teacher-header').data('teacher-id') == selected) {
+                        $(this).show();
+                    }
+                });
+            }
+        });
+
+        // Room filter
+        $('#roomFilter').on('change', function() {
+            var selected = $(this).val();
+            localStorage.setItem('timetable_room_{{ data.timetable_id }}', selected);
+            if (selected === '') {
+                $('#ruanganTimetableGrid tbody tr').show();
+                $('#ruanganKompakView .room-section').show();
+            } else {
+                $('#ruanganTimetableGrid tbody tr').hide();
+                $('#ruanganTimetableGrid tbody tr[data-room-id="' + selected + '"]').show();
+                $('#ruanganKompakView .room-section').hide();
+                $('#ruanganKompakView .room-section').each(function() {
+                    if ($(this).find('.room-header').data('room-id') == selected) {
+                        $(this).show();
+                    }
+                });
+            }
+        });
+
+        // Restore saved mode
+        var savedMode = localStorage.getItem('timetable_mode_{{ data.timetable_id }}') || 'kelas';
+        switchMode(savedMode);
+
+        // Restore saved grade filter
+        var savedGrade = localStorage.getItem('timetable_grade_{{ data.timetable_id }}');
+        if (savedGrade !== null && savedGrade !== '') {
+            $('#gradeFilter').val(savedGrade).trigger('change');
+        }
+
+        // Restore saved teacher filter
+        var savedTeacher = localStorage.getItem('timetable_teacher_{{ data.timetable_id }}');
+        if (savedTeacher !== null && savedTeacher !== '') {
+            $('#teacherFilter').val(savedTeacher).trigger('change');
+        }
+
+        // Restore saved room filter
+        var savedRoom = localStorage.getItem('timetable_room_{{ data.timetable_id }}');
+        if (savedRoom !== null && savedRoom !== '') {
+            $('#roomFilter').val(savedRoom).trigger('change');
+        }
+    });
+</script>
+
+{% endblock javascripts %}

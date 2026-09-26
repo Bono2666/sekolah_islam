@@ -1,0 +1,70 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tambah Jadwal Pelajaran {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Tambah Jadwal Pelajaran</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-dark mb-0" href="{% url 'timetable-index' %}"><i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Kembali</a>
+                    </div>
+                </div>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">{{ form.name.label }}</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                    <div class="text-danger text-xs mt-1">{{ form.name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">{{ form.school_year.label }}</label>
+                                    {{ form.school_year }}
+                                    {% if form.school_year.errors %}
+                                    <div class="text-danger text-xs mt-1">{{ form.school_year.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">{{ form.semester.label }}</label>
+                                    {{ form.semester }}
+                                    {% if form.semester.errors %}
+                                    <div class="text-danger text-xs mt-1">{{ form.semester.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">{{ form.notes.label }}</label>
+                                    {{ form.notes }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-sm bg-gradient-primary mb-0"><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

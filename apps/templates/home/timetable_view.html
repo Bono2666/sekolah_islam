@@ -1,0 +1,1427 @@
+{% extends 'layouts/base.html' %}
+{% load my_filter %}
+
+{% block title %} Detail Jadwal - {{ data.name }} ({{ data.get_semester_display }}) {% endblock title %}
+
+{% block content %}
+
+<style>
+    .sub-card:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s ease;
+    }
+    body.dark-page .sub-card:hover {
+        transform: translateY(-2px);
+    }
+    body.dark-page .sub-card .text-white {
+        color: #fff !important;
+    }
+    body.dark-page .card-manajemen-jadwal {
+        background-color: #283149 !important;
+        border-color: #f5c518 !important;
+    }
+    body.dark-page .card-manajemen-jadwal h6 {
+        color: #f5c518 !important;
+    }
+    body.dark-page #periodModal .text-primary {
+        color: #f5c518 !important;
+    }
+    body.dark-page #dayCount {
+        color: #f5c518 !important;
+    }
+    body.dark-page #periodModal .period-row {
+        background-color: #283149 !important;
+        border-color: #3a4560 !important;
+    }
+    body.dark-page #periodModal .break-row {
+        background-color: #2a3040 !important;
+        border-color: #3a4560 !important;
+    }
+    body.dark-page #periodModal .add-break-btn {
+        background: #283149 !important;
+        border-color: #f5c518 !important;
+        color: #f5c518 !important;
+    }
+    body.dark-page #periodModal .add-break-btn:hover {
+        background: #323e55 !important;
+    }
+    body.dark-page #periodModal .time-input {
+        color-scheme: dark;
+    }
+    .day-btn.active {
+        background-color: #1d6f42;
+        border-color: #1d6f42;
+        color: white;
+    }
+    .period-row {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    .break-row {
+        background: #fdf8ed;
+        border: 1px solid #f0e6c8;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    .add-break-btn {
+        display: block;
+        width: fit-content;
+        margin: 0 auto 12px auto;
+        padding: 6px 16px;
+        border: 1px dashed #1d6f42;
+        border-radius: 20px;
+        background: white;
+        color: #1d6f42;
+        font-size: 13px;
+        cursor: pointer;
+    }
+    .add-break-btn:hover {
+        background: #f0faf4;
+    }
+    .period-input {
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 8px 12px;
+        width: 100%;
+    }
+    .period-input:focus {
+        outline: none;
+        border-color: #1d6f42;
+    }
+    .time-input {
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 8px 12px;
+        width: 100%;
+    }
+    .time-input:focus {
+        outline: none;
+        border-color: #1d6f42;
+    }
+    .duration-badge {
+        color: #6c757d;
+        font-size: 13px;
+    }
+    .remove-btn {
+        background: none;
+        border: none;
+        color: #adb5bd;
+        cursor: pointer;
+        font-size: 18px;
+    }
+    .remove-btn:hover {
+        color: #dc3545;
+    }
+    #teacherAvailabilityModal .nav-tabs .nav-link,
+    #roomAvailabilityModal .nav-tabs .nav-link {
+        color: #1d6f42;
+    }
+    #teacherAvailabilityModal .nav-tabs .nav-link.active,
+    #roomAvailabilityModal .nav-tabs .nav-link.active {
+        color: #1d6f42;
+        border-bottom-color: #1d6f42;
+    }
+    body.dark-page #teacherAvailabilityModal .nav-tabs .nav-link:not(.active),
+    body.dark-page #roomAvailabilityModal .nav-tabs .nav-link:not(.active) {
+        color: #f5c518;
+    }
+    body.dark-page #teacherAvailabilityModal .nav-tabs .nav-link.active,
+    body.dark-page #roomAvailabilityModal .nav-tabs .nav-link.active {
+        color: #f5c518;
+        border-bottom-color: #f5c518;
+    }
+</style>
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <!-- Card 1: Info -->
+            <div class="card mb-2 px-4 pt-4 pb-2 border" style="border-color: #e9ecef; border-radius: 1rem;">
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="row mb-2">
+                        <div class="col-md-10 d-flex align-items-center">
+                            <i class="fas fa-file-alt text-secondary me-2"></i>
+                            <h5 class="mb-0">{{ data.name }} <span class="text-secondary mx-2">|</span> {{ data.school_year.school_year_name|default:'-' }} <span class="text-secondary mx-2">|</span> {{ data.get_semester_display }}</h5>
+                        </div>
+                        <div class="col-md-2 text-end d-flex align-items-center justify-content-end">
+                            <a href="#" class="text-secondary text-sm" data-bs-toggle="modal" data-bs-target="#editTimetableModal"><i class="fas fa-pen me-1"></i>Ubah</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if not data.school_year or not data.semester %}
+            <div class="alert alert-warning d-flex align-items-center mb-4" role="alert" style="border-radius: 0.75rem;">
+                <i class="fas fa-exclamation-triangle me-3" style="font-size: 1.2rem;"></i>
+                <div>
+                    <strong>Perhatian:</strong> Tahun Ajaran dan Semester belum diatur. Silakan klik tombol <a href="#" class="fw-bold" data-bs-toggle="modal" data-bs-target="#editTimetableModal">Ubah</a> di atas untuk mengatur Tahun Ajaran dan Semester terlebih dahulu sebelum membuat jadwal.
+                </div>
+            </div>
+            {% endif %}
+            <div class="modal fade" id="editTimetableModal" tabindex="-1" aria-labelledby="editTimetableModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editTimetableModalLabel">Ubah Jadwal Pelajaran</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="post" action="{% url 'timetable-update' data.timetable_id %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Jadwal</label>
+                                    <input type="text" class="form-control" name="name" value="{{ data.name }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tahun Ajaran</label>
+                                    <select class="form-select" name="school_year">
+                                        {% for sy in school_years %}
+                                        <option value="{{ sy.school_year_id }}" {% if sy.school_year_id == data.school_year.school_year_id %}selected{% endif %}>{{ sy.school_year_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Semester</label>
+                                    <select class="form-select" name="semester">
+                                        <option value="1" {% if data.semester == '1' %}selected{% endif %}>Semester 1 (Ganjil)</option>
+                                        <option value="2" {% if data.semester == '2' %}selected{% endif %}>Semester 2 (Genap)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        <div class="modal-footer" style="padding-top: 0.5rem !important; padding-bottom: 0.75rem !important;">
+                                <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn bg-gradient-primary">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Periode Waktu -->
+            <div class="modal fade" id="periodModal" tabindex="-1" aria-labelledby="periodModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="periodModalLabel">Periode Waktu</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Working Days -->
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Hari Sekolah</h6>
+                                    <div>
+                                        <a href="#" class="text-primary text-sm me-3" onclick="selectWeekdays(); return false;">Pilih Hari Sekolah</a>
+                                        <a href="#" class="text-secondary text-sm" onclick="clearDays(); return false;">Bersihkan</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 mb-2" id="dayButtons">
+                                    <button type="button" class="btn btn-outline-secondary day-btn" data-day="1" onclick="toggleDay(this)">Senin</button>
+                                    <button type="button" class="btn btn-outline-secondary day-btn" data-day="2" onclick="toggleDay(this)">Selasa</button>
+                                    <button type="button" class="btn btn-outline-secondary day-btn" data-day="3" onclick="toggleDay(this)">Rabu</button>
+                                    <button type="button" class="btn btn-outline-secondary day-btn" data-day="4" onclick="toggleDay(this)">Kamis</button>
+                                    <button type="button" class="btn btn-outline-secondary day-btn" data-day="5" onclick="toggleDay(this)">Jumat</button>
+                                    <button type="button" class="btn btn-outline-secondary day-btn" data-day="6" onclick="toggleDay(this)">Sabtu</button>
+                                    <button type="button" class="btn btn-outline-secondary day-btn" data-day="0" onclick="toggleDay(this)">Ahad</button>
+                                </div>
+                                <small id="dayCount" style="color: #1d6f42;">0 hari dipilih</small>
+                            </div>
+
+                            <!-- Periods & Breaks -->
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Periode & Istirahat</h6>
+                                    <button type="button" class="btn btn-sm bg-gradient-primary" onclick="addPeriod()">
+                                        <i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Periode
+                                    </button>
+                                </div>
+                                <div id="periodContainer"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="padding-top: 0.5rem !important; padding-bottom: 0.75rem !important;">
+                            <button type="button" class="btn bg-gradient-dark mb-0" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn bg-gradient-primary mb-0" onclick="savePeriods()">Simpan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Ketersediaan Guru -->
+            <div class="modal fade" id="teacherAvailabilityModal" tabindex="-1" aria-labelledby="teacherAvailabilityModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Pilih Guru</label>
+                                    <select class="form-select form-select-sm" id="teacherSelect" onchange="loadTeacherAvailability()">
+                                        <option value="">-- Pilih Guru --</option>
+                                        {% for teacher in teachers %}
+                                        <option value="{{ teacher.teacher_id }}">{{ teacher.user.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-8 d-flex align-items-end justify-content-end">
+                                    <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveAvailability()">
+                                        <i class="fas fa-save me-1"></i> Simpan
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle" id="availabilityTable" style="font-size: 13px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="min-width: 200px; background: #f8f9fa;">Periode</th>
+                                            {% for day_code, day_name in day_choices %}
+                                            <th class="text-center" style="min-width: 100px; background: #f8f9fa; cursor: pointer;" onclick="toggleDayColumn('{{ day_code }}')">
+                                                {{ day_name }}
+                                            </th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+                                    <tbody id="availabilityBody">
+                                        <tr>
+                                            <td colspan="{{ day_choices|length|add:1 }}" class="text-center text-muted">
+                                                Pilih guru terlebih dahulu
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-secondary">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Klik checkbox untuk aktifkan/nonaktifkan ketersediaan.
+                                    Klik nama hari di header untuk pilih/batal semua periode pada hari tersebut.
+                                </small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn bg-gradient-dark mb-0" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Ketersediaan Ruangan & Kelas -->
+            <div class="modal fade" id="roomAvailabilityModal" tabindex="-1" aria-labelledby="roomAvailabilityModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <!-- Tabs -->
+                            <ul class="nav nav-tabs mb-3" id="availabilityTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="room-tab" data-bs-toggle="tab" data-bs-target="#roomTab" type="button" role="tab" aria-controls="roomTab" aria-selected="true">
+                                        <i class="fas fa-door-open me-1"></i> Ketersediaan Ruangan
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="grade-tab" data-bs-toggle="tab" data-bs-target="#gradeTab" type="button" role="tab" aria-controls="gradeTab" aria-selected="false">
+                                        <i class="fas fa-users me-1"></i> Ketersediaan Kelas
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="availabilityTabContent">
+                                <!-- Tab Ketersediaan Ruangan -->
+                                <div class="tab-pane fade show active" id="roomTab" role="tabpanel" aria-labelledby="room-tab">
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Pilih Ruangan</label>
+                                            <select class="form-select form-select-sm" id="roomSelect" onchange="loadRoomAvailability()">
+                                                <option value="">-- Pilih Ruangan --</option>
+                                                {% for room in rooms %}
+                                                <option value="{{ room.room_id }}">{{ room.room_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8 d-flex align-items-end justify-content-end">
+                                            <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveRoomAvailability()">
+                                                <i class="fas fa-save me-1"></i> Simpan
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle" id="roomAvailabilityTable" style="font-size: 13px;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="min-width: 200px; background: #f8f9fa;">Periode</th>
+                                                    {% for day_code, day_name in day_choices %}
+                                                    <th class="text-center" style="min-width: 100px; background: #f8f9fa; cursor: pointer;" onclick="toggleRoomDayColumn('{{ day_code }}')">
+                                                        {{ day_name }}
+                                                    </th>
+                                                    {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody id="roomAvailabilityBody">
+                                                <tr>
+                                                    <td colspan="{{ day_choices|length|add:1 }}" class="text-center text-muted">
+                                                        Pilih ruangan terlebih dahulu
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-secondary">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Klik checkbox untuk aktifkan/nonaktifkan ketersediaan ruangan.
+                                            Klik nama hari di header untuk pilih/batal semua periode pada hari tersebut.
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Tab Ketersediaan Kelas -->
+                                <div class="tab-pane fade" id="gradeTab" role="tabpanel" aria-labelledby="grade-tab">
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Pilih Kelas</label>
+                                            <select class="form-select form-select-sm" id="gradeSelect" onchange="loadGradeAvailability()">
+                                                <option value="">-- Pilih Kelas --</option>
+                                                {% for grade in grades %}
+                                                <option value="{{ grade.grade_id }}">{{ grade.grade }}{{ grade.sub_grade|default:'' }} - {{ grade.grade_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8 d-flex align-items-end justify-content-end">
+                                            <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveGradeAvailability()">
+                                                <i class="fas fa-save me-1"></i> Simpan
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle" id="gradeAvailabilityTable" style="font-size: 13px;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="min-width: 200px; background: #f8f9fa;">Periode</th>
+                                                    {% for day_code, day_name in day_choices %}
+                                                    <th class="text-center" style="min-width: 100px; background: #f8f9fa; cursor: pointer;" onclick="toggleGradeDayColumn('{{ day_code }}')">
+                                                        {{ day_name }}
+                                                    </th>
+                                                    {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody id="gradeAvailabilityBody">
+                                                <tr>
+                                                    <td colspan="{{ day_choices|length|add:1 }}" class="text-center text-muted">
+                                                        Pilih kelas terlebih dahulu
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-secondary">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Klik checkbox untuk aktifkan/nonaktifkan ketersediaan kelas.
+                                            Klik nama hari di header untuk pilih/batal semua periode pada hari tersebut.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn bg-gradient-dark mb-0" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Manajemen Jadwal -->
+            <div class="card mb-2 border card-manajemen-jadwal" style="border-color: #f0e6c8; border-radius: 1rem; background-color: #fdf8ed;">
+                <div class="card-body p-4">
+                    <h6 class="mb-3" style="color: #8b6914;">Manajemen Jadwal</h6>
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#periodModal">
+                                <div class="card h-100 border shadow-none sub-card" style="border-color: #e9ecef; border-radius: 0.75rem;">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-clock text-secondary me-2"></i>
+                                            <h6 class="mb-0">Periode Waktu</h6>
+                                        </div>
+                                        <p class="text-secondary text-xs mb-0">Atur jam pelajaran dan durasi waktu belajar</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#teacherAvailabilityModal">
+                                <div class="card h-100 border shadow-none sub-card" style="border-color: #e9ecef; border-radius: 0.75rem;">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-user-check text-secondary me-2"></i>
+                                            <h6 class="mb-0">Ketersediaan Guru</h6>
+                                        </div>
+                                        <p class="text-secondary text-xs mb-0">Atur ketersediaan guru per hari dan periode</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#roomAvailabilityModal">
+                                <div class="card h-100 border shadow-none sub-card" style="border-color: #e9ecef; border-radius: 0.75rem;">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-door-open text-secondary me-2"></i>
+                                            <h6 class="mb-0">Ruangan dan Kelas</h6>
+                                        </div>
+                                        <p class="text-secondary text-xs mb-0">Atur ketersediaan ruangan dan kelas per hari dan periode</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'timetable-grid' data.timetable_id %}" class="text-decoration-none">
+                                <div class="card h-100 border-0 shadow sub-card bg-gradient-primary" style="border-radius: 0.75rem;">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-table text-white me-2"></i>
+                                            <h6 class="mb-0 text-white">Lihat Jadwal</h6>
+                                        </div>
+                                        <p class="text-white text-xs mb-0" style="opacity: 0.85;">Tampilan jadwal dalam format grid pekanan</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mt-3">
+                        <i class="fas fa-info-circle text-secondary me-2"></i>
+                        <small class="text-secondary">Atur periode waktu, kelola pelajaran, dan pantau absensi guru untuk menyusun jadwal yang optimal.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Workload Analysis -->
+            <div class="card mb-4 border" style="border-color: #e9ecef; border-radius: 1rem;">
+                <div class="card-header pb-0">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-clock text-primary me-2"></i>
+                        <h6 class="mb-0">Analisis Beban Kerja</h6>
+                    </div>
+                    <p class="text-secondary text-sm mb-3">Distribusi waktu pada Kelas, Guru, dan Ruangan berdasarkan jadwal yang sudah dibuat.</p>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="row">
+                        <!-- Class Workload -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                <h6 class="mb-0 font-weight-bold">Beban Kerja Kelas</h6>
+                            </div>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                {% for g in grade_workload %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-sm font-weight-bold">{{ g.name }}</span>
+                                        <div class="text-end">
+                                            <span class="text-xs text-secondary">{{ g.scheduled }} / {{ g.total }} slot</span>
+                                            <span class="text-xs text-secondary d-block">
+                                                {% if g.timeoff > 0 %}&times; {{ g.timeoff }} jam kosong{% endif %}
+                                            </span>
+                                            <span class="text-xs font-weight-bold" style="color: {% if g.utilization >= 80 %}#e53935{% elif g.utilization >= 50 %}#43a047{% else %}#43a047{% endif %};">({{ g.utilization }}%)</span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 6px; border-radius: 3px; background: linear-gradient(to right, {% if g.utilization >= 80 %}#e53935{% elif g.utilization >= 50 %}#43a047{% else %}#43a047{% endif %} {{ g.utilization|js_num }}%, #e9ecef {{ g.utilization|js_num }}%);"></div>
+                                </div>
+                                {% empty %}
+                                <p class="text-secondary text-sm">Belum ada data kelas.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Teacher Workload -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-users text-success me-2"></i>
+                                <h6 class="mb-0 font-weight-bold">Beban Kerja Guru</h6>
+                            </div>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                {% for t in teacher_workload %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-sm font-weight-bold">{{ t.name }}</span>
+                                        <div class="text-end">
+                                            <span class="text-xs text-secondary">{{ t.scheduled }} / {{ t.total }} slot</span>
+                                            <span class="text-xs text-secondary d-block">
+                                                {% if t.timeoff > 0 %}&times; {{ t.timeoff }} jam kosong{% endif %}
+                                            </span>
+                                            <span class="text-xs font-weight-bold" style="color: {% if t.utilization >= 80 %}#e53935{% elif t.utilization >= 50 %}#43a047{% else %}#43a047{% endif %};">({{ t.utilization }}%)</span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 6px; border-radius: 3px; background: linear-gradient(to right, {% if t.utilization >= 80 %}#e53935{% elif t.utilization >= 50 %}#43a047{% else %}#43a047{% endif %} {{ t.utilization|js_num }}%, #e9ecef {{ t.utilization|js_num }}%);"></div>
+                                </div>
+                                {% empty %}
+                                <p class="text-secondary text-sm">Belum ada data guru.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Room Workload -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-home text-warning me-2"></i>
+                                <h6 class="mb-0 font-weight-bold">Beban Kerja Ruangan</h6>
+                            </div>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                {% for r in room_workload %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-sm font-weight-bold">{{ r.name }}</span>
+                                        <div class="text-end">
+                                            <span class="text-xs text-secondary">{{ r.scheduled }} / {{ r.total }} slot</span>
+                                            <span class="text-xs text-secondary d-block">
+                                                {% if r.timeoff > 0 %}&times; {{ r.timeoff }} jam kosong{% endif %}
+                                            </span>
+                                            <span class="text-xs font-weight-bold" style="color: {% if r.utilization >= 80 %}#e53935{% elif r.utilization >= 50 %}#43a047{% else %}#43a047{% endif %};">({{ r.utilization }}%)</span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 6px; border-radius: 3px; background: linear-gradient(to right, {% if r.utilization >= 80 %}#e53935{% elif r.utilization >= 50 %}#43a047{% else %}#43a047{% endif %} {{ r.utilization|js_num }}%, #e9ecef {{ r.utilization|js_num }}%);"></div>
+                                </div>
+                                {% empty %}
+                                <p class="text-secondary text-sm">Belum ada data ruangan.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ periods_json|json_script:"periods-data-json" }}
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    let periodCounter = 0;
+    let breakCounter = 0;
+    let periods = [];
+    let selectedDays = [];
+
+    // Store existing periods data from Django template
+    const existingPeriods = [
+        {% for period in periods %}
+        {
+            order: {{ period.order }},
+            start_time: '{{ period.start_time|time:"H:i" }}',
+            end_time: '{{ period.end_time|time:"H:i" }}',
+            is_break: {% if period.is_break %}true{% else %}false{% endif %},
+            break_name: '{{ period.break_name }}',
+            day: '{{ period.day }}'
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const existingDaysRaw = [
+        {% for period in periods %}
+        '{{ period.day }}'{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    const existingDays = [...new Set(existingDaysRaw)];
+
+    $(document).ready(function() {
+        // Load data when modal opens
+        document.getElementById('periodModal').addEventListener('show.bs.modal', function () {
+            loadExistingData();
+        });
+
+        // Reset data when modal closes
+        document.getElementById('periodModal').addEventListener('hidden.bs.modal', function () {
+            periods = [];
+            selectedDays = [];
+            document.getElementById('periodContainer').innerHTML = '';
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+                btn.classList.add('btn-outline-secondary');
+            });
+            updateDayCount();
+        });
+    });
+
+    function loadExistingData() {
+        // Reset first
+        periods = [];
+        selectedDays = [];
+        periodCounter = 0;
+        breakCounter = 0;
+
+        // Day mapping
+        const dayMapReverse = {'MON': 1, 'TUE': 2, 'WED': 3, 'THU': 4, 'FRI': 5, 'SAT': 6, 'SUN': 0};
+
+        // Load all existing days
+        existingDays.forEach(dayCode => {
+            if (dayCode) {
+                const dayNum = dayMapReverse[dayCode];
+                if (dayNum !== undefined) {
+                    const btn = document.querySelector(`.day-btn[data-day="${dayNum}"]`);
+                    if (btn && !btn.classList.contains('active')) {
+                        toggleDay(btn);
+                    }
+                }
+            }
+        });
+
+        // Load periods (unique by order + is_break combination)
+        const seen = new Set();
+        existingPeriods.forEach(p => {
+            const key = p.order + '_' + (p.is_break ? 'break' : 'period');
+            if (!seen.has(key)) {
+                seen.add(key);
+                addExistingPeriod(
+                    p.order,
+                    p.start_time,
+                    p.end_time,
+                    p.order,
+                    p.is_break,
+                    p.break_name
+                );
+            }
+        });
+    }
+
+    function toggleDay(btn) {
+        btn.classList.toggle('active');
+        if (btn.classList.contains('active')) {
+            btn.classList.remove('btn-outline-secondary');
+            btn.style.backgroundColor = '#1d6f42';
+            btn.style.borderColor = '#1d6f42';
+            btn.style.color = 'white';
+        } else {
+            btn.style.backgroundColor = '';
+            btn.style.borderColor = '';
+            btn.style.color = '';
+            btn.classList.add('btn-outline-secondary');
+        }
+        updateDayCount();
+    }
+
+    function selectWeekdays() {
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            const day = parseInt(btn.dataset.day);
+            if (day >= 1 && day <= 5) {
+                btn.classList.add('active');
+                btn.classList.remove('btn-outline-secondary');
+                btn.style.backgroundColor = '#1d6f42';
+                btn.style.borderColor = '#1d6f42';
+                btn.style.color = 'white';
+            } else {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+                btn.classList.add('btn-outline-secondary');
+            }
+        });
+        updateDayCount();
+    }
+
+    function clearDays() {
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.backgroundColor = '';
+            btn.style.borderColor = '';
+            btn.style.color = '';
+            btn.classList.add('btn-outline-secondary');
+        });
+        updateDayCount();
+    }
+
+    function updateDayCount() {
+        const count = document.querySelectorAll('.day-btn.active').length;
+        document.getElementById('dayCount').textContent = count + ' hari dipilih';
+    }
+
+    function formatTime(hours, minutes) {
+        return String(hours).padStart(2, '0') + '.' + String(minutes).padStart(2, '0');
+    }
+
+    function parseTime(timeStr) {
+        const parts = timeStr.replace('.', ':').split(':');
+        return { hours: parseInt(parts[0]), minutes: parseInt(parts[1]) };
+    }
+
+    function addTime(timeStr, minutesToAdd) {
+        const time = parseTime(timeStr);
+        let totalMinutes = time.hours * 60 + time.minutes + minutesToAdd;
+        const newHours = Math.floor(totalMinutes / 60) % 24;
+        const newMinutes = totalMinutes % 60;
+        return formatTime(newHours, newMinutes);
+    }
+
+    function addPeriod() {
+        periodCounter++;
+        let startTime = '08.00';
+        
+        if (periods.length > 0) {
+            const lastPeriod = periods[periods.length - 1];
+            startTime = addTime(lastPeriod.endTime, 0);
+        }
+
+        const endTime = addTime(startTime, 45);
+        const periodName = 'Periode ' + periodCounter;
+
+        periods.push({
+            id: 'period_' + periodCounter,
+            name: periodName,
+            startTime: startTime,
+            endTime: endTime,
+            type: 'period'
+        });
+
+        renderPeriods();
+        showToast('Periode berhasil ditambahkan');
+    }
+
+    function addExistingPeriod(name, startTime, endTime, order, isBreak, breakName) {
+        periodCounter = Math.max(periodCounter, order);
+        if (isBreak) {
+            const breakNum = parseInt(String(breakName).replace('Istirahat ', '')) || breakCounter + 1;
+            breakCounter = Math.max(breakCounter, breakNum);
+        }
+        
+        const periodName = isBreak ? (breakName || 'Istirahat ' + breakCounter) : 'Periode ' + order;
+        
+        periods.push({
+            id: 'period_' + order,
+            name: periodName,
+            startTime: startTime.replace(':', '.'),
+            endTime: endTime.replace(':', '.'),
+            type: isBreak ? 'break' : 'period'
+        });
+        
+        // Sort periods by start time
+        periods.sort((a, b) => {
+            const timeA = a.startTime.replace('.', '');
+            const timeB = b.startTime.replace('.', '');
+            return timeA.localeCompare(timeB);
+        });
+        
+        renderPeriods();
+    }
+
+    function addBreakAfter(index) {
+        breakCounter++;
+        const period = periods[index];
+        const startTime = period.endTime;
+        const endTime = addTime(startTime, 15);
+        const breakName = 'Istirahat ' + breakCounter;
+
+        const newBreak = {
+            id: 'break_' + breakCounter,
+            name: breakName,
+            startTime: startTime,
+            endTime: endTime,
+            type: 'break'
+        };
+
+        periods.splice(index + 1, 0, newBreak);
+        recalculateTimes(index + 2);
+        renderPeriods();
+    }
+
+    function recalculateTimes(startIndex) {
+        if (startIndex >= periods.length) return;
+        let currentTime = periods[startIndex - 1].endTime;
+        for (let i = startIndex; i < periods.length; i++) {
+            const item = periods[i];
+            const duration = item.type === 'break' ? 15 : 45;
+            item.startTime = currentTime;
+            item.endTime = addTime(currentTime, duration);
+            currentTime = item.endTime;
+        }
+    }
+
+    function removePeriod(index) {
+        periods.splice(index, 1);
+        renderPeriods();
+    }
+
+    function updatePeriodName(index, name) {
+        periods[index].name = name;
+    }
+
+    function updatePeriodTime(index, field, value) {
+        const formattedValue = value.replace(':', '.');
+        if (field === 'startTime') {
+            periods[index].startTime = formattedValue;
+        } else {
+            periods[index].endTime = formattedValue;
+            recalculateTimes(index + 1);
+        }
+        renderPeriods();
+    }
+
+    function calculateDuration(startTime, endTime) {
+        const start = parseTime(startTime.replace('.', ':'));
+        const end = parseTime(endTime.replace('.', ':'));
+        const diff = (end.hours * 60 + end.minutes) - (start.hours * 60 + start.minutes);
+        return diff + 'm';
+    }
+
+    function renderPeriods() {
+        const container = document.getElementById('periodContainer');
+        container.innerHTML = '';
+
+        periods.forEach((period, index) => {
+            const isBreak = period.type === 'break';
+            const rowClass = isBreak ? 'break-row' : 'period-row';
+            const duration = calculateDuration(period.startTime, period.endTime);
+
+            let html = `
+                <div class="${rowClass}">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <input type="text" class="period-input" value="${period.name}" 
+                                onchange="updatePeriodName(${index}, this.value)">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="time" class="time-input" value="${period.startTime.replace('.', ':')}" 
+                                onchange="updatePeriodTime(${index}, 'startTime', this.value)"
+                                placeholder="HH.MM">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="time" class="time-input" value="${period.endTime.replace('.', ':')}" 
+                                onchange="updatePeriodTime(${index}, 'endTime', this.value)"
+                                placeholder="HH.MM">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center justify-content-end">
+                            <span class="duration-badge me-3">${duration}</span>
+                            <button type="button" class="remove-btn" onclick="removePeriod(${index})">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML += html;
+
+            // Add "Add break after" button if this is a period (not a break)
+            if (!isBreak && index < periods.length - 1 && periods[index + 1].type !== 'break') {
+                container.innerHTML += `
+                    <button type="button" class="add-break-btn" onclick="addBreakAfter(${index})">
+                        + Tambah Istirahat setelah ${period.name}
+                    </button>
+                `;
+            } else if (!isBreak) {
+                container.innerHTML += `
+                    <button type="button" class="add-break-btn" onclick="addBreakAfter(${index})">
+                        + Tambah Istirahat setelah ${period.name}
+                    </button>
+                `;
+            }
+        });
+
+        // Update day count display
+        updateDayCount();
+    }
+
+    function savePeriods() {
+        const selectedDaysArr = [];
+        document.querySelectorAll('.day-btn.active').forEach(btn => {
+            selectedDaysArr.push(parseInt(btn.dataset.day));
+        });
+
+        if (selectedDaysArr.length === 0) {
+            alert('Pilih minimal satu hari kerja!');
+            return;
+        }
+
+        if (periods.length === 0) {
+            alert('Tambahkan minimal satu periode!');
+            return;
+        }
+
+        if (!confirm('Menyimpan periode waktu akan mereset semua data periode dan ketersediaan guru yang sudah ada. Lanjutkan?')) {
+            return;
+        }
+
+        // Send data to server
+        const data = {
+            timetable_id: '{{ data.timetable_id }}',
+            days: selectedDaysArr,
+            periods: periods.map((p, index) => ({
+                name: p.name,
+                start_time: p.startTime.replace('.', ':'),
+                end_time: p.endTime.replace('.', ':'),
+                order: index + 1,
+                type: p.type
+            }))
+        };
+
+        $.ajax({
+            url: '{% url "timetable-save-periods" %}',
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Gagal menyimpan periode: ' + (response.message || 'Terjadi kesalahan'));
+                }
+            },
+            error: function() {
+                alert('Terjadi kesalahan saat menyimpan periode');
+            }
+        });
+    }
+
+    // Teacher Availability functions
+    var availabilityData = {{ availability_data|safe }};
+    var periodsDataJSON = document.getElementById('periods-data-json');
+    var periodsData = periodsDataJSON ? JSON.parse(periodsDataJSON.textContent) : [];
+    var dayCodesList = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+    // Room Availability functions
+    var roomAvailabilityData = {{ room_availability_data|safe }};
+
+    // Grade Availability functions
+    var gradeAvailabilityData = {{ grade_availability_data|safe }};
+
+    function toggleDayColumn(dayCode) {
+        var teacherId = document.getElementById('teacherSelect').value;
+        if (!teacherId) return;
+        var checkboxes = document.querySelectorAll('.availability-check[data-day="' + dayCode + '"]:not(:disabled)');
+        if (checkboxes.length === 0) return;
+        var allChecked = true;
+        for (var k = 0; k < checkboxes.length; k++) {
+            if (!checkboxes[k].checked) { allChecked = false; break; }
+        }
+        for (var k = 0; k < checkboxes.length; k++) {
+            checkboxes[k].checked = !allChecked;
+        }
+    }
+
+    function togglePeriodRow(td) {
+        var row = td.parentElement;
+        var checkboxes = row.querySelectorAll('.availability-check:not(:disabled)');
+        if (checkboxes.length === 0) return;
+        var allChecked = true;
+        for (var k = 0; k < checkboxes.length; k++) {
+            if (!checkboxes[k].checked) { allChecked = false; break; }
+        }
+        for (var k = 0; k < checkboxes.length; k++) {
+            checkboxes[k].checked = !allChecked;
+        }
+    }
+
+    function loadTeacherAvailability() {
+        var teacherId = document.getElementById('teacherSelect').value;
+        var tbody = document.getElementById('availabilityBody');
+        
+        if (!teacherId) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Pilih guru terlebih dahulu</td></tr>';
+            return;
+        }
+
+        var teacherAvail = availabilityData[teacherId] || {};
+        var hasAvailData = availabilityData.hasOwnProperty(teacherId) && Object.keys(teacherAvail).length > 0;
+        
+        console.log('Teacher ID:', teacherId, 'Type:', typeof teacherId);
+        console.log('availabilityData keys:', Object.keys(availabilityData));
+        console.log('teacherAvail:', JSON.stringify(teacherAvail));
+        console.log('hasAvailData:', hasAvailData);
+        console.log('periodsData:', JSON.stringify(periodsData));
+        
+        if (!periodsData || periodsData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Belum ada periode waktu. Silakan tambahkan periode di menu Periode Waktu.</td></tr>';
+            return;
+        }
+        
+        var html = '';
+        for (var i = 0; i < periodsData.length; i++) {
+            var period = periodsData[i];
+            var rowClass = period.is_break ? 'table-warning' : '';
+            html += '<tr class="' + rowClass + '">';
+            html += '<td style="cursor: pointer;" onclick="togglePeriodRow(this)"><div class="d-flex align-items-center"><span class="fw-bold">' + period.name + '</span><small class="text-muted ms-2">' + period.start_time + ' - ' + period.end_time + '</small></div></td>';
+            
+            for (var j = 0; j < dayCodesList.length; j++) {
+                var dayCode = dayCodesList[j];
+                var periodId = period.days[dayCode];
+                var isChecked = false;
+                if (periodId) {
+                    if (hasAvailData) {
+                        var availDays = teacherAvail[dayCode];
+                        if (availDays) {
+                            for (var k = 0; k < availDays.length; k++) {
+                                if (availDays[k] === periodId) { isChecked = true; break; }
+                            }
+                        }
+                    } else if (!period.is_break) {
+                        isChecked = true;
+                    }
+                }
+                var disabled = (!periodId || period.is_break) ? 'disabled' : '';
+                var checked = isChecked ? 'checked' : '';
+                html += '<td class="text-center"><div class="form-check d-inline-block">';
+                html += '<input class="form-check-input availability-check" type="checkbox" ';
+                html += 'data-day="' + dayCode + '" ';
+                html += 'data-period="' + (periodId || '') + '" ';
+                if (checked) html += 'checked ';
+                if (disabled) html += 'disabled ';
+                html += '></div></td>';
+            }
+            
+            html += '</tr>';
+        }
+        
+        tbody.innerHTML = html;
+    }
+
+    function saveAvailability() {
+        const teacherId = document.getElementById('teacherSelect').value;
+        if (!teacherId) {
+            alert('Pilih guru terlebih dahulu!');
+            return;
+        }
+
+        const data = [];
+        document.querySelectorAll('.availability-check').forEach(cb => {
+            if (!cb.disabled) {
+                data.push({
+                    teacher_id: teacherId,
+                    day: cb.dataset.day,
+                    period_id: cb.dataset.period,
+                    is_available: cb.checked
+                });
+            }
+        });
+
+        $.ajax({
+            url: '{% url "timetable-save-availability" %}',
+            type: 'POST',
+            data: JSON.stringify({
+                timetable_id: '{{ data.timetable_id }}',
+                availabilities: data
+            }),
+            contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('Save response:', response);
+                if (response.success) {
+                    var savedData = {};
+                    document.querySelectorAll('.availability-check:not(:disabled)').forEach(cb => {
+                        var day = cb.dataset.day;
+                        var periodId = parseInt(cb.dataset.period);
+                        if (!savedData[day]) savedData[day] = [];
+                        if (cb.checked) savedData[day].push(periodId);
+                    });
+                    availabilityData[teacherId] = savedData;
+                    showToast('Ketersediaan guru berhasil disimpan (' + (response.count || 0) + ' data)');
+                } else {
+                    alert('Gagal menyimpan: ' + (response.message || 'Terjadi kesalahan'));
+                }
+            },
+            error: function(xhr) {
+                console.error('Save error:', xhr.responseText);
+                alert('Terjadi kesalahan saat menyimpan');
+            }
+        });
+    }
+
+    // Room Availability functions
+    function toggleRoomDayColumn(dayCode) {
+        var roomId = document.getElementById('roomSelect').value;
+        if (!roomId) return;
+        var checkboxes = document.querySelectorAll('#roomAvailabilityBody .room-availability-check[data-day="' + dayCode + '"]:not(:disabled)');
+        if (checkboxes.length === 0) return;
+        var allChecked = true;
+        for (var k = 0; k < checkboxes.length; k++) {
+            if (!checkboxes[k].checked) { allChecked = false; break; }
+        }
+        for (var k = 0; k < checkboxes.length; k++) {
+            checkboxes[k].checked = !allChecked;
+        }
+    }
+
+    function toggleRoomPeriodRow(td) {
+        var row = td.parentElement;
+        var checkboxes = row.querySelectorAll('.room-availability-check:not(:disabled)');
+        if (checkboxes.length === 0) return;
+        var allChecked = true;
+        for (var k = 0; k < checkboxes.length; k++) {
+            if (!checkboxes[k].checked) { allChecked = false; break; }
+        }
+        for (var k = 0; k < checkboxes.length; k++) {
+            checkboxes[k].checked = !allChecked;
+        }
+    }
+
+    function loadRoomAvailability() {
+        var roomId = document.getElementById('roomSelect').value;
+        var tbody = document.getElementById('roomAvailabilityBody');
+        
+        if (!roomId) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Pilih ruangan terlebih dahulu</td></tr>';
+            return;
+        }
+
+        var roomAvail = roomAvailabilityData[roomId] || {};
+        var hasAvailData = roomAvailabilityData.hasOwnProperty(roomId) && Object.keys(roomAvail).length > 0;
+        
+        if (!periodsData || periodsData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Belum ada periode waktu. Silakan tambahkan periode di menu Periode Waktu.</td></tr>';
+            return;
+        }
+        
+        var html = '';
+        for (var i = 0; i < periodsData.length; i++) {
+            var period = periodsData[i];
+            var rowClass = period.is_break ? 'table-warning' : '';
+            html += '<tr class="' + rowClass + '">';
+            html += '<td style="cursor: pointer;" onclick="toggleRoomPeriodRow(this)"><div class="d-flex align-items-center"><span class="fw-bold">' + period.name + '</span><small class="text-muted ms-2">' + period.start_time + ' - ' + period.end_time + '</small></div></td>';
+            
+            for (var j = 0; j < dayCodesList.length; j++) {
+                var dayCode = dayCodesList[j];
+                var periodId = period.days[dayCode];
+                var isChecked = false;
+                if (periodId) {
+                    if (hasAvailData) {
+                        var availDays = roomAvail[dayCode];
+                        if (availDays) {
+                            for (var k = 0; k < availDays.length; k++) {
+                                if (availDays[k] === periodId) { isChecked = true; break; }
+                            }
+                        }
+                    } else if (!period.is_break) {
+                        isChecked = true;
+                    }
+                }
+                var disabled = (!periodId || period.is_break) ? 'disabled' : '';
+                var checked = isChecked ? 'checked' : '';
+                html += '<td class="text-center"><div class="form-check d-inline-block">';
+                html += '<input class="form-check-input room-availability-check" type="checkbox" ';
+                html += 'data-day="' + dayCode + '" ';
+                html += 'data-period="' + (periodId || '') + '" ';
+                if (checked) html += 'checked ';
+                if (disabled) html += 'disabled ';
+                html += '></div></td>';
+            }
+            
+            html += '</tr>';
+        }
+        
+        tbody.innerHTML = html;
+    }
+
+    function saveRoomAvailability() {
+        const roomId = document.getElementById('roomSelect').value;
+        if (!roomId) {
+            alert('Pilih ruangan terlebih dahulu!');
+            return;
+        }
+
+        const data = [];
+        document.querySelectorAll('.room-availability-check').forEach(cb => {
+            if (!cb.disabled) {
+                data.push({
+                    room_id: roomId,
+                    day: cb.dataset.day,
+                    period_id: cb.dataset.period,
+                    is_available: cb.checked
+                });
+            }
+        });
+
+        $.ajax({
+            url: '{% url "timetable-save-room-availability" %}',
+            type: 'POST',
+            data: JSON.stringify({
+                timetable_id: '{{ data.timetable_id }}',
+                availabilities: data
+            }),
+            contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('Room save response:', response);
+                if (response.success) {
+                    var savedData = {};
+                    document.querySelectorAll('.room-availability-check:not(:disabled)').forEach(cb => {
+                        var day = cb.dataset.day;
+                        var periodId = parseInt(cb.dataset.period);
+                        if (!savedData[day]) savedData[day] = [];
+                        if (cb.checked) savedData[day].push(periodId);
+                    });
+                    roomAvailabilityData[roomId] = savedData;
+                    showToast('Ketersediaan ruangan berhasil disimpan (' + (response.count || 0) + ' data)');
+                } else {
+                    alert('Gagal menyimpan: ' + (response.message || 'Terjadi kesalahan'));
+                }
+            },
+            error: function(xhr) {
+                console.error('Room save error:', xhr.responseText);
+                alert('Terjadi kesalahan saat menyimpan');
+            }
+        });
+    }
+
+    // Grade Availability functions
+    function toggleGradeDayColumn(dayCode) {
+        var gradeId = document.getElementById('gradeSelect').value;
+        if (!gradeId) return;
+        var checkboxes = document.querySelectorAll('#gradeAvailabilityBody .grade-availability-check[data-day="' + dayCode + '"]:not(:disabled)');
+        if (checkboxes.length === 0) return;
+        var allChecked = true;
+        for (var k = 0; k < checkboxes.length; k++) {
+            if (!checkboxes[k].checked) { allChecked = false; break; }
+        }
+        for (var k = 0; k < checkboxes.length; k++) {
+            checkboxes[k].checked = !allChecked;
+        }
+    }
+
+    function toggleGradePeriodRow(td) {
+        var row = td.parentElement;
+        var checkboxes = row.querySelectorAll('.grade-availability-check:not(:disabled)');
+        if (checkboxes.length === 0) return;
+        var allChecked = true;
+        for (var k = 0; k < checkboxes.length; k++) {
+            if (!checkboxes[k].checked) { allChecked = false; break; }
+        }
+        for (var k = 0; k < checkboxes.length; k++) {
+            checkboxes[k].checked = !allChecked;
+        }
+    }
+
+    function loadGradeAvailability() {
+        var gradeId = document.getElementById('gradeSelect').value;
+        var tbody = document.getElementById('gradeAvailabilityBody');
+        
+        if (!gradeId) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Pilih kelas terlebih dahulu</td></tr>';
+            return;
+        }
+
+        var gradeAvail = gradeAvailabilityData[gradeId] || {};
+        var hasAvailData = gradeAvailabilityData.hasOwnProperty(gradeId) && Object.keys(gradeAvail).length > 0;
+        
+        if (!periodsData || periodsData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Belum ada periode waktu. Silakan tambahkan periode di menu Periode Waktu.</td></tr>';
+            return;
+        }
+        
+        var html = '';
+        for (var i = 0; i < periodsData.length; i++) {
+            var period = periodsData[i];
+            var rowClass = period.is_break ? 'table-warning' : '';
+            html += '<tr class="' + rowClass + '">';
+            html += '<td style="cursor: pointer;" onclick="toggleGradePeriodRow(this)"><div class="d-flex align-items-center"><span class="fw-bold">' + period.name + '</span><small class="text-muted ms-2">' + period.start_time + ' - ' + period.end_time + '</small></div></td>';
+            
+            for (var j = 0; j < dayCodesList.length; j++) {
+                var dayCode = dayCodesList[j];
+                var periodId = period.days[dayCode];
+                var isChecked = false;
+                if (periodId) {
+                    if (hasAvailData) {
+                        var availDays = gradeAvail[dayCode];
+                        if (availDays) {
+                            for (var k = 0; k < availDays.length; k++) {
+                                if (availDays[k] === periodId) { isChecked = true; break; }
+                            }
+                        }
+                    } else if (!period.is_break) {
+                        isChecked = true;
+                    }
+                }
+                var disabled = (!periodId || period.is_break) ? 'disabled' : '';
+                var checked = isChecked ? 'checked' : '';
+                html += '<td class="text-center"><div class="form-check d-inline-block">';
+                html += '<input class="form-check-input grade-availability-check" type="checkbox" ';
+                html += 'data-day="' + dayCode + '" ';
+                html += 'data-period="' + (periodId || '') + '" ';
+                if (checked) html += 'checked ';
+                if (disabled) html += 'disabled ';
+                html += '></div></td>';
+            }
+            
+            html += '</tr>';
+        }
+        
+        tbody.innerHTML = html;
+    }
+
+    function saveGradeAvailability() {
+        const gradeId = document.getElementById('gradeSelect').value;
+        if (!gradeId) {
+            alert('Pilih kelas terlebih dahulu!');
+            return;
+        }
+
+        const data = [];
+        document.querySelectorAll('.grade-availability-check').forEach(cb => {
+            if (!cb.disabled) {
+                data.push({
+                    grade_id: gradeId,
+                    day: cb.dataset.day,
+                    period_id: cb.dataset.period,
+                    is_available: cb.checked
+                });
+            }
+        });
+
+        $.ajax({
+            url: '{% url "timetable-save-grade-availability" %}',
+            type: 'POST',
+            data: JSON.stringify({
+                timetable_id: '{{ data.timetable_id }}',
+                availabilities: data
+            }),
+            contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('Grade save response:', response);
+                if (response.success) {
+                    var savedData = {};
+                    document.querySelectorAll('.grade-availability-check:not(:disabled)').forEach(cb => {
+                        var day = cb.dataset.day;
+                        var periodId = parseInt(cb.dataset.period);
+                        if (!savedData[day]) savedData[day] = [];
+                        if (cb.checked) savedData[day].push(periodId);
+                    });
+                    gradeAvailabilityData[gradeId] = savedData;
+                    showToast('Ketersediaan kelas berhasil disimpan (' + (response.count || 0) + ' data)');
+                } else {
+                    alert('Gagal menyimpan: ' + (response.message || 'Terjadi kesalahan'));
+                }
+            },
+            error: function(xhr) {
+                console.error('Grade save error:', xhr.responseText);
+                alert('Terjadi kesalahan saat menyimpan');
+            }
+        });
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#1d6f42;color:white;padding:10px 20px;border-radius:8px;font-size:14px;z-index:9999;opacity:0;transition:opacity 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => { toast.style.opacity = '1'; });
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }
+</script>
+{% endblock javascripts %}

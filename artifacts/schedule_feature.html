@@ -1,0 +1,540 @@
+<title>Sistem Jadwal Pelajaran</title>
+<style>
+  :root {
+    --color-primary: #1a237e;
+    --color-secondary: #1565c0;
+    --color-accent: #00acc1;
+    --color-light: #e8eaf6;
+    --color-dark: #0d47a1;
+    --color-background: #fafafa;
+    --color-surface: #ffffff;
+    --color-border: #e0e0e0;
+    --color-text: #212121;
+    --color-text-light: #757575;
+    --color-success: #2e7d32;
+    --color-warning: #f57c00;
+    --color-error: #c62828;
+
+    --font-display: 'Poppins', 'Inter', system-ui, sans-serif;
+    --font-body: 'Open Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.2);
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-primary: #303f9f;
+      --color-secondary: #2196f3;
+      --color-accent: #00bcd4;
+      --color-light: #1a237e;
+      --color-dark: #bbdefb;
+      --color-background: #121212;
+      --color-surface: #1e1e1e;
+      --color-border: #37474f;
+      --color-text: #e0e0e0;
+      --color-text-light: #90a4ae;
+      --color-success: #4caf50;
+      --color-warning: #ff9800;
+      --color-error: #f44336;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --color-primary: #303f9f;
+    --color-secondary: #2196f3;
+    --color-accent: #00bcd4;
+    --color-light: #1a237e;
+    --color-dark: #bbdefb;
+    --color-background: #121212;
+    --color-surface: #1e1e1e;
+    --color-border: #37474f;
+    --color-text: #e0e0e0;
+    --color-text-light: #90a4ae;
+    --color-success: #4caf50;
+    --color-warning: #ff9800;
+    --color-error: #f44336;
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-background);
+    margin: 0;
+    padding: var(--spacing-xl);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  header {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    color: var(--color-secondary);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--color-text);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .subtitle {
+    font-size: 1.125rem;
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+  }
+
+  .feature-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    color: var(--color-accent);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .feature-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .feature-desc {
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .code-block {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+
+  .highlight {
+    background-color: var(--color-light);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--color-accent);
+    margin: var(--spacing-md) 0;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: var(--spacing-sm);
+  }
+
+  .status-completed {
+    background-color: #e8f5e9;
+    color: var(--color-success);
+  }
+
+  .status-in-progress {
+    background-color: #fff3e0;
+    color: var(--color-warning);
+  }
+
+  .status-pending {
+    background-color: #f5f5f5;
+    color: var(--color-text-light);
+  }
+
+  .file-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-md) 0;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .file-item:last-child {
+    border-bottom: none;
+  }
+
+  .file-icon {
+    color: var(--color-accent);
+    font-size: 1.25rem;
+  }
+
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+  }
+
+  .tech-chip {
+    background: var(--color-light);
+    color: var(--color-primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+  }
+
+  .demo-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+
+  .demo-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-primary);
+  }
+
+  .demo-description {
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  @media (max-width: 768px) {
+    body {
+      padding: var(--spacing-md);
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .demo-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .feature-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  footer {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-light);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
+    margin-top: var(--spacing-md);
+  }
+
+  .cta-button:hover {
+    background: var(--color-dark);
+  }
+</style>
+
+<header>
+  <h1>Sistem Jadwal Pelajaran Sekolah Islam</h1>
+  <div class="subtitle">Implementasi fitur input penjadwalan mata pelajaran sesuai layout terlampir dengan desain antarmuka lengkap</div>
+  <div class="tech-stack">
+    <span class="tech-chip">Django</span>
+    <span class="tech-chip">Python</span>
+    <span class="tech-chip">Bootstrap 5</span>
+    <span class="tech-chip">PostgreSQL</span>
+    <span class="tech-chip">HTML/CSS</span>
+    <span class="tech-chip">JavaScript</span>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2>Ringkasan Fitur</h2>
+    <div class="highlight">
+      Sistem ini memungkinkan pengelolaan jadwal pelajaran untuk setiap kelas dengan tampilan grid mingguan 6 hari (Senin-Sabtu) dan 10 slot waktu per hari. Fitur ini dapat diakses melalui menu "Jadwal Pelajaran" dengan layout sesuai screenshot terlampir.
+    </div>
+  </section>
+
+  <section>
+    <h2>Arsitektur Teknis</h2>
+
+    <h3>Model Data</h3>
+    <div class="code-block">
+// models.py - Tambahan untuk Schedule & ScheduleDetail
+class Schedule(models.Model):
+    DAY_CHOICES = [('SENIN', 'Senin'), ('SELASA', 'Selasa'), ...]
+    TIME_SLOT_CHOICES = [('1', 'Jam 1'), ('2', 'Jam 2'), ...]
+
+    schedule_id = models.BigAutoField(primary_key=True)
+    grade = models.ForeignKey('Grade', verbose_name='Kelas')
+    school_year = models.ForeignKey('SchoolYear')
+    semester = models.CharField(max_length=1)
+    description = models.CharField(max_length=200)
+    schedule_code = models.CharField(max_length=20, unique=True)
+
+class ScheduleDetail(models.Model):
+    detail_id = models.BigAutoField(primary_key=True)
+    schedule = models.ForeignKey(Schedule, related_name='details')
+    day = models.CharField(max_length=10, choices=Schedule.DAY_CHOICES)
+    time_slot = models.CharField(max_length=2, choices=Schedule.TIME_SLOT_CHOICES)
+    grade_subject = models.ForeignKey('GradeSubject')
+    teacher = models.ForeignKey('Teacher')
+
+    class Meta:
+        unique_together = ('schedule', 'day', 'time_slot')
+    </div>
+
+    <h3>Struktur File yang Dibuat</h3>
+    <ul class="file-list">
+      <li class="file-item">
+        <span class="file-icon">📄</span>
+        <div>
+          <strong>apps/models.py</strong> - Definisi model Schedule & ScheduleDetail
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-icon">📄</span>
+        <div>
+          <strong>apps/views.py</strong> - 9 fungsi view untuk CRUD schedule + AJAX endpoints
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-icon">📄</span>
+        <div>
+          <strong>apps/urls.py</strong> - Routing URL untuk semua fitur schedule
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-icon">📄</span>
+        <div>
+          <strong>apps/forms.py</strong> - Form untuk Schedule dan ScheduleDetail
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-icon">📄</span>
+        <div>
+          <strong>apps/templates/home/schedule_*.html</strong> - 4 template: index, add, view, ...
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Fitur Utama</h2>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Grid Jadwal Mingguan</div>
+        <div class="feature-desc">
+          Tampilan tabel 6 kolom (Senin-Sabtu) dengan 10 baris slot waktu. Setiap sel dapat diklik untuk mengedit mata pelajaran dan guru.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Auto-generate Kode Jadwal</div>
+        <div class="feature-desc">
+          Sistem otomatis menghasilkan kode jadwal berdasarkan kombinasi kelas, semester, dan tahun ajaran.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👨‍🏫</div>
+        <div class="feature-title">Filter Guru & Mapel</div>
+        <div class="feature-desc">
+          Hanya menampilkan mata pelajaran yang terdaftar untuk kelas tertentu dan guru yang ditugaskan.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <div class="feature-title">Ringkasan Jam Mapel</div>
+        <div class="feature-desc">
+          Tabel bawah menunjukkan total jam terpakai vs jam dialokasikan untuk setiap mata pelajaran.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">AJAX Operations</div>
+        <div class="feature-desc">
+          Semua operasi edit dilakukan via AJAX tanpa refresh halaman: simpan slot, kosongkan slot, update guru.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Role-based Access</div>
+        <div class="feature-desc">
+          Menggunakan sistem autentikasi Django dengan decorator @role_required untuk menu 'JADWAL-PELAJARAN'.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Status Implementasi</h2>
+
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="demo-title">✅ Selesai</div>
+        <div class="demo-description">
+          <ul>
+            <li>Model Schedule & ScheduleDetail</li>
+            <li>9 Fungsi View (CRUD + AJAX)</li>
+            <li>Routing URL lengkap</li>
+            <li>Form validasi</li>
+            <li>Template HTML utama</li>
+            <li>Migrations database</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-title">🎯 Layout Sesuai Screenshot</div>
+        <div class="demo-description">
+          <ul>
+            <li><strong>Bagian Atas:</strong> Info kelas, sub kelas, semester, tahun, keterangan</li>
+            <li><strong>Bagian Tengah:</strong> Grid 6 hari × 10 slot dengan kolom mapel & guru</li>
+            <li><strong>Bagian Bawah:</strong> Ringkasan mapel dengan jam terpakai & jam total</li>
+            <li><strong>Action Buttons:</strong> Kosongkan, Update Ustadz, Print, Edit, Delete, Save, Undo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Demonstrasi Visual</h2>
+
+    <div class="highlight">
+      <strong>Alur Kerja Pengguna:</strong>
+      1. Menu Jadwal Pelajaran → List semua jadwal → Buat jadwal baru<br>
+      2. Pilih Kelas, Tahun Ajaran, Semester → Generate kode jadwal<br>
+      3. Pada grid, klik slot untuk pilih mata pelajaran & guru<br>
+      4. Lihat ringkasan jam terpakai vs jam dialokasikan<br>
+      5. Gunakan tombol aksi untuk print, clear, atau update guru
+    </div>
+
+    <h3>Integrasi dengan Sistem Lain</h3>
+    <div class="code-block">
+// Relasi dengan model existing
+Grade → GradeSubject → Subject → SubjectGroup (warna coding)
+Teacher → TeacherSubject → GradeSubject
+Schedule → ScheduleDetail → GradeSubject → Teacher
+    </div>
+  </section>
+
+  <section>
+    <h2>Cara Menggunakan</h2>
+
+    <h3>Instalasi & Konfigurasi</h3>
+    <div class="code-block">
+# 1. Run migrations untuk tabel baru
+python manage.py migrate
+
+# 2. Akses melalui URL
+http://localhost:8000/apps/kurikulum/jadwal-pelajaran/
+
+# 3. Tambah permission JADWAL-PELAJARAN di Auth
+Auth.objects.create(user_id=..., menu_id='JADWAL-PELAJARAN', ...)
+    </div>
+
+    <h3>Uji Coba Fitur</h3>
+    <div class="highlight">
+      1. Pastikan ada data Grade, Subject, Teacher, GradeSubject, TeacherSubject<br>
+      2. Buka menu Jadwal Pelajaran<br>
+      3. Buat jadwal baru untuk kelas tertentu<br>
+      4. Isi beberapa slot dengan mata pelajaran<br>
+      5. Uji clear slot & update guru secara bulk<br>
+      6. Cek ringkasan jam mapel
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Sistem ini telah terintegrasi penuh dengan arsitektur Sekolah Islam menggunakan pola Django ORM, authentication decorators, dan template inheritance yang konsisten.</p>
+  <p>Fitur ini siap digunakan setelah menjalankan migrations dan menambahkan permission di Auth model.</p>
+</footer>

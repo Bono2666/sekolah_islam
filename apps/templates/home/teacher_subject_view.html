@@ -1,0 +1,90 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Guru Per Mapel {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+            <form action="{% url 'teacher-subject-update' data.teacher_subject_id %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <h4 class="mb-2">Guru Per Mapel ID: {{ data.teacher_subject_id }}</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% if crud == 'view' %}{% url 'teacher-subject-index' %}{% else %}{% url 'teacher-subject-view' data.teacher_subject_id %}{% endif %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-reply"></i>&nbsp;&nbsp;{% if crud == 'view' %}Kembali{% else %}Batal{% endif %}</a>
+                                <a href="{% url 'teacher-subject-update' data.teacher_subject_id %}" class="btn btn-sm bg-gradient-dark mb-0 {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}" {% if crud == 'update' %}hidden{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah</a>
+                                <button type="submit" class="btn btn-sm bg-gradient-dark mb-0" {% if crud == 'view' %}hidden{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <button type="button" class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% else %}{% if crud == 'update' %}disabled{% endif %}{% endif %}" data-bs-toggle="modal" data-bs-target="#confirm-{{ data.teacher_subject_id }}"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirm-{{ data.teacher_subject_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel">Konfirmasi</h5>
+                                </div>
+                                <div class="modal-body border-bottom-0">
+                                    Anda yakin ingin menghapus penugasan guru <strong>{{ data.teacher }}</strong> untuk mata pelajaran <strong>{{ data.grade_subject.subject }}</strong>?
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-sm bg-gradient-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <a href="{% url 'teacher-subject-delete' data.teacher_subject_id %}" role="button" class="btn btn-sm bg-gradient-danger text-white">Hapus</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if message %}
+                        <div class="alert alert-danger text-white" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Kelas</label>
+                                        <input type="text" class="form-control form-control-sm" disabled value="{{ data.grade_subject.grade.grade }}{{ data.grade_subject.grade.sub_grade|default:"" }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Mapel</label>
+                                        <input type="text" class="form-control form-control-sm" disabled value="{{ data.grade_subject.subject.subject_name }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-1">
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.teacher.label_tag }}{{ form.teacher }}
+                                        <div class="text-sm text-danger">{{ form.teacher.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.hours.label_tag }}{{ form.hours }}
+                                        <div class="text-sm text-danger">{{ form.hours.errors }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

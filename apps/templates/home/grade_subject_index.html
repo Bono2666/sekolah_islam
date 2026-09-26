@@ -1,0 +1,126 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Daftar Mapel Per Kelas {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Daftar Mapel Per Kelas</h4>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'grade-subject-add' %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Mapel</a>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-xs text-uppercase text-secondary font-weight-bolder">Kelas</label>
+                        <form method="get" action="{% url 'grade-subject-index' %}" id="filterForm">
+                            <select name="grade_id" class="form-control form-control-sm" onchange="this.form.submit()">
+                                <option value="">Semua Kelas</option>
+                                {% for g in grades %}
+                                <option value="{{ g.grade_id }}" {% if selected_grade == g.grade_id %}selected{% endif %}>
+                                    {{ g.grade }}{{ g.sub_grade }} - {{ g.school_year.school_year_name|default:'-' }} ({{ g.get_semester_display|default:'-' }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-xs text-secondary font-weight-bolder">&nbsp;</label>
+                        <select name="semester" class="form-control form-control-sm" onchange="this.form.submit()">
+                            <option value="">Semua Semester</option>
+                            <option value="1" {% if selected_semester == '1' %}selected{% endif %}>Semester 1</option>
+                            <option value="2" {% if selected_semester == '2' %}selected{% endif %}>Semester 2</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-xs text-secondary font-weight-bolder">&nbsp;</label>
+                        <div>
+                            {% if selected_grade or selected_semester %}
+                            <a href="{% url 'grade-subject-index' %}" class="btn btn-sm bg-gradient-dark mb-0"><i class="fas fa-times"></i>&nbsp;&nbsp;Reset</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kelas</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sub Kls</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Semester</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tahun Ajaran</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pelajaran</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Guru</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr data-href="{% url 'grade-subject-view' item.grade_subject_id %}" class="cursor-pointer">
+                                    <td><h6 class="mb-0 text-sm">{{ item.grade.grade }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.grade.sub_grade }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.grade.get_semester_display|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.grade.school_year.school_year_name|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.subject.subject_name }}</h6></td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">
+                                            {% for ts in item.teacher_subjects.all %}
+                                                {{ ts.teacher.user.username }}{% if not forloop.last %}, {% endif %}
+                                            {% empty %}
+                                                -
+                                            {% endfor %}
+                                        </h6>
+                                    </td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.keterangan|default:'-' }}</h6></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+    $(document).ready( function () {
+      $('#myTable').DataTable({
+          "pagingType": "numbers",
+          "language": {
+                "search": "Cari:",
+                "zeroRecords": "Tidak ada data",
+                "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+                "infoEmpty": "Tidak ada data tersedia",
+                "infoFiltered": "(disaring dari _MAX_ total data)",
+                "lengthMenu": "Tampilkan _MENU_ data",
+                "paginate": {
+                    "previous": "<i class='fas fa-angle-left'>",
+                    "next": "<i class='fas fa-angle-right'>"
+                }
+          },
+      });
+
+      $(document).on('click', 'tbody tr', function() {
+          window.location = $(this).data('href');
+      });
+
+      btn = document.getElementsByClassName('paginate_button');
+      for (var i = 0; i < btn.length; i++) {
+          btn[i].classList.add('border-radius-top-start-circle', 'border-radius-bottom-end-circle', 'border-radius-top-end-circle', 'border-radius-bottom-start-circle');
+      }
+    } );
+</script>
+
+{% endblock javascripts %}

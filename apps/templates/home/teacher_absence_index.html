@@ -1,0 +1,91 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Guru Absen - {{ timetable.name }} {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 p-4">
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <h4 class="mb-2">Guru Absen</h4>
+                        <span class="badge bg-gradient-info ms-2">{{ timetable.name }}</span>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="btn btn-sm bg-gradient-primary mb-0 {% if not btn.add and not request.user.is_superuser %}disabled{% endif %}" href="{% url 'teacher-absence-add' timetable.timetable_id %}"><i class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Absen</a>
+                        <a class="btn btn-sm bg-gradient-dark mb-0" href="{% url 'timetable-view' timetable.timetable_id %}"><i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Kembali</a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Guru</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Hari</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Periode</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Keterangan</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr>
+                                    <td><h6 class="mb-0 text-sm">{{ item.teacher.user.username }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.get_day_display }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.period.order|default:'Semua' }}</h6></td>
+                                    <td>
+                                        {% if item.is_available %}
+                                        <span class="badge bg-gradient-success">Tersedia</span>
+                                        {% else %}
+                                        <span class="badge bg-gradient-danger">Tidak Tersedia</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><h6 class="mb-0 text-sm">{{ item.reason|default:'-' }}</h6></td>
+                                    <td>
+                                        <a class="btn btn-sm bg-gradient-danger mb-0" href="{% url 'teacher-absence-delete' timetable.timetable_id item.availability_id %}" onclick="return confirm('Yakin ingin menghapus data ini?')"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+    $(document).ready( function () {
+      $('#myTable').DataTable({
+          "pagingType": "numbers",
+          "language": {
+                "search": "Cari:",
+                "zeroRecords": "Tidak ada data",
+                "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+                "infoEmpty": "Tidak ada data tersedia",
+                "infoFiltered": "(disaring dari _MAX_ total data)",
+                "lengthMenu": "Tampilkan _MENU_ data",
+                "paginate": {
+                    "previous": "<i class='fas fa-angle-left'>",
+                    "next": "<i class='fas fa-angle-right'>"
+                }
+          },
+      });
+
+      btn = document.getElementsByClassName('paginate_button');
+      for (var i = 0; i < btn.length; i++) {
+          btn[i].classList.add('border-radius-top-start-circle', 'border-radius-bottom-end-circle', 'border-radius-top-end-circle', 'border-radius-bottom-start-circle');
+      }
+    } );
+</script>
+
+{% endblock javascripts %}

@@ -57,6 +57,28 @@ class Position(models.Model):
         return self.position_name
 
 
+class TeacherStatus(models.Model):
+    status_id = models.CharField(
+        max_length=10, primary_key=True, help_text='Max 10 digits Status shortname.')
+    status_name = models.CharField(max_length=50)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True)
+    update_by = models.CharField(max_length=50, null=True)
+
+    def save(self, *args, **kwargs):
+        self.status_id = self.status_id.upper()
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(TeacherStatus, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.status_name
+
+
 class Menu(models.Model):
     menu_id = models.CharField(max_length=50, primary_key=True)
     menu_name = models.CharField(max_length=50)
@@ -511,7 +533,6 @@ class StudyGroupMember(models.Model):
 
 class Teacher(models.Model):
     GENDER_CHOICES = [('L', 'Laki-Laki'), ('P', 'Perempuan')]
-    STATUS_CHOICES = [('GTY', 'Guru Tetap Yayasan'), ('GTT', 'Guru Tidak Tetap'), ('PNS', 'PNS')]
 
     teacher_id = models.BigAutoField(primary_key=True)
     user = models.OneToOneField(
@@ -524,7 +545,8 @@ class Teacher(models.Model):
     address = models.CharField(max_length=200, null=True, blank=True, verbose_name='Alamat')
     phone = models.CharField(max_length=20, null=True, blank=True, verbose_name='Telepon')
     email = models.CharField(max_length=100, null=True, blank=True, verbose_name='Email')
-    status = models.CharField(max_length=3, choices=STATUS_CHOICES, null=True, blank=True, verbose_name='Status')
+    status = models.ForeignKey(
+        'TeacherStatus', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Status')
     specialization = models.CharField(max_length=100, null=True, blank=True, verbose_name='Spesialisasi')
     last_education = models.CharField(max_length=5, choices=[
         ('SD', 'SD'), ('SMP', 'SMP'), ('SMA', 'SMA/SMK'),
@@ -695,3 +717,392 @@ class ExtracurricularMember(models.Model):
 
     def __str__(self):
         return f"{self.student.name} - {self.extracurricular.name}"
+
+
+class SubjectGroup(models.Model):
+    group_id = models.BigAutoField(primary_key=True)
+    group_code = models.CharField(max_length=6, unique=True)
+    group_name = models.CharField(max_length=50)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.group_code = self.group_code.strip().upper()
+        self.group_name = self.group_name.strip()
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(SubjectGroup, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.group_code} - {self.group_name}"
+
+
+class Subject(models.Model):
+    subject_id = models.BigAutoField(primary_key=True)
+    subject_name = models.CharField(max_length=100, unique=True)
+    group = models.ForeignKey(
+        'SubjectGroup', on_delete=models.PROTECT)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.subject_name = self.subject_name.strip()
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Subject, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.subject_name
+
+
+class TeacherSubject(models.Model):
+    teacher_subject_id = models.BigAutoField(primary_key=True)
+    grade_subject = models.ForeignKey(
+        'GradeSubject', on_delete=models.CASCADE, related_name='teacher_subjects')
+    teacher = models.ForeignKey(
+        'Teacher', on_delete=models.PROTECT)
+    hours = models.PositiveIntegerField(verbose_name='Jam')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('grade_subject', 'teacher')
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(TeacherSubject, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.teacher} - {self.grade_subject.subject} ({self.grade_subject.grade})"
+
+
+class GradeSubject(models.Model):
+    grade_subject_id = models.BigAutoField(primary_key=True)
+    grade = models.ForeignKey(
+        'Grade', on_delete=models.PROTECT)
+    subject = models.ForeignKey(
+        'Subject', on_delete=models.PROTECT)
+    room = models.ForeignKey(
+        'Room', on_delete=models.SET_NULL, null=True, blank=True)
+    keterangan = models.CharField(max_length=100, blank=True, default='')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('grade', 'subject')
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(GradeSubject, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.subject} ({self.grade})"
+
+
+class Room(models.Model):
+    room_id = models.BigAutoField(primary_key=True)
+    room_name = models.CharField(max_length=50)
+    capacity = models.PositiveIntegerField(default=0)
+    description = models.CharField(max_length=200, blank=True, default='')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.room_name = self.room_name.strip()
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Room, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.room_name
+
+
+class Period(models.Model):
+    DAY_CHOICES = [
+        ('MON', 'Senin'),
+        ('TUE', 'Selasa'),
+        ('WED', 'Rabu'),
+        ('THU', 'Kamis'),
+        ('FRI', 'Jumat'),
+        ('SAT', 'Sabtu'),
+        ('SUN', 'Ahad'),
+    ]
+
+    period_id = models.BigAutoField(primary_key=True)
+    timetable = models.ForeignKey(
+        'Timetable', on_delete=models.CASCADE, related_name='periods')
+    day = models.CharField(max_length=3, choices=DAY_CHOICES)
+    order = models.PositiveIntegerField(default=0)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_break = models.BooleanField(default=False)
+    break_name = models.CharField(max_length=50, blank=True, default='')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('timetable', 'day', 'order')
+        ordering = ['day', 'order']
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Period, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.get_day_display()} - {self.order} ({self.start_time.strftime('%H:%M')}-{self.end_time.strftime('%H:%M')})"
+
+
+class Timetable(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('published', 'Terbit'),
+    ]
+
+    timetable_id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    school_year = models.ForeignKey(
+        'SchoolYear', on_delete=models.PROTECT, null=True, blank=True)
+    semester = models.CharField(max_length=1, choices=[('1', 'Ganjil'), ('2', 'Genap')], default='1')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    notes = models.TextField(blank=True, default='')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Timetable, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name} ({self.get_semester_display()})"
+
+
+class Lesson(models.Model):
+    lesson_id = models.BigAutoField(primary_key=True)
+    timetable = models.ForeignKey(
+        'Timetable', on_delete=models.CASCADE, related_name='lessons')
+    grade_subject = models.ForeignKey(
+        'GradeSubject', on_delete=models.PROTECT)
+    teacher = models.ForeignKey(
+        'Teacher', on_delete=models.PROTECT)
+    hours_per_week = models.PositiveIntegerField(default=1)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('timetable', 'grade_subject', 'teacher')
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(Lesson, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.grade_subject} - {self.teacher}"
+
+
+class TimetableSlot(models.Model):
+    slot_id = models.BigAutoField(primary_key=True)
+    timetable = models.ForeignKey(
+        'Timetable', on_delete=models.CASCADE, related_name='slots')
+    lesson = models.ForeignKey(
+        'Lesson', on_delete=models.CASCADE, related_name='slots')
+    period = models.ForeignKey(
+        'Period', on_delete=models.CASCADE, related_name='slots')
+    room = models.ForeignKey(
+        'Room', on_delete=models.PROTECT, null=True, blank=True)
+    is_manual = models.BooleanField(default=False)
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('timetable', 'period', 'lesson')
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(TimetableSlot, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.lesson} @ {self.period}"
+
+
+class TeacherAvailability(models.Model):
+    availability_id = models.BigAutoField(primary_key=True)
+    teacher = models.ForeignKey(
+        'Teacher', on_delete=models.CASCADE, related_name='availabilities')
+    timetable = models.ForeignKey(
+        'Timetable', on_delete=models.CASCADE, related_name='teacher_availabilities')
+    day = models.CharField(max_length=3, choices=Period.DAY_CHOICES)
+    period = models.ForeignKey(
+        'Period', on_delete=models.CASCADE, null=True, blank=True)
+    is_available = models.BooleanField(default=True)
+    reason = models.CharField(max_length=200, blank=True, default='')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Teacher Availabilities'
+
+    def save(self, *args, **kwargs):
+        user = get_current_user()
+        user_id = user.user_id if user else None
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = user_id
+        self.update_date = timezone.now()
+        self.update_by = user_id
+        super(TeacherAvailability, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.teacher} - {self.get_day_display()} ({'Tersedia' if self.is_available else 'Tidak Tersedia'})"
+
+
+class RoomAvailability(models.Model):
+    availability_id = models.BigAutoField(primary_key=True)
+    room = models.ForeignKey(
+        'Room', on_delete=models.CASCADE, related_name='availabilities')
+    timetable = models.ForeignKey(
+        'Timetable', on_delete=models.CASCADE, related_name='room_availabilities')
+    day = models.CharField(max_length=3, choices=Period.DAY_CHOICES)
+    period = models.ForeignKey(
+        'Period', on_delete=models.CASCADE, null=True, blank=True)
+    is_available = models.BooleanField(default=True)
+    reason = models.CharField(max_length=200, blank=True, default='')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Room Availabilities'
+
+    def save(self, *args, **kwargs):
+        user = get_current_user()
+        user_id = user.user_id if user else None
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = user_id
+        self.update_date = timezone.now()
+        self.update_by = user_id
+        super(RoomAvailability, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.room} - {self.get_day_display()} ({'Tersedia' if self.is_available else 'Tidak Tersedia'})"
+
+
+class GradeAvailability(models.Model):
+    availability_id = models.BigAutoField(primary_key=True)
+    grade = models.ForeignKey(
+        'Grade', on_delete=models.CASCADE, related_name='availabilities')
+    timetable = models.ForeignKey(
+        'Timetable', on_delete=models.CASCADE, related_name='grade_availabilities')
+    day = models.CharField(max_length=3, choices=Period.DAY_CHOICES)
+    period = models.ForeignKey(
+        'Period', on_delete=models.CASCADE, null=True, blank=True)
+    is_available = models.BooleanField(default=True)
+    reason = models.CharField(max_length=200, blank=True, default='')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Grade Availabilities'
+
+    def save(self, *args, **kwargs):
+        user = get_current_user()
+        user_id = user.user_id if user else None
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = user_id
+        self.update_date = timezone.now()
+        self.update_by = user_id
+        super(GradeAvailability, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.grade} - {self.get_day_display()} ({'Tersedia' if self.is_available else 'Tidak Tersedia'})"
+
+
+class SubstituteAssignment(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Menunggu'),
+        ('confirmed', 'Dikonfirmasi'),
+        ('cancelled', 'Dibatalkan'),
+    ]
+
+    assignment_id = models.BigAutoField(primary_key=True)
+    timetable = models.ForeignKey(
+        'Timetable', on_delete=models.CASCADE, related_name='substitute_assignments')
+    original_slot = models.ForeignKey(
+        'TimetableSlot', on_delete=models.CASCADE, related_name='substitutes')
+    substitute_teacher = models.ForeignKey(
+        'Teacher', on_delete=models.PROTECT, related_name='substitute_assignments')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    match_score = models.FloatField(default=0)
+    reason = models.CharField(max_length=200, blank=True, default='')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = get_current_user().user_id
+        self.update_date = timezone.now()
+        self.update_by = get_current_user().user_id
+        super(SubstituteAssignment, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Substitute: {self.original_slot} -> {self.substitute_teacher}"
