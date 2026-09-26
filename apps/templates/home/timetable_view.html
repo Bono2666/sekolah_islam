@@ -148,7 +148,11 @@
                             <h5 class="mb-0">{{ data.name }} <span class="text-secondary mx-2">|</span> {{ data.school_year.school_year_name|default:'-' }} <span class="text-secondary mx-2">|</span> {{ data.get_semester_display }}</h5>
                         </div>
                         <div class="col-md-2 text-end d-flex align-items-center justify-content-end">
+                            {% if can_edit %}
                             <a href="#" class="text-secondary text-sm" data-bs-toggle="modal" data-bs-target="#editTimetableModal"><i class="fas fa-pen me-1"></i>Ubah</a>
+                            {% else %}
+                            <span class="text-secondary text-sm" title="Anda tidak memiliki akses Ubah"><i class="fas fa-lock me-1"></i>Hanya Lihat</span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -158,7 +162,7 @@
             <div class="alert alert-warning d-flex align-items-center mb-4" role="alert" style="border-radius: 0.75rem;">
                 <i class="fas fa-exclamation-triangle me-3" style="font-size: 1.2rem;"></i>
                 <div>
-                    <strong>Perhatian:</strong> Tahun Ajaran dan Semester belum diatur. Silakan klik tombol <a href="#" class="fw-bold" data-bs-toggle="modal" data-bs-target="#editTimetableModal">Ubah</a> di atas untuk mengatur Tahun Ajaran dan Semester terlebih dahulu sebelum membuat jadwal.
+                    <strong>Perhatian:</strong> Tahun Ajaran dan Semester belum diatur. Silakan klik tombol <a href="#" class="fw-bold" {% if can_edit %}data-bs-toggle="modal" data-bs-target="#editTimetableModal"{% else %}style="pointer-events: none;"{% endif %}>Ubah</a> di atas untuk mengatur Tahun Ajaran dan Semester terlebih dahulu sebelum membuat jadwal.
                 </div>
             </div>
             {% endif %}
@@ -194,7 +198,7 @@
                             </div>
                         <div class="modal-footer" style="padding-top: 0.5rem !important; padding-bottom: 0.75rem !important;">
                                 <button type="button" class="btn bg-gradient-dark" data-bs-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn bg-gradient-primary">Simpan</button>
+                                <button type="submit" class="btn bg-gradient-primary" {% if not can_edit %}disabled{% endif %}>Simpan</button>
                             </div>
                         </form>
                     </div>
@@ -244,7 +248,7 @@
                         </div>
                         <div class="modal-footer" style="padding-top: 0.5rem !important; padding-bottom: 0.75rem !important;">
                             <button type="button" class="btn bg-gradient-dark mb-0" data-bs-dismiss="modal">Batal</button>
-                            <button type="button" class="btn bg-gradient-primary mb-0" onclick="savePeriods()">Simpan</button>
+                            <button type="button" class="btn bg-gradient-primary mb-0" onclick="savePeriods()" {% if not can_edit %}disabled{% endif %}>Simpan</button>
                         </div>
                     </div>
                 </div>
@@ -266,7 +270,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-8 d-flex align-items-end justify-content-end">
-                                    <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveAvailability()">
+                                    <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveAvailability()" {% if not can_edit %}disabled{% endif %}>
                                         <i class="fas fa-save me-1"></i> Simpan
                                     </button>
                                 </div>
@@ -341,7 +345,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-8 d-flex align-items-end justify-content-end">
-                                            <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveRoomAvailability()">
+                                            <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveRoomAvailability()" {% if not can_edit %}disabled{% endif %}>
                                                 <i class="fas fa-save me-1"></i> Simpan
                                             </button>
                                         </div>
@@ -389,7 +393,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-8 d-flex align-items-end justify-content-end">
-                                            <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveGradeAvailability()">
+                                            <button type="button" class="btn bg-gradient-primary btn-sm" onclick="saveGradeAvailability()" {% if not can_edit %}disabled{% endif %}>
                                                 <i class="fas fa-save me-1"></i> Simpan
                                             </button>
                                         </div>
@@ -438,7 +442,7 @@
                     <h6 class="mb-3" style="color: #8b6914;">Manajemen Jadwal</h6>
                     <div class="row">
                         <div class="col-md-3 mb-2">
-                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#periodModal">
+                            <a href="#" class="text-decoration-none" {% if can_edit %}data-bs-toggle="modal" data-bs-target="#periodModal"{% else %}style="pointer-events: none;" title="Anda tidak memiliki akses Ubah"{% endif %}>
                                 <div class="card h-100 border shadow-none sub-card" style="border-color: #e9ecef; border-radius: 0.75rem;">
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center mb-2">
@@ -451,7 +455,7 @@
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#teacherAvailabilityModal">
+                            <a href="#" class="text-decoration-none" {% if can_edit %}data-bs-toggle="modal" data-bs-target="#teacherAvailabilityModal"{% else %}style="pointer-events: none;" title="Anda tidak memiliki akses Ubah"{% endif %}>
                                 <div class="card h-100 border shadow-none sub-card" style="border-color: #e9ecef; border-radius: 0.75rem;">
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center mb-2">
@@ -464,7 +468,7 @@
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#roomAvailabilityModal">
+                            <a href="#" class="text-decoration-none" {% if can_edit %}data-bs-toggle="modal" data-bs-target="#roomAvailabilityModal"{% else %}style="pointer-events: none;" title="Anda tidak memiliki akses Ubah"{% endif %}>
                                 <div class="card h-100 border shadow-none sub-card" style="border-color: #e9ecef; border-radius: 0.75rem;">
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center mb-2">
@@ -601,6 +605,16 @@
 
 {% block javascripts %}
 <script>
+    const CAN_EDIT = {% if can_edit %}true{% else %}false{% endif %};
+
+    function guardEdit() {
+        if (!CAN_EDIT) {
+            showToast('Anda tidak memiliki akses Ubah untuk menu Jadwal Pelajaran');
+            return false;
+        }
+        return true;
+    }
+
     let periodCounter = 0;
     let breakCounter = 0;
     let periods = [];
@@ -928,6 +942,7 @@
     }
 
     function savePeriods() {
+        if (!guardEdit()) return;
         const selectedDaysArr = [];
         document.querySelectorAll('.day-btn.active').forEach(btn => {
             selectedDaysArr.push(parseInt(btn.dataset.day));
@@ -1066,7 +1081,7 @@
                         isChecked = true;
                     }
                 }
-                var disabled = (!periodId || period.is_break) ? 'disabled' : '';
+                var disabled = (!periodId || period.is_break || !CAN_EDIT) ? 'disabled' : '';
                 var checked = isChecked ? 'checked' : '';
                 html += '<td class="text-center"><div class="form-check d-inline-block">';
                 html += '<input class="form-check-input availability-check" type="checkbox" ';
@@ -1084,6 +1099,7 @@
     }
 
     function saveAvailability() {
+        if (!guardEdit()) return;
         const teacherId = document.getElementById('teacherSelect').value;
         if (!teacherId) {
             alert('Pilih guru terlebih dahulu!');
@@ -1204,7 +1220,7 @@
                         isChecked = true;
                     }
                 }
-                var disabled = (!periodId || period.is_break) ? 'disabled' : '';
+                var disabled = (!periodId || period.is_break || !CAN_EDIT) ? 'disabled' : '';
                 var checked = isChecked ? 'checked' : '';
                 html += '<td class="text-center"><div class="form-check d-inline-block">';
                 html += '<input class="form-check-input room-availability-check" type="checkbox" ';
@@ -1222,6 +1238,7 @@
     }
 
     function saveRoomAvailability() {
+        if (!guardEdit()) return;
         const roomId = document.getElementById('roomSelect').value;
         if (!roomId) {
             alert('Pilih ruangan terlebih dahulu!');
@@ -1342,7 +1359,7 @@
                         isChecked = true;
                     }
                 }
-                var disabled = (!periodId || period.is_break) ? 'disabled' : '';
+                var disabled = (!periodId || period.is_break || !CAN_EDIT) ? 'disabled' : '';
                 var checked = isChecked ? 'checked' : '';
                 html += '<td class="text-center"><div class="form-check d-inline-block">';
                 html += '<input class="form-check-input grade-availability-check" type="checkbox" ';
@@ -1360,6 +1377,7 @@
     }
 
     function saveGradeAvailability() {
+        if (!guardEdit()) return;
         const gradeId = document.getElementById('gradeSelect').value;
         if (!gradeId) {
             alert('Pilih kelas terlebih dahulu!');

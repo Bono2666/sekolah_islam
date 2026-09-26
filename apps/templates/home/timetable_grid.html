@@ -590,7 +590,7 @@
                     </div>
                     <div class="col-6 text-end">
                         <a class="btn btn-sm bg-gradient-dark mb-0" href="{% url 'timetable-view' data.timetable_id %}"><i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Kembali</a>
-                        <button class="btn btn-sm bg-gradient-primary mb-0 generate-btn" id="generateBtn" onclick="generateTimetable()">
+                        <button class="btn btn-sm bg-gradient-primary mb-0 generate-btn" id="generateBtn" onclick="generateTimetable()" {% if not can_edit %}disabled title="Anda tidak memiliki akses Ubah"{% endif %}>
                             <i class="fas fa-magic"></i>&nbsp;&nbsp;Generate Otomatis
                         </button>
                         <button class="btn btn-sm bg-gradient-dark mb-0" onclick="exportPDF()">
@@ -686,7 +686,7 @@
                                             {% for slot in slots %}
                                                 {% if slot.lesson.grade_subject.grade.grade == grade.grade and slot.lesson.grade_subject.grade.sub_grade == grade.sub_grade and slot.period.day == period.day and slot.period.order == period.order %}
                                                 <div class="slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
-                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    {% if can_edit %}<span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>{% endif %}
                                                     <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
                                                     <div class="teacher">{{ slot.lesson.teacher.user.username }}</div>
                                                     <div class="room">{{ slot.room.room_name|default:'' }}</div>
@@ -739,7 +739,7 @@
                                             {% for slot in slots %}
                                                 {% if slot.lesson.grade_subject.grade.grade == grade.grade and slot.lesson.grade_subject.grade.sub_grade == grade.sub_grade and slot.period.day == day_code and slot.period.order == period.order %}
                                                 <div class="compact-slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
-                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    {% if can_edit %}<span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>{% endif %}
                                                     <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
                                                     <div class="teacher">{{ slot.lesson.teacher.user.username }}</div>
                                                     <div class="room">{{ slot.room.room_name|default:'' }}</div>
@@ -793,7 +793,7 @@
                                             {% for slot in slots %}
                                                 {% if slot.lesson.teacher.teacher_id == teacher.teacher_id and slot.period.day == period.day and slot.period.order == period.order %}
                                                 <div class="slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
-                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    {% if can_edit %}<span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>{% endif %}
                                                     <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
                                                     <div class="grade">{{ slot.lesson.grade_subject.grade.grade }}{{ slot.lesson.grade_subject.grade.sub_grade|default:'' }}</div>
                                                     <div class="room">{{ slot.room.room_name|default:'' }}</div>
@@ -845,7 +845,7 @@
                                             {% for slot in slots %}
                                                 {% if slot.lesson.teacher.teacher_id == teacher.teacher_id and slot.period.day == day_code and slot.period.order == period.order %}
                                                 <div class="compact-slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
-                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    {% if can_edit %}<span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>{% endif %}
                                                     <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
                                                     <div class="grade">{{ slot.lesson.grade_subject.grade.grade }}{{ slot.lesson.grade_subject.grade.sub_grade|default:'' }}</div>
                                                     <div class="room">{{ slot.room.room_name|default:'' }}</div>
@@ -899,7 +899,7 @@
                                             {% for slot in slots %}
                                                 {% if slot.room.room_id == room.room_id and slot.period.day == period.day and slot.period.order == period.order %}
                                                 <div class="slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
-                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    {% if can_edit %}<span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>{% endif %}
                                                     <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
                                                     <div class="teacher">{{ slot.lesson.teacher.user.username }}</div>
                                                     <div class="grade">{{ slot.lesson.grade_subject.grade.grade }}{{ slot.lesson.grade_subject.grade.sub_grade|default:'' }}</div>
@@ -951,7 +951,7 @@
                                             {% for slot in slots %}
                                                 {% if slot.room.room_id == room.room_id and slot.period.day == day_code and slot.period.order == period.order %}
                                                 <div class="compact-slot-card" draggable="true" data-slot-id="{{ slot.slot_id }}" data-subject-id="{{ slot.lesson.grade_subject.subject.subject_id }}" data-grade-id="{{ slot.lesson.grade_subject.grade.grade_id }}">
-                                                    <span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>
+                                                    {% if can_edit %}<span class="delete-slot" onclick="deleteSlot({{ slot.slot_id }})"><i class="fas fa-times"></i></span>{% endif %}
                                                     <div class="subject">{{ slot.lesson.grade_subject.subject.subject_name }}</div>
                                                     <div class="teacher">{{ slot.lesson.teacher.user.username }}</div>
                                                     <div class="grade">{{ slot.lesson.grade_subject.grade.grade }}{{ slot.lesson.grade_subject.grade.sub_grade|default:'' }}</div>
@@ -1006,6 +1006,15 @@
 <script>
     var timetableId = {{ data.timetable_id }};
     var subjectColors = {{ subject_colors|safe }};
+    var CAN_EDIT = {% if can_edit %}true{% else %}false{% endif %};
+
+    function guardEdit() {
+        if (!CAN_EDIT) {
+            alert('Anda tidak memiliki akses Ubah untuk menu Jadwal Pelajaran');
+            return false;
+        }
+        return true;
+    }
 
     // Apply subject colors and mark first period of each day
     document.addEventListener('DOMContentLoaded', function() {
@@ -1276,6 +1285,7 @@
     }
 
     function generateTimetable() {
+        if (!guardEdit()) return;
         if (!confirm('Generate otomatis akan menghapus semua jadwal yang ada. Lanjutkan?')) return;
 
         var btn = document.getElementById('generateBtn');
@@ -1310,6 +1320,7 @@
     }
 
     function deleteSlot(slotId) {
+        if (!guardEdit()) return;
         if (!confirm('Yakin ingin menghapus slot ini?')) return;
 
         $.ajax({
@@ -1343,6 +1354,7 @@
         var draggedLesson = null;
 
         $(document).on('dragstart', '.slot-card, .compact-slot-card', function(e) {
+            if (!CAN_EDIT) { e.preventDefault(); return; }
             draggedSlot = $(this);
             draggedLesson = null;
             e.originalEvent.dataTransfer.setData('text/plain', 'slot:' + $(this).data('slot-id'));
@@ -1350,6 +1362,7 @@
         });
 
         $(document).on('dragstart', '.unscheduled-card', function(e) {
+            if (!CAN_EDIT) { e.preventDefault(); return; }
             draggedLesson = $(this);
             draggedSlot = null;
             e.originalEvent.dataTransfer.setData('text/plain', 'teacher_subject:' + $(this).data('teacher-subject-id'));
@@ -1377,6 +1390,7 @@
             var rawData = e.originalEvent.dataTransfer.getData('text/plain');
             var targetPeriodId = $(this).data('period-id');
             if (!rawData || !targetPeriodId) return;
+            if (!CAN_EDIT) return;
 
             var targetGradeId = $(this).attr('data-grade-id') || '';
 

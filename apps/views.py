@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from apps.forms import *
 from apps.mail import send_email
 from apps.models import *
-from authentication.decorators import role_required
+from authentication.decorators import role_required, edit_required
 from tablib import Dataset
 from django.utils import timezone
 import xlwt
@@ -4556,12 +4556,15 @@ def timetable_view(request, _id):
             'menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id,
                                 menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+        'can_edit': request.user.is_superuser or Auth.objects.filter(
+            user_id=request.user.user_id, menu_id='JADWAL', edit=True).exists(),
     }
     return render(request, 'home/timetable_view.html', context)
 
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_update(request, _id):
     timetable = Timetable.objects.get(timetable_id=_id)
     if request.POST:
@@ -4582,6 +4585,8 @@ def timetable_update(request, _id):
             'menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id,
                                 menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+        'can_edit': request.user.is_superuser or Auth.objects.filter(
+            user_id=request.user.user_id, menu_id='JADWAL', edit=True).exists(),
     }
     return render(request, 'home/timetable_update.html', context)
 
@@ -4601,6 +4606,7 @@ def timetable_delete(request, _id):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_save_availability(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Method not allowed'})
@@ -4655,6 +4661,7 @@ def timetable_save_availability(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_save_room_availability(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Method not allowed'})
@@ -4709,6 +4716,7 @@ def timetable_save_room_availability(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_save_grade_availability(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Method not allowed'})
@@ -4920,6 +4928,8 @@ def timetable_grid(request, _id):
             'menu_id', flat=True),
         'btn': Auth.objects.get(user_id=request.user.user_id,
                                 menu_id='JADWAL') if not request.user.is_superuser else Auth.objects.all(),
+        'can_edit': request.user.is_superuser or Auth.objects.filter(
+            user_id=request.user.user_id, menu_id='JADWAL', edit=True).exists(),
     }
     return render(request, 'home/timetable_grid.html', context)
 
@@ -4928,6 +4938,7 @@ def timetable_grid(request, _id):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_generate(request, _id):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -5269,6 +5280,7 @@ def timetable_generate(request, _id):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_move_slot(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -5375,6 +5387,7 @@ def timetable_move_slot(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_schedule_lesson(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -5511,6 +5524,7 @@ def timetable_schedule_lesson(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_delete_slot(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -5557,6 +5571,7 @@ def timetable_delete_slot(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_save_periods(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -5599,6 +5614,7 @@ def timetable_save_periods(request):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_publish(request, _id):
     if request.method != 'POST':
         return HttpResponseRedirect(reverse('timetable-view', args=[_id]))
@@ -5611,6 +5627,7 @@ def timetable_publish(request, _id):
 
 @login_required(login_url='/login/')
 @role_required(allowed_roles='JADWAL')
+@edit_required(allowed_menu='JADWAL')
 def timetable_unpublish(request, _id):
     if request.method != 'POST':
         return HttpResponseRedirect(reverse('timetable-view', args=[_id]))
