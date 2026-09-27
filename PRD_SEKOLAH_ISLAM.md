@@ -950,21 +950,81 @@ Menu yang direncanakan:
 
 ### 5.12 Jadwal Pelajaran (Timetable)
 
-**Status: Aktif**
+**Status: Aktif** (sudah berjalan di produksi)
 
 | Aspek | Detail |
 |-------|--------|
 | URL Prefix | `/kurikulum/jadwal/` |
 | Menu ID | `JADWAL` |
-| Models | `Room`, `Period`, `Timetable`, `Lesson`, `TimetableSlot`, `TeacherAvailability`, `RoomAvailability`, `TeacherSubject`, `GradeSubject`, `SubstituteAssignment` |
+| Models | `Room`, `Period`, `Timetable`, `Lesson`, `TimetableSlot`, `TeacherAvailability`, `RoomAvailability`, `GradeAvailability`, `TeacherSubject`, `GradeSubject`, `Subject`, `SubjectGroup`, `SubstituteAssignment` |
+| Referensi detail | `PRODUCT_SPEC_SEKOLAH_ISLAM.md` §25 (US-058 s/d US-076) |
+
+Modul ini memungkinkan admin menyusun jadwal mengajar mingguan (guru, mapel, kelas, ruangan, periode) melalui kombinasi **auto-generate** dan **drag-and-drop manual**, lalu mempublikasikannya.
+
+**Tujuan:**
+- Mengisi slot jadwal (hari × periode) untuk setiap kombinasi Kelas–Mapel–Guru secara otomatis, sejumlah jam yang ditetapkan di **Guru Per Mapel (`TeacherSubject.hours`)**.
+- Menghindari konflik guru, ruangan, dan kelas pada slot yang sama.
+- Menyediakan hasil berstatus **draft** yang bisa disempurnakan manual (drag-and-drop) sebelum dipublikasikan (**published**).
+
+**Ruang Lingkup — termasuk:**
+- Auto-generate jadwal reguler mingguan, di-scope per **Timetable** (kombinasi Tahun Ajaran + Semester).
+- Validasi konflik guru/ruangan/kelas dan ketersediaan waktu masing-masing saat generate.
+- Penjadwalan manual pelengkap via drag-and-drop dari panel "Belum Dijadwalkan" (*unscheduled pool*).
+
+**Ruang Lingkup — tidak termasuk (modul/fitur terpisah):**
+- **Guru Pengganti (`SubstituteAssignment`)** — penggantian guru pada slot tertentu untuk tanggal spesifik; fitur pasca-jadwal-final, terpisah dari proses generate.
+- Penilaian, Keuangan, Kegiatan Asrama — di luar cakupan modul ini.
+- Jadwal ekstrakurikuler dan jadwal ujian — belum terintegrasi ke model `Timetable`/`Period` yang sama.
 
 #### 5.12.1 Data Master Jadwal
+
+**Peta istilah UI (Indonesia) ↔ model Django** — penamaan Inggris di kode, label Indonesia di UI:
+
+| Istilah UI (Indonesia) | Model Django | Keterangan |
+|---|---|---|
+| Guru | `Teacher` | — |
+| Kelas | `Grade` | — |
+| Ruangan | `Room` | `room_id`, `room_name`, `capacity` |
+| Mata Pelajaran | `Subject` | `subject_name`, `group` (FK → SubjectGroup) |
+| Kelompok Mapel | `SubjectGroup` | `group_id`, `group_code`, `group_name` |
+| Guru Per Mapel | `TeacherSubject` | `teacher`, `grade_subject`, `hours` (jam/minggu) |
+| Mapel Per Kelas | `GradeSubject` | `grade`, `subject`, `room` (ruangan default), `keterangan` |
+| Jadwal (induk) | `Timetable` | `name`, `school_year`, `semester`, `status`, `notes` |
+| Periode | `Period` | `timetable`, `period_name`, `start_time`, `end_time`, `order`, `day`, `is_break` |
+| Slot Jadwal | `TimetableSlot` | `timetable`, `lesson`, `period`, `room`, `is_manual` |
+| Pelajaran (internal) | `Lesson` | `timetable`, `grade_subject`, `teacher`, `hours_per_week` — **tanpa CRUD UI** |
+| Ketersediaan Guru | `TeacherAvailability` | `timetable`, `teacher`, `period`, `day`, `is_available` |
+| Ketersediaan Ruangan | `RoomAvailability` | `timetable`, `room`, `period`, `day`, `is_available` |
+| Ketersediaan Kelas | `GradeAvailability` | `timetable`, `grade`, `period`, `day`, `is_available` |
+| Guru Pengganti | `SubstituteAssignment` | `slot` (FK → TimetableSlot), `substitute_teacher`, `reason`, `date` |
+
+**Catatan penting:**
+- Ketersediaan (Guru/Ruangan/Kelas) **di-scope per Timetable**, bukan global — satu guru bisa punya ketersediaan berbeda di jadwal Semester Ganjil vs Genap.
+- `Lesson` unik per `(timetable, grade_subject, teacher)` — **team teaching (2 guru untuk 1 mapel di 1 kelas) didukung struktural**: cukup buat 2 baris `TeacherSubject` untuk `grade_subject` yang sama.
+- Hari (`day`) disimpan sebagai kode 3-huruf: `MON/TUE/WED/THU/FRI/SAT/SUN`.
+
+**Mata Pelajaran (Subject):**
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| `subject_id` | BigAutoField, PK | ID otomatis |
+| `subject_name` | CharField(100), Unique | Nama mata pelajaran |
+| `group` | FK → SubjectGroup | Kelompok mapel (on_delete=PROTECT) |
+
+**Kelompok Mapel (SubjectGroup):**
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| `group_id` | BigAutoField, PK | ID otomatis |
+| `group_code` | CharField(6), Unique | Kode kelompok (uppercase) |
+| `group_name` | CharField(50) | Nama kelompok |
 
 **Ruangan (Room):**
 | Field | Tipe | Keterangan |
 |-------|------|------------|
 | `room_id` | BigAutoField, PK | ID otomatis |
 | `room_name` | CharField(100) | Nama ruangan |
+| `capacity` | PositiveIntegerField, default 0 | Kapasitas ruangan (0 = tidak divalidasi saat generate — lihat [10.6](#106-auto-generate-jadwal)) |
+
+> **Catatan:** Field `capacity` sudah ada di `models.py` (sejak migrasi `0030_add_schedule_models`) tetapi belum terdokumentasi di `PRODUCT_SPEC_SEKOLAH_ISLAM.md` US-061 — spec perlu dilengkapi dengan field ini.
 
 **Periode (Period):**
 | Field | Tipe | Keterangan |
@@ -1149,15 +1209,30 @@ Sistem mendukung 6 mode tampilan jadwal:
 - Berlaku di semua view mode dan dark mode
 
 **Subject Colors:**
-- 12 warna untuk mapel berbeda
+- 12 warna untuk mapel berbeda (berdasarkan hash `subject_id`)
 - Warna diterapkan pada card slot
 - Konsisten di semua view mode
+
+**Panel Belum Dijadwalkan (Unscheduled Pool):**
+- Menampilkan `Lesson` yang jam-nya belum (sepenuhnya) terisi, lengkap dengan sisa jam
+- Pelajaran yang gagal dijadwalkan saat auto-generate otomatis muncul di panel ini
+- Bisa dijadwalkan via drag-and-drop ke grid
+
+**Analisis Beban Mengajar:**
+- Card ringkasan pemanfaatan **guru** (jam terjadwal / total jam tersedia) dan **ruangan** (jam terpakai / total jam tersedia)
+- Ditampilkan di atas grid pada halaman detail jadwal
+- Progress bar berwarna: hijau ≥80%, kuning ≥50%, merah <50% utilisasi
+
+**Export PDF:**
+- Sesuai mode tampilan aktif saat tombol diklik (kelas/guru/ruangan × standar/kompak)
+- Via `xhtml2pdf` (Pisa), ukuran **A4 landscape**
 
 #### 5.12.12 Auto-Generation
 
 Sistem dapat menghasilkan jadwal secara otomatis:
 - Memperhitungkan ketersediaan guru, ruangan, **dan kelas**
 - Menghindari konflik waktu (guru/ruangan/kelas/mapel-kelas sama di periode yang sama)
+- **Mengisi jumlah jam sesuai penugasan** — total slot per `Lesson` mengikuti `hours_per_week` yang disinkronkan dari `TeacherSubject.hours`
 - Menyebar jam mengajar **secara merata antar hari (round-robin, offset per-lesson)**
 - **Semua mapel**: jam diusahakan sebagai **sesi 2 jam pelajaran berturut-turut per hari**; jika tidak memungkinkan, fallback **1 jam per hari** — **maksimal 2 jam per mapel per hari**
 - Sesi 2 jam **tidak boleh terpotong istirahat — diusahakan untuk setiap pelajaran**: **wajib untuk Laboratorium**; untuk mapel lain pasangan melewati istirahat hanya dipakai sebagai **last resort mutlak** — yaitu **setelah** fase pasangan bebas-istirahat **dan** fase jam tunggal dicoba (relaksasi aturan hari-berurutan didahulukan); urutan pemrosesan `TeacherSubject` deterministik (`order_by('teacher_subject_id')`)
@@ -1166,15 +1241,103 @@ Sistem dapat menghasilkan jadwal secara otomatis:
 - Hanya mengambil data GradeSubject/TeacherSubject yang sesuai **tahun ajaran dan semester** jadwal
 - **Selalu replace**: semua slot lama dihapus sebelum generate ulang
 
-**Validasi yang diperiksa saat auto-generate:**
-1. Konflik guru (guru sama di periode yang sama)
-2. Konflik kelas (kelas sama di periode yang sama)
-3. Konflik mapel-kelas (grade_subject sama di periode yang sama)
-4. Ketersediaan guru (TeacherAvailability)
-5. Ketersediaan ruangan (RoomAvailability)
-6. **Ketersediaan kelas (GradeAvailability)**
+**Algoritma (as-built) — greedy dengan rotasi round-robin antar hari** (bukan constraint-solving dengan backtracking):
+
+```
+1. Ambil GradeSubject untuk (school_year, semester) milik Timetable ini
+2. Ambil TeacherSubject untuk masing-masing GradeSubject tsb
+3. Hapus semua TimetableSlot lama (replace)
+4. Kelompokkan Period non-break per hari (MON..SUN), urutkan per `order`
+
+5. Untuk setiap TeacherSubject (kombinasi Guru + Mapel + Kelas) — urutan
+   deterministik `order_by('teacher_subject_id')`, dengan offset hari
+   yang dirotasi per-lesson (round-robin):
+   a. get_or_create Lesson (timetable, grade_subject, teacher);
+      sinkronkan Lesson.hours_per_week = TeacherSubject.hours
+   b. FASE A — SESI 2 JAM BEBAS-ISTIRAHAT untuk SEMUA mapel (bagian
+      Lab yang tidak pernah memasuki fase C): hitung pasangan direncanakan
+      = hours // 2. Untuk tiap pasangan (urut round-robin antar hari,
+      1 hari hanya boleh diisi 1 sesi per Lesson — cap maksimal
+      2 jam/mapel/hari):
+      - Pass A1 (semua mapel; satu-satunya pasangan untuk Lab): cari
+        sepasang periode BERURUTAN pada hari tersebut yang TIDAK terpotong
+        jam istirahat (tidak ada Period.is_break dengan order di antara
+        kedua periode), hari non-berurutan, dan lolos seluruh cek.
+      - Pass A2 (semua mapel): pasangan bebas-istirahat yang sama, tapi
+        pada hari berurutan (relaksasi anti-hari-berurutan, jika terpaksa).
+      - Cek kontiguity (tanpa jeda): union slot kelas + slot guru pada
+        hari tersebut + kedua kandidat periode harus berurutan (jeda hanya
+        di awal/akhir hari atau pada jam istirahat).
+      - Cek hari berurutan: hari tersebut tidak boleh berdampingan
+        (D-1/D+1) dengan hari yang sudah berisi sesi Lesson ini
+        (berlaku Pass A1; Pass A2 = relaksasinya); cap 2 jam/hari tetap.
+      - Lolos → buat kedua slot sekaligus dalam satu ruangan sama
+        (prefer GradeSubject.room, fallback ruangan lain yang valid);
+        hari ditandai penuh (2 jam); pasangan terpakai +1.
+      - Pasangan tidak muat → lanjut pasangan berikutnya; bila satu kali
+        percobaan pasangan gagal total (state tidak berubah), hentikan fase A.
+   c. FASE B — JAM TUNGGAL (sisa jam termasuk jam ganjil, atau pasangan
+      yang gagal) TANPA memakai pasangan melewati istirahat — maksimal
+      1 jam per hari (hari yang sudah berisi untuk Lesson ini dilewati,
+      sehingga cap 2 jam/mapel/hari selalu terpenuhi). Putaran round-robin
+      antar hari; per hari coba periode berikutnya yang belum dicoba
+      (urut `order`) selama masih ada (hari, periode) yang belum dicoba:
+        * Tidak ada konflik guru / kelas / grade_subject di slot itu
+        * Guru/Kelas/Ruangan tidak punya record ketersediaan
+          is_available=False (prefer GradeSubject.room, fallback ruangan
+          lain; jika tidak ada ruangan valid, slot tetap dibuat room kosong)
+        * Kontiguity — union slot kelas + slot guru + kandidat berurutan
+        * Hari berurutan — hari kandidat tidak didekati hari yang sudah
+          berisi sesi Lesson ini (D-1 / D+1)
+      - Lolos → buat TimetableSlot dengan is_manual=False
+      - DUA FASE (aturan lunak): fase 1 berjalan ketat (cek hari
+        berurutan aktif). Bila fase 1 selesai tanpa hasil dan sisa jam
+        masih ada, fase 2 mengulang dengan cek hari-berurutan
+        DINONAKTIFKAN (hari yang sudah berisi jam Lesson ini tetap
+        ditolak demi cap 2 jam/mapel/hari) — fallback "jika terpaksa".
+   d. FASE C — PASANGAN MELEWATI ISTIRAHAT (hanya non-Lab, LAST RESORT
+      MUTLAK): bila setelah fase A+B masih ada sisa jam ≥2 DAN pasangan
+      terpakai < pasangan direncanakan: ulangi fase pasangan dengan pasangan
+      berurutan yang melewati istirahat — tier hari non-berurutan lalu hari
+      berurutan — memakai seluruh cek yang sama. Untuk tiap pasangan yang
+      berhasil, lanjutkan fase B (ketat lalu relaksasi) guna mengisi sisa
+      jam ganjil. Lab tidak pernah memasuki fase ini.
+   e. Lesson "failed" untuk sisa jamnya HANYA ketika seluruh kombinasi
+      (hari, periode) sudah dicoba di KEDUA fase jam tunggal tanpa hasil
+      — tetap muncul di panel "Belum Dijadwalkan"
+
+6. Return ringkasan: {success, generated: <jumlah slot>, failed: <jumlah jam gagal>}
+```
+
+**Hard constraint (divalidasi sistem saat generate):**
+1. **Konflik guru** — guru yang sama tidak ditempatkan di dua kelas pada hari & periode yang sama.
+2. **Konflik kelas** — kelas yang sama tidak diisi dua mapel pada hari & periode yang sama.
+3. **Konflik mapel-kelas** — `grade_subject` yang sama tidak dijadwalkan dua kali pada hari & periode yang sama.
+4. **Konflik ruangan** — implisit lewat pengecekan `RoomAvailability` + slot yang sudah terisi.
+5. **Ketersediaan guru** — sesuai `TeacherAvailability` untuk timetable tsb (blacklist).
+6. **Ketersediaan ruangan** — sesuai `RoomAvailability` (blacklist).
+7. **Ketersediaan kelas** — sesuai `GradeAvailability` (blacklist).
+8. **Jam sesuai penugasan** — total slot satu `Lesson` mengikuti `hours_per_week` dari `TeacherSubject.hours`.
+9. **Scoping tahun ajaran & semester** — hanya `GradeSubject`/`TeacherSubject`/`Grade` yang sesuai `school_year` + `semester` milik `Timetable`.
+10. **Sesi 2 jam & maksimal 2 jam/hari** — jam dipecah jadi sesi 2 jam berturut-turut pada hari yang sama; sisa jam ganjil jadi 1 jam pada hari lain; fallback 1 jam/hari bila sesi 2 jam tidak memungkinkan.
+11. **Tidak terpotong istirahat — diusahakan tiap pelajaran** — urutan isi per lesson: (A) pasangan bebas-istirahat → (B) jam tunggal → (C) pasangan melewati istirahat (non-lab, last resort mutlak); wajib untuk Laboratorium.
+12. **Tanpa jeda jam kosong** — slot terisi per kelas & per guru per hari harus berurutan (kontiguity), divalidasi saat penempatan sesi 2 jam maupun jam tunggal.
+13. **Tidak berulang pada hari berurutan (aturan lunak)** — sesi satu lesson tidak boleh jatuh pada hari berurutan; aturan ketat diutamakan, hanya dilonggarkan bila terpaksa.
+
+**Belum divalidasi sistem saat ini** (backlog — lihat [10.6](#106-auto-generate-jadwal)):
+- Kapasitas ruangan vs jumlah siswa kelas (`Room.capacity`).
+- Batas maksimal jam mengajar guru per minggu (belum ada field di `Teacher`).
+
+**Soft constraint:**
+- **Distribusi jam merata per hari** — strategi round-robin: hari mulai diproses dirotasi (offset berbeda per lesson) sehingga jam mengajar tersebar antar hari, bukan menumpuk di hari pertama.
+- **Pasangan jam bebas istirahat — diusahakan tiap mapel** — fase A (bebas-istirahat) → fase B (jam tunggal) → fase C (melewati istirahat, last resort mutlak); wajib untuk Laboratorium.
+- **Belum ada soft-constraint scoring** di algoritma (selain round-robin & preferensi bebas-istirahat); item seperti skor prioritas constraint, penghindaran gap, dan batas jam berturut-turut ada di backlog [10.6](#106-auto-generate-jadwal).
 
 > **Catatan semantik (blacklist):** Sistem hanya menolak slot jika ada record ketersediaan `is_available=False`. Jika ketersediaan tidak diatur, semua slot dianggap tersedia — konsisten dengan `move-slot` dan `schedule-lesson`.
+
+**Implikasi praktis pendekatan greedy:**
+- Karena tidak ada backtracking, urutan pemrosesan `TeacherSubject` memengaruhi hasil — kombinasi yang diproses lebih dulu "mengambil" slot yang mungkin dibutuhkan kombinasi lain yang lebih terbatas ketersediaannya. **Urutan dibuat deterministik** dengan `.order_by('teacher_subject_id')` agar hasil generate reproducible antar eksekusi.
+- Round-robin memastikan jam tersebar merata antar hari, tapi hasil **tidak dijamin optimal** — cukup cepat (first-fit) dan bisa langsung disempurnakan manual lewat drag-and-drop.
 
 #### 5.12.13 Endpoints
 
@@ -1205,6 +1368,24 @@ Semua komponen jadwal mendukung dark mode:
 - Card slot: border color disesuaikan
 - Break cell: tetap kuning pastel
 - Pool panel: background gelap
+
+#### 5.12.15 Alur Proses (As-Built)
+
+1. Admin membuat **Timetable** baru: nama, Tahun Ajaran, Semester → status awal `draft`.
+2. Admin mengatur **Period** (jam pelajaran per hari, termasuk slot istirahat `is_break`).
+3. Admin mengatur **Ketersediaan Guru**, **Ketersediaan Ruangan**, dan **Ketersediaan Kelas** (dua tab dalam satu modal: "Ketersediaan Ruangan" + "Ketersediaan Kelas") — masing-masing lewat grid checkbox per hari × periode.
+4. Data **GradeSubject** (Mapel Per Kelas) dan **TeacherSubject** (Guru Per Mapel) sudah harus ada untuk tahun ajaran & semester yang sama dengan Timetable.
+5. Admin membuka halaman **Grid View** (`/kurikulum/jadwal/<id>/grid/`) dan menekan tombol **"Generate"**.
+6. Request AJAX ke `/kurikulum/jadwal/view/<id>/generate/` → sistem membuat/mengisi `Lesson` dan `TimetableSlot` sesuai algoritma di §5.12.12.
+7. Grid ter-update setelah generate (halaman di-reload oleh JS); pelajaran yang gagal dijadwalkan otomatis tetap muncul di panel **"Belum Dijadwalkan"**.
+8. Admin melengkapi sisa jadwal secara manual via **drag-and-drop**. Menjalankan ulang generate **selalu replace**: semua slot lama dihapus dulu, lalu jadwal baru dibuat dari nol.
+9. Admin mengubah status Timetable dari `draft` ke `published` saat jadwal siap dipakai.
+
+#### 5.12.16 Kriteria Keberhasilan
+
+- 0% konflik guru/ruangan/kelas pada jadwal berstatus `published`.
+- Panel "Belum Dijadwalkan" kosong (atau minim) setelah kombinasi generate + pelengkapan manual.
+- Waktu proses generate untuk satu Timetable selesai dalam hitungan detik (algoritma first-fit ringan secara komputasi).
 
 ---
 
@@ -1296,6 +1477,7 @@ Semua komponen jadwal mendukung dark mode:
 ┌──────────────────────┐
 │   Room               │
 │ (room_id PK)         │
+│ capacity (default 0) │
 └──────────────────────┘
        │
        │ 1:N
@@ -1329,12 +1511,12 @@ Semua komponen jadwal mendukung dark mode:
 │ status → TeacherStatus│
 └──────────────────────┘
 
-┌──────────────────────┐
-│   SubjectGroup       │
-│ (group_id PK)        │
-│ group_code           │
-│ group_name           │
-└──────────────────────┘
+┌──────────────────────┐     ┌──────────────────────┐
+│   SubjectGroup       │<────│      Subject         │
+│ (group_id PK)        │     │ (subject_id PK)      │
+│ group_code           │     │ subject_name (unique)│
+│ group_name           │     │ group → SubjectGroup │
+└──────────────────────┘     └──────────────────────┘
 ```
 
 ### 6.2 Audit Trail
@@ -1690,6 +1872,22 @@ Menggunakan `django-crum` untuk otomatis mendapatkan current user.
 | Environment Variables | Tinggi | Password hardcoded di settings.py |
 | Multi-Room Support | Menengah | Perluas auto-generate untuk multi-ruangan |
 
+### 10.6 Auto-Generate Jadwal
+
+Item berikut adalah backlog peningkatan algoritma auto-generate (§5.12.12) — bukan requirement yang sudah terpenuhi:
+
+| Item | Status Saat Ini | Rekomendasi |
+|------|-----------------|-------------|
+| Validasi kapasitas ruangan vs jumlah siswa | Field `Room.capacity` ada (default 0) tapi **tidak divalidasi** saat generate | Cek `Room.capacity` vs jumlah siswa kelas saat generate (abaikan jika capacity=0) |
+| Batas maksimal jam mengajar guru/minggu | Tidak ada field/limit di `Teacher`, tidak divalidasi | Tambah field `max_hours_per_week`, cek saat generate |
+| Menghindari gap kosong di jadwal kelas/guru | Tidak ada | Tambah scoring soft-constraint setelah slot pertama valid |
+| Prioritas/bobot constraint | Tidak ada | Perlu desain skema skor jika ingin soft-constraint dioptimalkan |
+| Validasi kelengkapan data sebelum generate | Sebagian — hanya alert jika tahun ajaran/semester Timetable belum diisi | Tambah pre-check: apakah semua `Grade` sudah punya `GradeSubject` & `TeacherSubject` sebelum generate ditekan |
+| Multi-draft/versioning jadwal | Tidak ada — satu Timetable = satu status draft/published | Bisa ditambah jika sekolah ingin membandingkan beberapa skenario |
+| Pilihan sesi 2 jam selektif per mapel | Semua mapel diperlakukan sama (sesi 2 jam diusahakan) | Opsional: flag `prefer_double_period` di `GradeSubject` |
+| Distribusi jam merata per hari | ✅ Sudah diimplementasi (round-robin, offset per-lesson) | — |
+| Sesi 2 jam otomatis untuk semua mapel | ✅ Sudah diimplementasi (maks 2 jam/mapel/hari, bebas istirahat wajib untuk Lab) | — |
+
 ---
 
 ## 11. Risks & Technical Debt
@@ -1778,6 +1976,13 @@ Menggunakan `django-crum` untuk otomatis mendapatkan current user.
 | **Periode** | Blok waktu dalam jadwal (misal: Jam 1, Jam 2) |
 | **Slot** | Satu jadwal mengajar (guru + mapel + kelas + ruangan + waktu) |
 | **Auto-Generate** | Pembuatan jadwal otomatis berdasarkan ketersediaan |
+| **Lesson** | Model internal (tanpa CRUD UI) yang merepresentasikan "kebutuhan jam" satu kombinasi Guru + Mapel + Kelas dalam satu Timetable |
+| **First-fit** | Strategi algoritma auto-generate: ambil slot kosong valid pertama yang ditemukan, tanpa mengevaluasi alternatif lain |
+| **Unscheduled Pool** | Panel "Belum Dijadwalkan": berisi `Lesson` yang jam-nya belum (sepenuhnya) terisi ke `TimetableSlot` |
+| **is_manual** | Flag pada `TimetableSlot` untuk membedakan slot hasil generate otomatis vs input manual (drag-drop) |
+| **Blacklist Ketersediaan** | Semantik cek ketersediaan: slot hanya ditolak jika ada record `is_available=False`; tanpa record = tersedia |
+| **Team Teaching** | 2 guru mengajar 1 mapel di 1 kelas — didukung oleh 2 baris `TeacherSubject` pada `grade_subject` yang sama |
+| **Round-Robin** | Rotasi offset hari per-lesson saat generate agar jam mengajar tersebar merata antar hari |
 | **Frozen Column** | Kolom yang tetap terlihat saat scroll horizontal |
 
 ---
