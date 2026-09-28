@@ -5956,3 +5956,328 @@ def timetable_export_pdf(request, _id):
     filename = f"Jadwal_{timetable.name}_{mode_label}_{view_label}.pdf".replace(' ', '_')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+
+# ---------------------------------------------------------------------------
+# NILAI PER KELAS (Penilaian per Mapel per Kelas per Guru) — Menu NILAI-KELAS
+# ---------------------------------------------------------------------------
+
+def _nilai_context(request, crud, extra=None):
+    context = {
+        'segment': 'nilai-kelas',
+        'group_segment': 'penilaian',
+        'crud': crud,
+        'role': Auth.objects.filter(user_id=request.user.user_id).values_list(
+            'menu_id', flat=True),
+        'btn': Auth.objects.filter(user_id=request.user.user_id,
+                                   menu_id='NILAI-KELAS').first() or Auth() if not request.user.is_superuser else Auth.objects.all(),
+    }
+    if extra:
+        context.update(extra)
+    return context
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='NILAI-KELAS')
+def nilai_kelas_index(request):
+    seen = set()
+    rows = []
+    scores = StudentScore.objects.select_related(
+        'teacher_subject__grade_subject__grade',
+        'teacher_subject__grade_subject__subject',
+        'teacher_subject__teacher__user',
+        'school_year',
+    ).order_by(
+        'teacher_subject__grade_subject__grade__grade',
+        'teacher_subject__grade_subject__grade__sub_grade',
+        'teacher_subject__teacher__user__username',
+        'teacher_subject__grade_subject__subject__subject_name',
+        '-semester',
+        '-school_year__school_year_name',
+    )
+    for score in scores:
+        key = (score.teacher_subject_id, score.semester, score.school_year_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        ts = score.teacher_subject
+        grade = ts.grade_subject.grade
+        rows.append({
+            'semester': score.semester,
+            'semester_display': score.get_semester_display(),
+            'grade': grade.grade,
+            'sub_grade': grade.sub_grade or grade.grade_name,
+            'teacher': ts.teacher.name,
+            'subject': ts.grade_subject.subject.subject_name,
+            'tahun': score.school_year.school_year_name,
+            'url': reverse('nilai-kelas-view',
+                           args=[ts.pk, score.semester, score.school_year_id]),
+        })
+    context = _nilai_context(request, 'index', {'data': rows})
+    return render(request, 'home/nilai_kelas_index.html', context)
+
+
+def _nilai_fmt(value):
+    if value is None:
+        return ''
+    try:
+        return format(value.normalize(), 'f')
+    except Exception:
+        return str(value)
+
+
+def _nilai_entry_page(request, params, crud):
+    params = params or {}
+    form = FormNilaiFilter(params if params else None)
+
+    grade_codes = sorted(set(
+        Grade.objects.exclude(grade='').values_list('grade', flat=True)))
+    form.fields['grade'].choices = [('', 'Pilih Kelas')] + [(g, g) for g in grade_codes]
+
+    grade_code = params.get('grade', '') or ''
+    sub_choices = [('', 'Pilih Sub Kelas')]
+    if grade_code:
+        for g in Grade.objects.filter(grade=grade_code).order_by('sub_grade', 'grade_name'):
+            sub_choices.append((g.grade_id, g.sub_grade or g.grade_name))
+    form.fields['sub_grade'].choices = sub_choices
+
+    grade_id = params.get('sub_grade', '') or ''
+    grade_obj = Grade.objects.filter(pk=grade_id).first() if grade_id else None
+
+    teacher_subjects = []
+    if grade_obj:
+        teacher_subjects = list(TeacherSubject.objects.filter(
+            grade_subject__grade=grade_obj
+        ).select_related('teacher__user', 'grade_subject__subject').order_by(
+            'teacher__user__username', 'grade_subject__subject__subject_name'))
+
+    teacher_id = str(params.get('teacher', '') or '')
+    subject_id = str(params.get('subject', '') or '')
+
+    teacher_choices = [('', 'Pilih Guru')]
+    seen_teachers = set()
+    for ts in teacher_subjects:
+        if ts.teacher_id in seen_teachers:
+            continue
+        seen_teachers.add(ts.teacher_id)
+        teacher_choices.append((str(ts.teacher_id), ts.teacher.name))
+    form.fields['teacher'].choices = teacher_choices
+
+    subject_choices = [('', 'Pilih Mata Pelajaran')]
+    seen_subjects = set()
+    for ts in teacher_subjects:
+        if teacher_id and str(ts.teacher_id) != teacher_id:
+            continue
+        if ts.grade_subject.subject_id in seen_subjects:
+            continue
+        seen_subjects.add(ts.grade_subject.subject_id)
+        subject_choices.append((
+            str(ts.grade_subject.subject_id),
+            ts.grade_subject.subject.subject_name))
+    form.fields['subject'].choices = subject_choices
+
+    searched = str(params.get('search', '')) == '1'
+    message = None
+    rows = []
+    active_ts = None
+    semester = str(params.get('semester', '') or '')
+    school_year_id = str(params.get('school_year', '') or '')
+
+    if searched:
+        if not (grade_obj and teacher_id and subject_id
+                and semester in ('1', '2') and school_year_id):
+            message = 'Lengkapi semua filter lalu klik Search.'
+        else:
+            active_ts = TeacherSubject.objects.filter(
+                grade_subject__grade=grade_obj,
+                grade_subject__subject_id=subject_id,
+                teacher_id=teacher_id,
+            ).first()
+            if not active_ts:
+                message = 'Guru tidak terdaftar untuk mapel dan kelas tersebut. Pilih kombinasi lain.'
+            else:
+                students = Student.objects.filter(
+                    grade=grade_obj).order_by('nipd', 'name')
+                existing = StudentScore.objects.filter(
+                    teacher_subject=active_ts,
+                    semester=semester,
+                    school_year_id=school_year_id)
+                score_map = {s.student_id: s for s in existing}
+                for st in students:
+                    sc = score_map.get(st.student_id)
+                    rows.append({
+                        'student': st,
+                        'score1': _nilai_fmt(sc.score1) if sc else '',
+                        'score2': _nilai_fmt(sc.score2) if sc else '',
+                        'score3': _nilai_fmt(sc.score3) if sc else '',
+                    })
+
+    grades_json = json.dumps([
+        {'grade_id': g.grade_id, 'code': g.grade, 'label': g.sub_grade or g.grade_name}
+        for g in Grade.objects.all().order_by('grade', 'sub_grade')
+    ])
+
+    context = _nilai_context(request, crud, {
+        'form': form,
+        'searched': searched,
+        'message': message,
+        'rows': rows,
+        'active_ts': active_ts,
+        'grades_json': grades_json,
+        'filter_semester': semester,
+        'filter_year': school_year_id,
+        # Mode edit hanya untuk hasil pencarian di halaman add; halaman view
+        # (dari list) dibuka dalam mode lihat sampai user klik Ubah.
+        'edit_mode': active_ts is not None and crud != 'view',
+    })
+    return render(request, 'home/nilai_kelas_entry.html', context)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='NILAI-KELAS')
+def nilai_kelas_add(request):
+    return _nilai_entry_page(request, request.GET, 'add')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='NILAI-KELAS')
+def nilai_kelas_view(request, _id, _semester, _year_id):
+    try:
+        ts = TeacherSubject.objects.select_related(
+            'grade_subject__grade', 'grade_subject__subject', 'teacher'
+        ).get(pk=_id)
+    except TeacherSubject.DoesNotExist:
+        return HttpResponseRedirect(reverse('nilai-kelas-index'))
+
+    if str(_semester) not in ('1', '2'):
+        return HttpResponseRedirect(reverse('nilai-kelas-index'))
+
+    params = {
+        'grade': ts.grade_subject.grade.grade,
+        'sub_grade': ts.grade_subject.grade.grade_id,
+        'semester': str(_semester),
+        'school_year': str(_year_id),
+        'teacher': str(ts.teacher_id),
+        'subject': str(ts.grade_subject.subject_id),
+        'search': '1',
+    }
+    return _nilai_entry_page(request, params, 'view')
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='NILAI-KELAS')
+def nilai_kelas_options(request):
+    grade_id = request.GET.get('grade_id', '')
+    teacher_subjects = TeacherSubject.objects.filter(
+        grade_subject__grade_id=grade_id
+    ).select_related('teacher__user', 'grade_subject__subject').order_by(
+        'teacher__user__username', 'grade_subject__subject__subject_name')
+
+    data = [{
+        'id': ts.pk,
+        'teacher_id': str(ts.teacher_id),
+        'teacher_name': ts.teacher.name,
+        'subject_id': str(ts.grade_subject.subject_id),
+        'subject_name': ts.grade_subject.subject.subject_name,
+    } for ts in teacher_subjects]
+    return JsonResponse({'data': data})
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='NILAI-KELAS')
+@edit_required(allowed_menu='NILAI-KELAS')
+def nilai_kelas_save(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Format data tidak valid'}, status=400)
+
+    try:
+        semester = str(data.get('semester', ''))
+        if semester not in ('1', '2'):
+            return JsonResponse({'success': False, 'message': 'Semester tidak valid'}, status=400)
+
+        ts = TeacherSubject.objects.select_related('grade_subject').get(
+            pk=data.get('teacher_subject'))
+        year = SchoolYear.objects.get(pk=data.get('school_year'))
+        scores = data.get('scores', [])
+
+        student_ids = set(Student.objects.filter(
+            grade=ts.grade_subject.grade).values_list('student_id', flat=True))
+
+        parsed = []
+        for row in scores:
+            try:
+                student_id = int(row.get('student_id'))
+            except (TypeError, ValueError):
+                continue
+            if student_id not in student_ids:
+                continue
+
+            values = []
+            has_value = False
+            for key in ('score1', 'score2', 'score3'):
+                raw = row.get(key)
+                if raw is None or str(raw).strip() == '':
+                    values.append(None)
+                    continue
+                try:
+                    value = Decimal(str(raw).replace(',', '.'))
+                except Exception:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Nilai harus berupa angka',
+                    }, status=400)
+                if value < 0 or value > 100:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Nilai harus antara 0 dan 100',
+                    }, status=400)
+                values.append(value)
+                has_value = True
+
+            if has_value:
+                parsed.append((student_id, values[0], values[1], values[2]))
+
+        with transaction.atomic():
+            StudentScore.objects.filter(
+                teacher_subject=ts,
+                semester=semester,
+                school_year=year,
+            ).delete()
+            for student_id, score1, score2, score3 in parsed:
+                StudentScore.objects.create(
+                    teacher_subject=ts,
+                    student_id=student_id,
+                    semester=semester,
+                    school_year=year,
+                    score1=score1,
+                    score2=score2,
+                    score3=score3,
+                )
+
+        return JsonResponse({'success': True, 'count': len(parsed)})
+    except (TeacherSubject.DoesNotExist, SchoolYear.DoesNotExist, ValueError, TypeError):
+        return JsonResponse({
+            'success': False,
+            'message': 'Filter nilai tidak valid, silakan ulangi pencarian',
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='/login/')
+@role_required(allowed_roles='NILAI-KELAS')
+@edit_required(allowed_menu='NILAI-KELAS')
+def nilai_kelas_delete(request, _id, _semester, _year_id):
+    if str(_semester) in ('1', '2'):
+        StudentScore.objects.filter(
+            teacher_subject_id=_id,
+            semester=str(_semester),
+            school_year_id=_year_id,
+        ).delete()
+    return HttpResponseRedirect(reverse('nilai-kelas-index'))
+

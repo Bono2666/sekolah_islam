@@ -1106,3 +1106,42 @@ class SubstituteAssignment(models.Model):
 
     def __str__(self):
         return f"Substitute: {self.original_slot} -> {self.substitute_teacher}"
+
+
+class StudentScore(models.Model):
+    SEMESTER_CHOICES = [('1', 'Semester 1'), ('2', 'Semester 2')]
+
+    score_id = models.BigAutoField(primary_key=True)
+    teacher_subject = models.ForeignKey(
+        'TeacherSubject', on_delete=models.CASCADE, related_name='teacher_subject_scores')
+    student = models.ForeignKey(
+        'Student', on_delete=models.CASCADE, related_name='student_scores')
+    semester = models.CharField(max_length=1, choices=SEMESTER_CHOICES)
+    school_year = models.ForeignKey(
+        'SchoolYear', on_delete=models.PROTECT, related_name='student_scores')
+    score1 = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Nilai 1')
+    score2 = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Nilai 2')
+    score3 = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Nilai 3')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('teacher_subject', 'student', 'semester', 'school_year')
+
+    def save(self, *args, **kwargs):
+        user = get_current_user()
+        user_id = user.user_id if user else None
+        if not self.entry_date:
+            self.entry_date = timezone.now()
+            self.entry_by = user_id
+        self.update_date = timezone.now()
+        self.update_by = user_id
+        super(StudentScore, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.student} - {self.teacher_subject} ({self.get_semester_display()})"

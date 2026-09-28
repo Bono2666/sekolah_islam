@@ -423,7 +423,24 @@ class FormDivisionView(ModelForm):
 
 
 class DateInput(forms.DateInput):
+    """DateInput HTML5 (type=date).
+
+    Hanya menerima nilai format ISO (YYYY-MM-DD), sedangkan Django memformat
+    nilai awal memakai DATE_INPUT_FORMATS locale aktif (LANGUAGE_CODE='id'
+    menghasilkan 14-03-2010) sehingga browser menganggapnya tidak valid dan
+    kolom tanggal lahir tampak kosong saat edit.
+    """
+
     input_type = 'date'
+
+    def format_value(self, value):
+        if value in (None, ''):
+            return None
+        if isinstance(value, str):
+            return value
+        if hasattr(value, 'strftime'):
+            return value.strftime('%Y-%m-%d')
+        return super().format_value(value)
 
 
 class FormLevel(ModelForm):
@@ -816,8 +833,9 @@ class FormTeacher(ModelForm):
             choices=[('', 'Pilih JK'), ('L', 'Laki-Laki'), ('P', 'Perempuan')],
             attrs={'class': 'form-control form-select-sm'})
         self.fields['birth_place'].widget = forms.TextInput({'class': 'form-control-sm'})
-        self.fields['birth_date'].widget = forms.DateInput(
-            attrs={'class': 'form-control form-control-sm', 'type': 'date'})
+        self.fields['birth_date'].widget = DateInput(
+            attrs={'class': 'form-control form-control-sm'})
+
         self.fields['address'].widget = forms.Textarea({'class': 'form-control-sm', 'rows': 2})
         self.fields['phone'].widget = forms.TextInput({'class': 'form-control-sm'})
         self.fields['email'].widget = forms.TextInput({'class': 'form-control-sm'})
@@ -852,8 +870,9 @@ class FormTeacherUpdate(ModelForm):
             choices=[('', 'Pilih JK'), ('L', 'Laki-Laki'), ('P', 'Perempuan')],
             attrs={'class': 'form-control form-select-sm'})
         self.fields['birth_place'].widget = forms.TextInput({'class': 'form-control-sm'})
-        self.fields['birth_date'].widget = forms.DateInput(
-            attrs={'class': 'form-control form-control-sm', 'type': 'date'})
+        self.fields['birth_date'].widget = DateInput(
+            attrs={'class': 'form-control form-control-sm'})
+
         self.fields['address'].widget = forms.Textarea({'class': 'form-control-sm', 'rows': 2})
         self.fields['phone'].widget = forms.TextInput({'class': 'form-control-sm'})
         self.fields['email'].widget = forms.TextInput({'class': 'form-control-sm'})
@@ -891,8 +910,9 @@ class FormTeacherView(ModelForm):
             widget=forms.TextInput({'class': 'form-control-sm', **ro}))
         self.fields['nip'].widget = forms.TextInput({'class': 'form-control-sm', **ro})
         self.fields['birth_place'].widget = forms.TextInput({'class': 'form-control-sm', **ro})
-        self.fields['birth_date'].widget = forms.DateInput(
-            attrs={'class': 'form-control form-control-sm', 'type': 'date', **ro})
+        self.fields['birth_date'].widget = DateInput(
+            attrs={'class': 'form-control form-control-sm', **ro})
+
         self.fields['address'].widget = forms.Textarea({'class': 'form-control-sm', 'rows': 2, **ro})
         self.fields['phone'].widget = forms.TextInput({'class': 'form-control-sm', **ro})
         self.fields['email'].widget = forms.TextInput({'class': 'form-control-sm', **ro})
@@ -952,6 +972,19 @@ class FormSchoolYearView(ModelForm):
     class Meta:
         model = SchoolYear
         fields = ['school_year_id', 'school_year_name']
+
+
+class ModalSelectWidget(forms.Select):
+    """Select tersembunyi yang nilainya dipilih user lewat modal.
+
+    Widget ini sengaja tidak mengeluarkan atribut `required` di HTML: elemen
+    dengan `style="display:none"` tidak bisa difokus browser untuk menampilkan
+    pesan validasi, sehingga submit diblokir diam-diam (tombol Simpan terasa
+    tidak berfungsi). Validasi tetap dijalankan server-side oleh Django.
+    """
+
+    def use_required_attribute(self, initial):
+        return False
 
 
 class FormStudent(ModelForm):
@@ -1136,9 +1169,9 @@ class FormStudent(ModelForm):
             'birth_date': DateInput(attrs={'class': 'form-control form-control-sm'}),
             'grade': forms.Select(attrs={'class': 'form-control form-select-sm'}),
             'hostel': forms.Select(attrs={'class': 'form-control form-select-sm'}),
-            'district': forms.Select(attrs={'class': 'form-control form-control-sm select2-district', 'style': 'display:none;'}),
-            'sub_district': forms.Select(attrs={'class': 'form-control form-control-sm select2-subdistrict', 'style': 'display:none;'}),
-            'village': forms.Select(attrs={'class': 'form-control form-control-sm select2-village', 'style': 'display:none;'}),
+            'district': ModalSelectWidget(attrs={'class': 'form-control form-control-sm select2-district', 'style': 'display:none;'}),
+            'sub_district': ModalSelectWidget(attrs={'class': 'form-control form-control-sm select2-subdistrict', 'style': 'display:none;'}),
+            'village': ModalSelectWidget(attrs={'class': 'form-control form-control-sm select2-village', 'style': 'display:none;'}),
             'residence_type': forms.Select(attrs={'class': 'form-control form-select-sm'}),
             'religion': forms.Select(attrs={'class': 'form-control form-select-sm'}),
         }
@@ -2028,5 +2061,34 @@ class FormTimetableView(ModelForm):
     class Meta:
         model = Timetable
         fields = ['timetable_id', 'name', 'school_year', 'status', 'notes']
+
+
+class FormNilaiFilter(forms.Form):
+    grade = forms.ChoiceField(
+        label='Kelas', choices=(), required=False,
+        widget=forms.Select(attrs={'class': 'form-control form-select-sm'}))
+    sub_grade = forms.ChoiceField(
+        label='Sub Kelas', choices=(), required=False,
+        widget=forms.Select(attrs={'class': 'form-control form-select-sm'}))
+    semester = forms.ChoiceField(
+        label='Semester', choices=(), required=False,
+        widget=forms.Select(attrs={'class': 'form-control form-select-sm'}))
+    school_year = forms.ModelChoiceField(
+        label='Tahun Ajaran', required=False,
+        queryset=SchoolYear.objects.all().order_by('-school_year_name'),
+        empty_label='Pilih Tahun Ajaran',
+        widget=forms.Select(attrs={'class': 'form-control form-select-sm'}))
+    teacher = forms.ChoiceField(
+        label='Guru', choices=(), required=False,
+        widget=forms.Select(attrs={'class': 'form-control form-select-sm'}))
+    subject = forms.ChoiceField(
+        label='Mata Pelajaran', choices=(), required=False,
+        widget=forms.Select(attrs={'class': 'form-control form-select-sm'}))
+
+    def __init__(self, *args, **kwargs):
+        super(FormNilaiFilter, self).__init__(*args, **kwargs)
+        self.label_suffix = ''
+        self.fields['semester'].choices = \
+            [('', 'Pilih Semester')] + list(StudentScore.SEMESTER_CHOICES)
 
 

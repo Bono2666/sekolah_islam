@@ -90,6 +90,13 @@
     label, .form-label {
       text-transform: none !important;
     }
+    /* Alert bergradien: gradient diulang pada area border (background-origin
+       padding-box + background-clip border-box) sehingga muncul garis 1px
+       dengan warna ujung gradient di tepi kiri/kanan. */
+    .alert[class*="bg-gradient-"] {
+      background-origin: border-box;
+      background-repeat: no-repeat;
+    }
   </style>
 
   <!-- Collapsed sidebar styles — handled by JS in base.html bottom script -->

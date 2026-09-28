@@ -1,0 +1,305 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Penilaian per Mapel per Kelas per Guru {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid mt-0">
+    <div class="row">
+        <div class="col-xl-12 order-xl-1">
+
+            <form action="{% url 'nilai-kelas-add' %}" method="get">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <div>
+                                    <h4 class="mb-2">Penilaian per Mapel per Kelas per Guru</h4>
+                                    {% if searched and active_ts %}
+                                    <p class="text-secondary text-sm mb-0" id="entryHint">{% if edit_mode %}Ubah nilai lalu klik Simpan{% else %}Klik Ubah untuk mengubah nilai{% endif %}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a href="{% url 'nilai-kelas-index' %}" class="btn btn-sm bg-gradient-dark mb-0" id="btnKembali"{% if edit_mode %} hidden{% endif %}><i class="fas fa-reply"></i>&nbsp;&nbsp;Kembali</a>
+                                <button type="button" class="btn btn-sm bg-gradient-dark mb-0" id="btnBatal"{% if not edit_mode %} hidden{% endif %}><i class="fas fa-reply"></i>&nbsp;&nbsp;Batal</button>
+                                <button type="submit" class="btn btn-sm bg-gradient-primary mb-0" name="search" value="1"><i class="fas fa-search"></i>&nbsp;&nbsp;Search</button>
+                                {% if searched and active_ts %}
+                                <button type="button" class="btn btn-sm bg-gradient-dark mb-0" id="btnEdit"{% if edit_mode %} hidden{% endif %} {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}><i class="fas fa-edit"></i>&nbsp;&nbsp;Ubah</button>
+                                <button type="button" id="btnSave" class="btn btn-sm bg-gradient-primary mb-0"{% if not edit_mode %} hidden{% endif %} {% if not btn.edit and not request.user.is_superuser %}disabled{% endif %}><i class="fas fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                <button type="button" id="btnHapus" class="btn btn-sm bg-gradient-danger mb-0 {% if not btn.delete and not request.user.is_superuser %}disabled{% endif %}" {% if edit_mode or not btn.delete and not request.user.is_superuser %}disabled{% endif %} data-bs-toggle="modal" data-bs-target="#confirm-delete"><i class="fas fa-trash"></i>&nbsp;&nbsp;Hapus</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pl-lg-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.grade.label_tag }}{{ form.grade }}
+                                        <div class="text-sm text-danger">{{ form.grade.errors }}</div>
+                                    </div>
+                                    <div class="shadow-none">
+                                        {{ form.sub_grade.label_tag }}{{ form.sub_grade }}
+                                        <div class="text-sm text-danger">{{ form.sub_grade.errors }}</div>
+                                    </div>
+                                    <div class="shadow-none">
+                                        {{ form.semester.label_tag }}{{ form.semester }}
+                                        <div class="text-sm text-danger">{{ form.semester.errors }}</div>
+                                    </div>
+                                    <div class="shadow-none">
+                                        {{ form.school_year.label_tag }}{{ form.school_year }}
+                                        <div class="text-sm text-danger">{{ form.school_year.errors }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="shadow-none">
+                                        {{ form.teacher.label_tag }}{{ form.teacher }}
+                                        <div class="text-sm text-danger">{{ form.teacher.errors }}</div>
+                                    </div>
+                                    <div class="shadow-none">
+                                        {{ form.subject.label_tag }}{{ form.subject }}
+                                        <div class="text-sm text-danger">{{ form.subject.errors }}</div>
+                                    </div>
+                                    {% if not searched %}
+                                    <div class="shadow-none">
+                                        <p class="text-secondary text-sm mb-0 mt-2">Pilih Kelas, Sub Kelas, Semester, Tahun Ajaran, Guru, dan Mata Pelajaran lalu klik Search.</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if message %}
+                            <div class="alert alert-danger text-white mt-3" role="alert">{{ message }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            {% if searched and active_ts %}
+            <div class="card mt-2">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-12 d-flex align-items-center">
+                            <div>
+                                <h4 class="mb-2">Data Nilai</h4>
+                                <p class="text-secondary text-sm mb-0">{{ active_ts.teacher.name }} &mdash; {{ active_ts.grade_subject.subject.subject_name }} &mdash; {{ active_ts.grade_subject.grade.grade_name }} &mdash; {% if filter_semester == '1' %}Semester 1{% else %}Semester 2{% endif %} &mdash; {{ filter_year }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive p-0">
+                        <table class="table hover align-items-center mb-0" id="scoreTable"
+                               data-teacher-subject="{{ active_ts.pk }}"
+                               data-semester="{{ filter_semester }}"
+                               data-school-year="{{ filter_year }}">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">NIPD</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nilai 1</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nilai 2</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nilai 3</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in rows %}
+                                <tr data-student-id="{{ row.student.student_id }}">
+                                    <td><h6 class="mb-0 text-sm">{{ row.student.nipd|default:'-' }}</h6></td>
+                                    <td><h6 class="mb-0 text-sm">{{ row.student.name }}</h6></td>
+                                    <td><input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm score-input score1" value="{{ row.score1 }}"{% if not edit_mode %} disabled{% endif %}></td>
+                                    <td><input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm score-input score2" value="{{ row.score2 }}"{% if not edit_mode %} disabled{% endif %}></td>
+                                    <td><input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm score-input score3" value="{{ row.score3 }}"{% if not edit_mode %} disabled{% endif %}></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5"><h6 class="mb-0 text-sm text-secondary">Tidak ada santri di kelas ini</h6></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="confirm-delete" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmDeleteLabel">Hapus Nilai</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Anda yakin ingin menghapus seluruh nilai untuk kombinasi ini?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm bg-gradient-dark mb-0" data-bs-dismiss="modal">Batal</button>
+                            <a href="{% url 'nilai-kelas-delete' active_ts.pk filter_semester filter_year %}" class="btn btn-sm bg-gradient-danger mb-0">Hapus</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+    var gradesData = {{ grades_json|safe }};
+    var optionsUrl = '{% url "nilai-kelas-options" %}';
+    var saveUrl = '{% url "nilai-kelas-save" %}';
+    var currentOptions = [];
+    var editMode = {% if edit_mode %}true{% else %}false{% endif %};
+    var canEdit = {% if btn.edit or request.user.is_superuser %}true{% else %}false{% endif %};
+    var canDelete = {% if btn.delete or request.user.is_superuser %}true{% else %}false{% endif %};
+
+    function rebuildSubGrades() {
+        var gradeCode = $('#id_grade').val() || '';
+        var selected = $('#id_sub_grade').val();
+        var $sub = $('#id_sub_grade').empty().append($('<option>').val('').text('Pilih Sub Kelas'));
+        gradesData.forEach(function(g) {
+            if (g.code === gradeCode) {
+                $sub.append($('<option>').val(g.grade_id).text(g.label));
+            }
+        });
+        if (selected && $sub.find('option[value="' + selected + '"]').length) {
+            $sub.val(selected);
+        }
+        $('#id_teacher, #id_subject').val('');
+    }
+
+    function rebuildTeachers(selectedTeacher) {
+        var $teacher = $('#id_teacher').empty().append($('<option>').val('').text('Pilih Guru'));
+        var seen = {};
+        currentOptions.forEach(function(opt) {
+            if (!seen[opt.teacher_id]) {
+                seen[opt.teacher_id] = true;
+                $teacher.append($('<option>').val(opt.teacher_id).text(opt.teacher_name));
+            }
+        });
+        if (selectedTeacher && $teacher.find('option[value="' + selectedTeacher + '"]').length) {
+            $teacher.val(selectedTeacher);
+        }
+    }
+
+    function rebuildSubjects(selectedSubject) {
+        var teacherId = $('#id_teacher').val() || '';
+        var $subject = $('#id_subject').empty().append($('<option>').val('').text('Pilih Mata Pelajaran'));
+        var seen = {};
+        currentOptions.forEach(function(opt) {
+            if (teacherId && opt.teacher_id !== teacherId) return;
+            if (seen[opt.subject_id]) return;
+            seen[opt.subject_id] = true;
+            $subject.append($('<option>').val(opt.subject_id).text(opt.subject_name));
+        });
+        if (selectedSubject && $subject.find('option[value="' + selectedSubject + '"]').length) {
+            $subject.val(selectedSubject);
+        }
+    }
+
+    function loadOptions(gradeId, done) {
+        if (!gradeId) { currentOptions = []; done && done(); return; }
+        $.getJSON(optionsUrl, {grade_id: gradeId}, function(response) {
+            currentOptions = response.data || [];
+            done && done();
+        });
+    }
+
+    $(document).ready(function() {
+        var initialGradeId = $('#id_sub_grade').val() || '';
+        loadOptions(initialGradeId);
+
+        $('#id_grade').on('change', function() {
+            rebuildSubGrades();
+            currentOptions = [];
+        });
+
+        $('#id_sub_grade').on('change', function() {
+            var gradeId = $(this).val();
+            loadOptions(gradeId, function() {
+                rebuildTeachers();
+                rebuildSubjects();
+            });
+        });
+
+        $('#id_teacher').on('change', function() {
+            rebuildSubjects();
+        });
+
+        $('#scoreTable .score-input').each(function() {
+            $(this).attr('data-original', $(this).val());
+        });
+
+        function setEditMode(on) {
+            if (!$('#btnEdit').length) return;
+            editMode = on;
+            $('#btnKembali').prop('hidden', on);
+            $('#btnBatal').prop('hidden', !on);
+            $('#btnEdit').prop('hidden', on);
+            $('#btnSave').prop('hidden', !on);
+            $('#btnHapus').prop('disabled', on || !canDelete);
+            $('#scoreTable .score-input').prop('disabled', !on);
+            $('#entryHint').text(on ? 'Ubah nilai lalu klik Simpan' : 'Klik Ubah untuk mengubah nilai');
+        }
+
+        $('#btnEdit').on('click', function() {
+            if (canEdit) setEditMode(true);
+        });
+
+        $('#btnBatal').on('click', function() {
+            $('#scoreTable .score-input').each(function() {
+                if ($(this).attr('data-original') !== undefined) {
+                    $(this).val($(this).attr('data-original'));
+                }
+            });
+            setEditMode(false);
+        });
+
+        $('#btnSave').on('click', function() {
+            var $table = $('#scoreTable');
+            var scores = [];
+            $table.find('tbody tr[data-student-id]').each(function() {
+                scores.push({
+                    student_id: $(this).data('student-id'),
+                    score1: $(this).find('.score1').val(),
+                    score2: $(this).find('.score2').val(),
+                    score3: $(this).find('.score3').val()
+                });
+            });
+
+            $.ajax({
+                url: saveUrl,
+                type: 'POST',
+                data: JSON.stringify({
+                    teacher_subject: $table.data('teacher-subject'),
+                    semester: $table.data('semester'),
+                    school_year: $table.data('school-year'),
+                    scores: scores
+                }),
+                contentType: 'application/json',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function(response) {
+                    if (response.success) {
+                        alert('Nilai berhasil disimpan');
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Gagal menyimpan nilai');
+                    }
+                },
+                error: function(xhr) {
+                    var body = xhr.responseJSON || {};
+                    alert(body.message || 'Terjadi kesalahan saat menyimpan nilai');
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock javascripts %}

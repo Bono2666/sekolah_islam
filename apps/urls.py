@@ -299,4 +299,15 @@ urlpatterns = [
     path('jadwal/<int:timetable_id>/ajax/substitute-assign/', views.substitute_assign, name='substitute-assign'),
     # AJAX Helpers
     path('jadwal/ajax/grade-subjects-by-grade/', views.ajax_grade_subjects_by_grade_for_schedule, name='ajax-grade-subjects-by-grade-schedule'),
+    # Nilai Per Kelas (Penilaian)
+    path('nilai/kelas/', views.nilai_kelas_index, name='nilai-kelas-index'),
+    path('nilai/kelas/add/', views.nilai_kelas_add, name='nilai-kelas-add'),
+    path('nilai/kelas/view/<int:_id>/<str:_semester>/<int:_year_id>/',
+         views.nilai_kelas_view, name='nilai-kelas-view'),
+    path('nilai/kelas/delete/<int:_id>/<str:_semester>/<int:_year_id>/',
+         views.nilai_kelas_delete, name='nilai-kelas-delete'),
+    path('nilai/kelas/ajax/options/',
+         views.nilai_kelas_options, name='nilai-kelas-options'),
+    path('nilai/kelas/ajax/save/',
+         views.nilai_kelas_save, name='nilai-kelas-save'),
 ]

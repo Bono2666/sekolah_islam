@@ -41,7 +41,8 @@
 23. [Navigation & UI](#23-navigation--ui)
 24. [Error Handling Catalog](#24-error-handling-catalog)
 25. [Curriculum — Mata Pelajaran, Guru Mapel, Mapel Kelas, & Jadwal Pelajaran](#25-curriculum--mata-pelajaran-guru-mapel-mapel-kelas--jadwal-pelajaran)
-26. [Unimplemented Features Specs](#26-unimplemented-features-specs)
+26. [Assessment — Nilai Per Kelas](#26-assessment--nilai-per-kelas)
+27. [Unimplemented Features Specs](#27-unimplemented-features-specs)
 
 ---
 
@@ -1471,6 +1472,43 @@ GET /santri/ajax/district-autocomplete/?term=ban
 }
 ```
 
+### 22.4 Nilai Per Kelas
+
+**Endpoint: Opsi Guru & Mapel**
+
+| Aspek | Detail |
+|-------|--------|
+| URL | `/nilai/kelas/ajax/options/` |
+| Method | GET |
+| Parameter | `grade_id` |
+| Response | JSON `{data: [...]}` |
+
+**Response:**
+```json
+{
+    "data": [
+        {
+            "id": 12,
+            "teacher_id": "1",
+            "teacher_name": "Ustadz Abdurrahman",
+            "subject_id": "MT01",
+            "subject_name": "Al-Quran Hadits"
+        }
+    ]
+}
+```
+
+**Endpoint: Simpan Nilai**
+
+| Aspek | Detail |
+|-------|--------|
+| URL | `/nilai/kelas/ajax/save/` |
+| Method | POST |
+| Content-Type | `application/json` |
+| Header | `X-CSRFToken` |
+| Body | `teacher_subject`, `semester`, `school_year`, `scores: [{student_id, score1, score2, score3}]` |
+| Response | Sukses: `{"success": true, "count": n}`; Gagal: `{"success": false, "message": "..."}` + status 400/405 |
+
 ---
 
 ## 23. Navigation & UI
@@ -1534,6 +1572,9 @@ GET /santri/ajax/district-autocomplete/?term=ban
 | E-VAL-004 | "Minimal {n} karakter" | Kurang dari min length |
 | E-VAL-005 | "Nilai sudah ada" | Unique constraint |
 | E-VAL-006 | "Nilai tidak valid" | Invalid choice |
+| E-VAL-007 | "Nilai harus berupa angka" | Nilai bukan numerik saat simpan nilai |
+| E-VAL-008 | "Nilai harus antara 0 dan 100" | Nilai di luar rentang 0–100 |
+| E-VAL-009 | "Semester tidak valid" | Semester di luar pilihan 1/2 |
 
 ### 24.2 Business Logic Errors
 
@@ -1543,6 +1584,10 @@ GET /santri/ajax/district-autocomplete/?term=ban
 | E-BIZ-002 | "Data tidak dapat dihapus karena masih memiliki anggota" | Cascade constraint |
 | E-BIZ-003 | "User sudah terhubung ke data lain" | OneToOne constraint |
 | E-BIZ-004 | "Menu sudah di-assign ke user ini" | Unique constraint |
+| E-BIZ-005 | "Lengkapi semua filter lalu klik Search." | Filter nilai belum lengkap (US-078) |
+| E-BIZ-006 | "Guru tidak terdaftar untuk mapel dan kelas tersebut. Pilih kombinasi lain." | Tidak ada `TeacherSubject` untuk kombinasi filter (US-078) |
+| E-BIZ-007 | "Filter nilai tidak valid, silakan ulangi pencarian" | `TeacherSubject`/`SchoolYear` tidak ditemukan saat simpan (US-080) |
+| E-BIZ-008 | "Format data tidak valid" | Body JSON rusak pada `/nilai/kelas/ajax/save/` (US-080) |
 
 ### 24.3 System Errors
 
@@ -2261,13 +2306,160 @@ Sebagai admin, saya ingin mengekspor jadwal ke PDF agar bisa dicetak atau dibagi
 
 ---
 
-## 26. Unimplemented Features Specs
+## 26. Assessment — Nilai Per Kelas
 
-### 26.1 Penilaian (Assessment)
+**Status: ✅ Aktif** — Menu `NILAI-KELAS`, group sidebar **Penilaian**.
 
-**Status: Belum Diimplementasi**
+**Model (as-built):**
 
-**Model yang direncanakan:**
+```python
+class StudentScore(models.Model):
+    SEMESTER_CHOICES = [('1', 'Semester 1'), ('2', 'Semester 2')]
+
+    score_id = models.BigAutoField(primary_key=True)
+    teacher_subject = models.ForeignKey(TeacherSubject, on_delete=models.CASCADE,
+                                        related_name='teacher_subject_scores')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE,
+                                related_name='student_scores')
+    semester = models.CharField(max_length=1, choices=SEMESTER_CHOICES)
+    school_year = models.ForeignKey(SchoolYear, on_delete=models.PROTECT,
+                                    related_name='student_scores')
+    score1 = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Nilai 1')
+    score2 = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Nilai 2')
+    score3 = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Nilai 3')
+    entry_date = models.DateTimeField(null=True)
+    entry_by = models.CharField(max_length=50, null=True)
+    update_date = models.DateTimeField(null=True, blank=True)
+    update_by = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('teacher_subject', 'student', 'semester', 'school_year')
+```
+
+### 26.1 US-077: List Nilai Per Kelas
+
+**Story:**
+Sebagai admin, saya ingin melihat daftar kombinasi Kelas–Mapel–Guru–Semester–Tahun yang sudah memiliki nilai.
+
+**Acceptance Criteria:**
+1. URL: `/nilai/kelas/` (template `home/nilai_kelas_index.html`)
+2. Tabel kolom: Kelas, Sub Kelas, Guru, Mapel, Semester, Tahun
+3. Baris = kombinasi `(teacher_subject, semester, school_year)` yang minimal punya 1 `StudentScore` (di-dedup, urut kelas → sub kelas → guru → mapel → semester → tahun)
+4. DataTables client-side (paging "numbers", label Indonesia: "Cari:", "Tidak ada data"); klik baris → `/nilai/kelas/view/<teacher_subject>/<semester>/<year>/`
+5. Tombol **Tambah Nilai** → `/nilai/kelas/add/`; disabled bila `btn.add` false dan bukan superuser
+6. Tanpa data → satu baris "Belum ada data nilai" dengan **6 sel** (`<td>`, bukan `colspan`) agar kolom tetap sejajar dengan header
+
+### 26.2 US-078: Filter & Pencarian Nilai
+
+**Story:**
+Sebagai admin, saya ingin memilih kelas, guru, mapel, semester, dan tahun ajaran lalu mencari grid nilai yang akan diisi.
+
+**Acceptance Criteria:**
+1. URL: `/nilai/kelas/add/` — form GET `FormNilaiFilter` (Kelas, Sub Kelas, Semester, Tahun Ajaran, Guru, Mata Pelajaran); semua field `required=False`, wajib lengkap sebelum Search
+2. Cascading pilihan:
+   - Kelas → Sub Kelas (client-side dari `grades_json`, dedup kode kelas)
+   - Sub Kelas → `GET /nilai/kelas/ajax/options/?grade_id=` → rebuild daftar Guru & Mapel
+   - Guru → Mapel difilter sesuai guru terpilih
+   - Perubahan Kelas me-reset Sub Kelas, Guru, Mapel
+3. **Search** = submit GET dengan `search=1` → halaman dirender ulang oleh server
+4. Validasi server-side:
+   - Filter belum lengkap → `alert-danger` "Lengkapi semua filter lalu klik Search."
+   - Tidak ada `TeacherSubject` yang cocok → "Guru tidak terdaftar untuk mapel dan kelas tersebut. Pilih kombinasi lain."
+5. Grid nilai: kolom NIPD, Nama, Nilai 1, Nilai 2, Nilai 3; input `type=number min=0 max=100 step=0.01`, `data-student-id` per baris
+6. Santri diurutkan NIPD; kelas tanpa santri → "Tidak ada santri di kelas ini" (`colspan=5`)
+7. Data nilai yang sudah ada ditampilkan sebagai nilai terformat (Decimal dinormalisasi, tanpa nol berlebih, kosong = string kosong)
+
+### 26.3 US-079: Lihat Nilai (Mode Lihat)
+
+**Story:**
+Sebagai admin, saya ingin membuka nilai dalam mode baca-saja terlebih dahulu sebelum mengubahnya.
+
+**Acceptance Criteria:**
+1. URL: `/nilai/kelas/view/<teacher_subject>/<semester>/<year>/` — filter otomatis terisi (`search=1`), dibuka dalam **mode lihat**
+2. Input nilai `disabled`; judul sekunder "Klik Ubah untuk mengubah nilai"
+3. Tombol header: **Kembali** (`bg-gradient-dark`), **Search** (`bg-gradient-primary`), **Ubah** (dark, gating `btn.edit`), **Hapus** (danger, gating `btn.delete`); tombol **Simpan** & **Batal** tersembunyi
+4. `teacher_subject` tidak ada atau semester di luar `{1,2}` → redirect ke `/nilai/kelas/`
+5. Dari halaman Add setelah Search → langsung **mode edit**
+
+### 26.4 US-080: Edit & Simpan Nilai
+
+**Story:**
+Sebagai admin, saya ingin mengubah Nilai 1–3 seluruh santri kelas dan menyimpannya sekaligus.
+
+**Acceptance Criteria:**
+1. Klik **Ubah** (hanya bila `btn.edit`/superuser) → mode edit: input aktif, **Kembali**→**Batal**, **Ubah**→**Simpan**, **Hapus** disabled, hint "Ubah nilai lalu klik Simpan"
+2. Klik **Batal** → nilai dikembalikan ke `data-original` (nilai awal render) dan kembali mode lihat
+3. Klik **Simpan** → `POST /nilai/kelas/ajax/save/` (`contentType: application/json`, header `X-CSRFToken`)
+
+**Request:**
+```json
+{
+    "teacher_subject": 12,
+    "semester": "1",
+    "school_year": 3,
+    "scores": [
+        {"student_id": 11, "score1": "85.5", "score2": "", "score3": 90}
+    ]
+}
+```
+
+**Response (success):**
+```json
+{"success": true, "count": 1}
+```
+
+4. Validasi server-side (`@edit_required(allowed_menu='NILAI-KELAS')`):
+   - Bukan POST / JSON rusak → 405 / 400 "Format data tidak valid"
+   - Semester di luar `{1,2}` → 400 "Semester tidak valid"
+   - Nilai bukan angka → 400 "Nilai harus berupa angka"
+   - Nilai `< 0` atau `> 100` → 400 "Nilai harus antara 0 dan 100" (koma diterima, dikonversi ke titik)
+   - `student_id` bukan anggota kelas kombinasi tsb → baris dibuang diam-diam
+   - `TeacherSubject`/`SchoolYear` tidak ada → 400 "Filter nilai tidak valid, silakan ulangi pencarian"
+5. Penyimpanan **replace-all atomik** (`transaction.atomic()`): semua `StudentScore` kombinasi (teacher_subject, semester, school_year) dihapus lalu ditulis ulang dari baris yang minimal punya satu nilai — baris seluruh kolom kosong tidak dibuat
+6. Sukses → `alert('Nilai berhasil disimpan')` + `location.reload()`; gagal → `alert(message)` dari respons
+
+### 26.5 US-081: Hapus Nilai
+
+**Story:**
+Sebagai admin, saya ingin menghapus seluruh nilai satu kombinasi Kelas–Mapel–Guru–Semester–Tahun.
+
+**Acceptance Criteria:**
+1. Tombol **Hapus** membuka modal konfirmasi "Anda yakin ingin menghapus seluruh nilai untuk kombinasi ini?"
+2. Konfirmasi → `GET /nilai/kelas/delete/<teacher_subject>/<semester>/<year>/` → menghapus **semua** baris kombinasi → redirect ke list
+3. Disabled bila `btn.delete` false dan bukan superuser; disabled selama mode edit
+
+### 26.6 Field Validation Rules
+
+| Field | Tipe | Wajib | Validasi | Error Message |
+|-------|------|-------|----------|---------------|
+| score_id | BigAutoField | Otomatis | - | - |
+| teacher_subject | FK → TeacherSubject | Ya | Harus ada | "Filter nilai tidak valid, silakan ulangi pencarian" |
+| student | FK → Student | Ya | Harus anggota kelas | Baris dibuang |
+| semester | CharField(1) | Ya | `1` atau `2` | "Semester tidak valid" |
+| school_year | FK → SchoolYear | Ya | Harus ada | "Filter nilai tidak valid, silakan ulangi pencarian" |
+| score1/score2/score3 | Decimal(5,2) | Tidak | 0–100 | "Nilai harus berupa angka" / "Nilai harus antara 0 dan 100" |
+| unique | - | Ya | `(teacher_subject, student, semester, school_year)` | Diganti oleh replace-all |
+
+### 26.7 Endpoints
+
+| Operasi | URL | Method | Fungsi |
+|---------|-----|--------|--------|
+| Index | `/nilai/kelas/` | GET | Daftar kombinasi bernilai |
+| Add/Filter | `/nilai/kelas/add/` | GET | Form filter + grid entry |
+| View | `/nilai/kelas/view/<teacher_subject>/<semester>/<year>/` | GET | Detail (mode lihat) |
+| Delete | `/nilai/kelas/delete/<teacher_subject>/<semester>/<year>/` | GET | Hapus seluruh nilai kombinasi |
+| AJAX Options | `/nilai/kelas/ajax/options/?grade_id=` | GET | Guru & mapel per sub kelas (JSON) |
+| AJAX Save | `/nilai/kelas/ajax/save/` | POST | Simpan nilai (JSON, replace-all) |
+
+---
+
+## 27. Unimplemented Features Specs
+
+### 27.1 Penilaian (Assessment)
+
+**Status: Sebagian Diimplementasi** — Nilai Per Kelas (`NILAI-KELAS`) sudah aktif dengan model `StudentScore` (lihat §26). Masih backlog: **Nilai Per Asrama** (`NILAI-ASRAMA`) dan **Nilai Per Ekskul** (`NILAI-EKSKUL`).
+
+**Model yang direncanakan (untuk sub-modul yang belum ada):**
 
 ```python
 class Assessment(models.Model):
@@ -2281,7 +2473,7 @@ class Assessment(models.Model):
     school_year = models.ForeignKey(SchoolYear, on_delete=models.CASCADE)
 ```
 
-### 26.2 Keuangan (Finance)
+### 27.2 Keuangan (Finance)
 
 **Status: Belum Diimplementasi**
 
@@ -2305,7 +2497,7 @@ class Payment(models.Model):
     reference = models.CharField(max_length=100)
 ```
 
-### 26.3 Kegiatan Asrama (Hostel Activities)
+### 27.3 Kegiatan Asrama (Hostel Activities)
 
 **Status: Belum Diimplementasi**
 

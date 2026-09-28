@@ -921,15 +921,35 @@ desa/kelurahan, nama desa, nama kelurahan, ...
 
 ### 5.10 Penilaian
 
-**Status: Belum Diimplementasi**
-
-Menu yang direncanakan:
+**Status: Sebagian Diimplementasi** — Nilai Per Kelas sudah aktif; Nilai Per Asrama & Nilai Per Ekskul masih backlog (§10.2).
 
 | Sub-Modul | Menu ID | Status |
 |-----------|---------|--------|
-| Nilai Per Kelas | `NILAI-KELAS` | ❌ Belum diimplementasi |
+| Nilai Per Kelas | `NILAI-KELAS` | ✅ Aktif |
 | Nilai Per Asrama | `NILAI-ASRAMA` | ❌ Belum diimplementasi |
 | Nilai Per Ekskul | `NILAI-EKSKUL` | ❌ Belum diimplementasi |
+
+#### 5.10.1 Nilai Per Kelas (NILAI-KELAS) — ✅ Aktif
+
+Penilaian per **Guru × Mapel × Kelas × Semester × Tahun Ajaran** — satu baris `StudentScore` per santri untuk kombinasi tersebut.
+
+| Aspek | Detail |
+|-------|--------|
+| Model utama | `StudentScore` — `score1`/`score2`/`score3` (Decimal 5,2, boleh NULL), `unique_together` (`teacher_subject`, `student`, `semester`, `school_year`), audit `entry_by`/`update_by` via django-crum |
+| Model pendukung | `TeacherSubject`, `GradeSubject`, `Grade`, `Student`, `SchoolYear` |
+| Template | `home/nilai_kelas_index.html`, `home/nilai_kelas_entry.html` |
+| Sidebar | Group **Penilaian** → "Nilai Per Kelas" (`segment='nilai-kelas'`, `group_segment='penilaian'`) |
+| RBAC | `@role_required('NILAI-KELAS')` di semua rute; `@edit_required(allowed_menu='NILAI-KELAS')` untuk simpan & hapus; tombol mengikuti `btn.add/edit/delete` (superuser selalu boleh) |
+
+**Alur proses (As-Built):**
+
+1. **List** (`/nilai/kelas/`) — tabel Kelas, Sub Kelas, Guru, Mapel, Semester, Tahun; hanya kombinasi yang sudah punya nilai (di-dedup per `teacher_subject + semester + school_year`), DataTables client-side berbahasa Indonesia, klik baris → mode lihat. Tombol **Tambah Nilai** (gating `btn.add`).
+2. **Filter entry** (`/nilai/kelas/add/`) — form GET `FormNilaiFilter`: Kelas → Sub Kelas → Guru → Mata Pelajaran → Semester → Tahun Ajaran, lalu **Search**. Pilihan Guru/Mapel dibangun dari `TeacherSubject` sub kelas terpilih; di sisi klien cascading di-refresh lewat `GET /nilai/kelas/ajax/options/?grade_id=`.
+3. **Grid nilai** — baris = seluruh santri kelas (`Student.grade`, urut NIPD), kolom NIPD, Nama, Nilai 1–3 (`<input type="number" min="0" max="100" step="0.01">`).
+4. **Mode lihat vs edit** — dibuka dari list (`/nilai/kelas/view/<teacher_subject>/<semester>/<year>/`) → **mode lihat** (input `disabled`; tombol Kembali · Ubah · Hapus); setelah Search di halaman Tambah → **mode edit** (tombol Batal · Simpan). **Ubah** menyalakan input (hint "Ubah nilai lalu klik Simpan"), **Batal** mengembalikan nilai ke `data-original`, **Hapus** dinonaktifkan selama mode edit.
+5. **Simpan (AJAX)** — `POST /nilai/kelas/ajax/save/` body JSON `{teacher_subject, semester, school_year, scores: [{student_id, score1, score2, score3}]}` + header `X-CSRFToken`. Server memvalidasi semester ∈ {1,2}, nilai 0–100 (koma → titik), membuang student yang bukan anggota kelas, lalu **replace-all** dalam `transaction.atomic()` (hapus seluruh baris kombinasi → tulis ulang). Respons `{success: true, count: n}`; sukses → `alert` + reload halaman.
+6. **Hapus** — modal konfirmasi → `/nilai/kelas/delete/<teacher_subject>/<semester>/<year>/` menghapus **seluruh** `StudentScore` kombinasi tsb → redirect ke list.
+7. **Pesan filter** — "Lengkapi semua filter lalu klik Search." (filter belum lengkap); "Guru tidak terdaftar untuk mapel dan kelas tersebut. Pilih kombinasi lain." (tidak ada `TeacherSubject` yang cocok); "Filter nilai tidak valid, silakan ulangi pencarian" (400 saat simpan).
 
 ---
 
@@ -1517,6 +1537,19 @@ Semua komponen jadwal mendukung dark mode:
 │ group_code           │     │ subject_name (unique)│
 │ group_name           │     │ group → SubjectGroup │
 └──────────────────────┘     └──────────────────────┘
+
+┌──────────────────────┐
+│   StudentScore       │
+│ (score_id PK)        │
+│ teacher_subject →    │──┐
+│   TeacherSubject     │  │ unique
+│ student → Student    │  │ (teacher_subject,
+│ semester (1/2)       │  │  student, semester,
+│ school_year →        │──┘  school_year)
+│   SchoolYear         │
+│ score1/score2/score3 │
+│ entry_by, update_by  │
+└──────────────────────┘
 ```
 
 ### 6.2 Audit Trail
@@ -1678,7 +1711,18 @@ Menggunakan `django-crum` untuk otomatis mendapatkan current user.
 | `/kurikulum/jadwal/ajax/schedule-lesson/` | AJAX: Jadwalkan dari pool |
 | `/kurikulum/jadwal/ajax/delete-slot/` | AJAX: Hapus slot |
 
-### 7.5 AJAX Endpoints
+### 7.5 Penilaian Routes
+
+| URL Pattern | Fungsi |
+|-------------|--------|
+| `/nilai/kelas/` | List nilai per kelas |
+| `/nilai/kelas/add/` | Form filter & entry nilai |
+| `/nilai/kelas/view/<teacher_subject>/<semester>/<year>/` | Detail nilai (mode lihat) |
+| `/nilai/kelas/delete/<teacher_subject>/<semester>/<year>/` | Hapus nilai kombinasi |
+| `/nilai/kelas/ajax/options/` | AJAX: opsi guru & mapel per sub kelas |
+| `/nilai/kelas/ajax/save/` | AJAX: simpan nilai (replace-all) |
+
+### 7.6 AJAX Endpoints
 
 | URL | Method | Fungsi |
 |-----|--------|--------|
@@ -1701,8 +1745,10 @@ Menggunakan `django-crum` untuk otomatis mendapatkan current user.
 | `/kurikulum/jadwal/ajax/move-slot/` | POST | Pindahkan slot (drag-drop) |
 | `/kurikulum/jadwal/ajax/schedule-lesson/` | POST | Jadwalkan dari pool |
 | `/kurikulum/jadwal/ajax/delete-slot/` | POST | Hapus slot |
+| `/nilai/kelas/ajax/options/` | GET | Opsi guru & mapel per sub kelas (JSON) |
+| `/nilai/kelas/ajax/save/` | POST | Simpan nilai (JSON, replace-all) |
 
-### 7.6 Total Routes
+### 7.7 Total Routes
 
 **Total: 250+ URL patterns**
 
@@ -1738,7 +1784,7 @@ Menggunakan `django-crum` untuk otomatis mendapatkan current user.
    └── 📄 Ekstrakurikuler (EKSKUL)
 
 📁 Penilaian
-   ├── 📄 Nilai Per Kelas (NILAI-KELAS) ❌
+   ├── 📄 Nilai Per Kelas (NILAI-KELAS) ✅
    ├── 📄 Nilai Per Asrama (NILAI-ASRAMA) ❌
    └── 📄 Nilai Per Ekskul (NILAI-EKSKUL) ❌
 
@@ -1840,11 +1886,11 @@ Menggunakan `django-crum` untuk otomatis mendapatkan current user.
 
 ### 10.2 Penilaian
 
-| Fitur | Menu ID | Prioritas | Keterangan |
-|-------|---------|-----------|------------|
-| Nilai Per Kelas | `NILAI-KELAS` | Tinggi | Input & cetak nilai per kelas |
-| Nilai Per Asrama | `NILAI-ASRAMA` | Menengah | Nilai perkembangan di asrama |
-| Nilai Per Ekskul | `NILAI-EKSKUL` | Menengah | Nilai keikutsertaan ekskul |
+| Fitur | Menu ID | Prioritas | Status | Keterangan |
+|-------|---------|-----------|--------|------------|
+| Nilai Per Kelas | `NILAI-KELAS` | Tinggi | ✅ Aktif | Input, ubah, hapus & lihat nilai per kelas (§5.10.1) |
+| Nilai Per Asrama | `NILAI-ASRAMA` | Menengah | ❌ Belum | Nilai perkembangan di asrama |
+| Nilai Per Ekskul | `NILAI-EKSKUL` | Menengah | ❌ Belum | Nilai keikutsertaan ekskul |
 
 ### 10.3 Keuangan
 
@@ -1868,7 +1914,7 @@ Menggunakan `django-crum` untuk otomatis mendapatkan current user.
 | REST API (DRF) | Menengah | Saat ini commented out di requirements.txt |
 | Notification System | Menengah | Saat ini commented out di codebase |
 | Unit Tests | Tinggi | Saat ini tests.py kosong |
-| Refactor views.py | Tinggi | ~5,500 baris dalam satu file |
+| Refactor views.py | Tinggi | ~6,300 baris dalam satu file |
 | Environment Variables | Tinggi | Password hardcoded di settings.py |
 | Multi-Room Support | Menengah | Perluas auto-generate untuk multi-ruangan |
 
@@ -1894,7 +1940,7 @@ Item berikut adalah backlog peningkatan algoritma auto-generate (§5.12.12) — 
 
 ### 11.1 Monolithic Architecture
 
-**Issue:** `apps/views.py` memiliki ~5,500 baris kode dalam satu file.
+**Issue:** `apps/views.py` memiliki ~6,300 baris kode dalam satu file.
 
 **Impact:** Sulit untuk maintain, debug, dan extend.
 
@@ -2003,8 +2049,8 @@ sekolah_islam/
 │   └── asgi.py
 ├── apps/
 │   ├── models.py          (~1,200 lines)
-│   ├── views.py           (~5,500 lines)
-│   ├── forms.py           (~1,800 lines)
+│   ├── views.py           (~6,300 lines)
+│   ├── forms.py           (~2,100 lines)
 │   ├── urls.py            (~320 lines)
 │   ├── validators.py
 │   ├── mail.py
@@ -2012,11 +2058,11 @@ sekolah_islam/
 │   ├── notifications.py   (commented out)
 │   ├── templates/
 │   │   ├── accounts/login.html
-│   │   ├── home/          (90+ template files)
+│   │   ├── home/          (116 template files)
 │   │   ├── layouts/
 │   │   └── includes/
 │   ├── templatetags/
-│   ├── migrations/        (28+ migration files)
+│   ├── migrations/        (39 migration files)
 │   ├── fixtures/
 │   │   └── setup_data.json
 │   ├── static/

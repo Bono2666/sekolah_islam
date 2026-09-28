@@ -20,9 +20,15 @@
                 </div>
 
                 {% if message %}
+                {% if message_type == 'success' %}
+                <div class="alert bg-gradient-primary text-white text-sm py-2" role="alert">
+                    {{ message }}
+                </div>
+                {% else %}
                 <div class="alert text-{{ message_type|default:'info' }} text-bg-light text-sm py-2" role="alert">
                     {{ message }}
                 </div>
+                {% endif %}
                 {% endif %}
 
                 {% if import_errors %}
