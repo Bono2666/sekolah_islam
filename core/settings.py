@@ -83,14 +83,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sekolah',
-        'USER': 'root',
-        'PASSWORD': '',
-        # 'NAME': 'ksis8742_sekolah',
-        # 'USER': 'ksis8742_sekolah',
-        # 'PASSWORD': 'QAceafffqo%U,Tda',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.environ.get('DB_NAME', 'sekolah'),
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
     }
 }
 if os.environ.get('DATABASE_URL'):
@@ -134,7 +131,7 @@ USE_L10N = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'apps/staticfiles/')
 STATICFILES_DIRS = os.path.join(BASE_DIR, 'apps/static/'),
-STATIC_URL = 'apps/static/'
+STATIC_URL = '/apps/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

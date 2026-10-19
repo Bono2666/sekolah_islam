@@ -18,6 +18,12 @@ class Migration(migrations.Migration):
                 to='apps.gradesubject',
             ),
         ),
+        # unique_together lama (teacher, grade, subject) harus dilepas SEBELUM
+        # kolom grade/subject dihapus, agar index-nya masih bisa ditemukan.
+        migrations.AlterUniqueTogether(
+            name='teachersubject',
+            unique_together={('grade_subject', 'teacher')},
+        ),
         migrations.RemoveField(
             model_name='teachersubject',
             name='grade',
@@ -25,9 +31,5 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='teachersubject',
             name='subject',
-        ),
-        migrations.AlterUniqueTogether(
-            name='teachersubject',
-            unique_together={('grade_subject', 'teacher')},
         ),
     ]
