@@ -91,5 +91,9 @@ target/
 __pycache__/
 settings.py
 
+# Hasil collectstatic (build output) - jangan di-commit, biar selalu dibuat
+# ulang oleh `manage.py collectstatic` saat deploy
+apps/staticfiles/
+
 .env
 db.sqlite3

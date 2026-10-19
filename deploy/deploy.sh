@@ -19,7 +19,7 @@ tar czf - \
   --exclude='./.git' --exclude='*/__pycache__' --exclude='*.pyc' --exclude='.DS_Store' \
   --exclude='./._*' --exclude='*/._*' \
   --exclude='./.idea' --exclude='./.vscode' --exclude='./stderr.log' --exclude='./.env' \
-  --exclude='./apps/media' \
+  --exclude='./apps/media' --exclude='./apps/staticfiles' \
   -C "$SRC_DIR" . | ssh "$REMOTE" "set -e
     cd '$APP_DIR'
     # bersihkan isi lama; simpan .git/tmp/public/passenger_wsgi/stderr.log
@@ -44,8 +44,8 @@ ssh "$REMOTE" "set -e
   [ -e static ] || ln -s '$APP_DIR/apps/staticfiles' static
   echo '    symlink OK'"
 
-echo "==> [4/6] collectstatic"
-ssh "$REMOTE" "$VENV/bin/python '$APP_DIR/manage.py' collectstatic --noinput | tail -2"
+echo "==> [4/6] collectstatic (--clear: buang hasil lama agar tidak ada aset basi)"
+ssh "$REMOTE" "$VENV/bin/python '$APP_DIR/manage.py' collectstatic --noinput --clear | tail -2"
 
 echo "==> [5/6] Restart Passenger"
 ssh "$REMOTE" "mkdir -p '$APP_DIR/tmp' && touch '$APP_DIR/tmp/restart.txt' && echo '    restart OK'"
