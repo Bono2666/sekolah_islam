@@ -40,8 +40,10 @@ ssh "$REMOTE" "$VENV/bin/pip install -q -r '$APP_DIR/requirements.txt' && echo '
 echo "==> [3/6] Siapkan symlink static di docroot"
 ssh "$REMOTE" "set -e
   cd '$DOCROOT'
-  [ -e apps/static ] || ln -s '$APP_DIR/apps/staticfiles' apps/static
-  [ -e static ] || ln -s '$APP_DIR/apps/staticfiles' static
+  # -L dulu: symlink lama yang targetnya (staticfiles) belum dibuat ulang
+  # tetap dianggap sah, jangan dibuat tumpang tindih
+  [ -L apps/static ] || [ -e apps/static ] || ln -s '$APP_DIR/apps/staticfiles' apps/static
+  [ -L static ] || [ -e static ] || ln -s '$APP_DIR/apps/staticfiles' static
   echo '    symlink OK'"
 
 echo "==> [4/6] collectstatic (--clear: buang hasil lama agar tidak ada aset basi)"
